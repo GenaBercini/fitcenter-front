@@ -1,0 +1,136 @@
+/* App.css (o index.css si lo prefieres) */
+
+/* 1. Reset de márgenes y paddings */
+:root {
+  background-color: #fff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 2. Evita zoom raro en móviles */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+/* 3. Tamaños base y fuente limpia */
+body {
+  font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /*max-width: 1200px;    */
+  margin: 0 auto;           
+  /*padding: 0 30px;*/
+  background-color: #fff; /* Fondo blanco minimalista */
+  color: #333;   
+}
+
+/* 4. Imágenes fluidas */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* 5. Enlaces sin decoración */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 6. Listas sin estilos */
+ul,
+ol {
+  list-style: none;
+}
+
+/* 7. Botones sin bordes locos */
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* 8. Inputs y selects bonitos */
+input,
+select,
+textarea {
+  font: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+/* 9. Ajuste universal de tipografía */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+}
+
+/* 10. Full-width garantizado para el layout base */
+#root,
+.App {
+  width: 100%;
+}
+
+/*Panel socio*/
+
+/* 11. estilos generales de la aplicación */
+.App {
+  text-align: center;
+}
+
+/* 12. Logo de la aplicación */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+/* 13. Animación del logo */
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+/* 14. Encabezado de la aplicación */
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+/* 15. Enlaces de la aplicación */
+.App-link {
+  color: #61dafb;
+}
+
+/* 16. Animación del logo */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

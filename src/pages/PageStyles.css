@@ -1,0 +1,29 @@
+.page-container {
+  padding: 20px;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #fdfbff;
+  color: #333;
+  min-height: 100vh;
+}
+
+.page-container h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pink-text {
+  color: #e91e63;
+}
+
+.icon {
+  color: #e91e63;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
