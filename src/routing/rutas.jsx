@@ -43,9 +43,9 @@ export const rutas = [
     <Route path="/profile" element={<HomeView />} />
 
     <Route path="/perfil" element={<UserProfile />} />
-    <Route path="/turno" element={<Turnos />} />
+    {/* <Route path="/turno" element={<Turnos />} />
     <Route path="/agendados" element={<TurnosAgendados />} />
-    <Route path="/historial" element={<HistorialCompra />} />
+    <Route path="/historial" element={<HistorialCompra />} /> */}
       
     <Route path="/dashboard/*" element={<Dashboard/>}>
       <Route path="branches" element={<Branches />} />

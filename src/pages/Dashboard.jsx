@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
-import Acordion from '../components/Dashboard/Accordion';
+import Demo from '../components/Dashboard/Accordion';
 import {
   Box,
   Flex,
@@ -64,7 +64,7 @@ const Dashboard = () => {
         <VStack align="start" spacing={4}>
           <Box h="1" bg="gray.600" w="100%" />
 
-          <Acordion/>
+          <Demo/>
         </VStack>
       </Box>
 

@@ -3,87 +3,51 @@
 import {
   Box,
   Button,
-  ButtonGroup,
   Flex,
   Heading,
-  IconButton,
-  Pagination,
   Stack,
   Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
 } from "@chakra-ui/react"
-import { FaEdit } from "react-icons/fa"
-import { LuChevronLeft, LuChevronRight } from "react-icons/lu"
+import AddProduct from "../components/Dashboard/AddProduct";
 
 const Products = () => {
   return (
-    <Box
-    bg={"white"}
-    p={3}
-    borderRadius={"10px"}>
-
+    <Box bg={"white"} p={3} borderRadius={"10px"}>
       <Stack width="full" gap="5">
+        <Flex justifyContent={"space-between"}>
+          <Heading size="xl">Products</Heading>
+          <AddProduct/>
+        </Flex>
 
-      <Flex
-      justifyContent={"space-between"}
-      >
-        <Heading size="xl">Products</Heading>
-        <Button bgColor={"black"}>Add product</Button>
-      </Flex>
-      
-      
+        <Table size="md" variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Product</Th>
+              <Th>Category</Th>
+              <Th>Price</Th>
+              <Th>Edit</Th>
+            </Tr>
+          </Thead>
 
-      <Table.Root size="xl" variant="outline" showColumnBorder rounded="md" interactive>
-
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader>Product</Table.ColumnHeader>
-            <Table.ColumnHeader>Category</Table.ColumnHeader>
-            <Table.ColumnHeader>Price</Table.ColumnHeader>
-            <Table.ColumnHeader>Edit</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-
-        <Table.Body>
-          {items.map((item) => (
-            <Table.Row key={item.id}>
-              <Table.Cell>{item.name}</Table.Cell>
-              <Table.Cell>{item.category}</Table.Cell>
-              <Table.Cell>{item.price}</Table.Cell>
-              <Table.Cell>Edit</Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-
-      </Table.Root>
-
-
-
-
-      <Pagination.Root count={items.length * 5} pageSize={5} page={1}>
-        <ButtonGroup variant="ghost" size="sm" wrap="wrap">
-          <Pagination.PrevTrigger asChild>
-            <IconButton>
-              <LuChevronLeft />
-            </IconButton>
-          </Pagination.PrevTrigger>
-
-          <Pagination.Items
-            render={(page) => (
-              <IconButton variant={{ base: "ghost", _selected: "outline" }}>
-                {page.value}
-              </IconButton>
-            )}
-          />
-
-          <Pagination.NextTrigger asChild>
-            <IconButton>
-              <LuChevronRight />
-            </IconButton>
-          </Pagination.NextTrigger>
-        </ButtonGroup>
-      </Pagination.Root>
-
-    </Stack>
+          <Tbody>
+            {items.map((item) => (
+              <Tr key={item.id}>
+                <Td>{item.name}</Td>
+                <Td>{item.category}</Td>
+                <Td>${item.price}</Td>
+                <Td>
+                  <Button size="sm" colorScheme="blue">Edit</Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </Stack>
     </Box>
   )
 }

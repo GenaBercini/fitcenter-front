@@ -19,7 +19,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import Swal from "sweetalert2";
-// import MembershipPlan from "../components/Landing/MembershipPlan";
+import MembershipPlan from "../pages/MembershipPlan";
 import InstructorsSection from "../components/Landing/InstructorsSection";
 import ProductsSection from "../components/Landing/ProductsSection";
 import AuthModal from "../components/Landing/AuthModal";
