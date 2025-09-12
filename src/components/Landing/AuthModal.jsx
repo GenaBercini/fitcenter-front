@@ -48,7 +48,7 @@ export default function AuthModal() {
       apellido: "",
       direccion: "",
       celular: "",
-      imagen: "https://bit.ly/broken-link", // imagen por defecto
+      imagen: "https://cgkwvxeecaiaejwsuurm.supabase.co/storage/v1/object/public/user-images/public/4b194a8e-e783-4d30-8da4-3719363e89a8.png", // imagen por defecto
       nroMatricula: "",
       tipoProfesor: false,
     });
@@ -167,8 +167,7 @@ export default function AuthModal() {
     }
   };
 
-  const handleCloseModal = () => {
-    setIsLogin(true);
+  const handleChangeRole = () => {
     handleResetForm({
       email: "",
       password: "",
@@ -180,8 +179,25 @@ export default function AuthModal() {
       nroMatricula: "",
       tipoProfesor: false,
     });
+    setTabIndex(tabIndex === 0 ? 1 : 0);
+
+  }
+
+  const handleCloseModal = () => {
+    setIsLogin(true);
     setTabIndex(0);
     closeAuthModal();
+    handleResetForm({
+      email: "",
+      password: "",
+      nombre: "",
+      apellido: "",
+      direccion: "",
+      celular: "",
+      imagen: "",
+      nroMatricula: "",
+      tipoProfesor: false,
+    });
   };
 
   return (
@@ -219,7 +235,7 @@ export default function AuthModal() {
             ) : (
               <Tabs
                 index={tabIndex}
-                onChange={setTabIndex}
+                onChange={handleChangeRole}
                 variant="soft-rounded"
                 colorScheme="blue"
                 isFitted
