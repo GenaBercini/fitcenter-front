@@ -16,7 +16,7 @@ import Dashboard from "../pages/Dashboard";
 import Branches from "../pages/Branches";
 import Memberships from "../pages/Memberships";
 import Administrators from "../pages/Administrators";
-import Bookings from "../pages/Bookings";
+import Activities from "../pages/Activities";
 import Categories from "../pages/Categories";
 import Classes from "../pages/Classes";
 import Clients from "../pages/Clients";
@@ -28,9 +28,8 @@ import Professors from "../pages/Professors";
 import Profile from "../pages/Profile";
 import Routines from "../pages/Routines";
 
-
 import { ProtectedRoute } from "./ProtectedRoute";
-
+import { Activity } from "react";
 
 export const rutas = [
   <>
@@ -40,18 +39,17 @@ export const rutas = [
     <Route path="/blog" element={<Blog />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/cart" element={<Cart />} />
-    <Route path="/profile" element={<HomeView />} />
 
     <Route path="/perfil" element={<UserProfile />} />
     {/* <Route path="/turno" element={<Turnos />} />
     <Route path="/agendados" element={<TurnosAgendados />} />
     <Route path="/historial" element={<HistorialCompra />} /> */}
-      
-    <Route path="/dashboard/*" element={<Dashboard/>}>
+
+    <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="branches" element={<Branches />} />
       <Route path="memberships" element={<Memberships />} />
       <Route path="administrators" element={<Administrators />} />
-      <Route path="bookings" element={<Bookings />} />
+
       <Route path="categories" element={<Categories />} />
       <Route path="classes" element={<Classes />} />
       <Route path="clients" element={<Clients />} />
@@ -64,12 +62,15 @@ export const rutas = [
       <Route path="routines" element={<Routines />} />
     </Route>
 
+    <Route path="/profile" element={<HomeView />} />
+    <Route path="/activities" element={<Activities />} />
     <Route path="/users" element={<UserProfile />} />
     <Route path="/booking" element={<Booking />} />
-    <Route path="/agendados" element={<ScheduledAppoiments />} />
+    {/* <Route path="/agendados" element={<ScheduledAppoiments />} /> */}
     <Route path="/historial" element={<PurchaseHistory />} />
-    <Route path="/turns" element={<Turns />} />
+    {/* <Route path="/turns" element={<Turns />} /> */}
     {/* Rutas privadas */}
+
     <Route element={<ProtectedRoute />}></Route>
   </>,
 ];

@@ -121,7 +121,7 @@ function HomeView() {
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaCalendarPlus size={28} color="#E91E63" />
-          <Text mt={2}>Reservar</Text>
+          <Text mt={2}>Reservar turno</Text>
         </Flex>
 
         <Flex
@@ -133,11 +133,11 @@ function HomeView() {
           flexDir="column"
           shadow="md"
           cursor="pointer"
-          onClick={() => navigate("/agendados")}
+          onClick={() => navigate("/activities")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaClipboardList size={28} color="#E91E63" />
-          <Text mt={2}>Turnos</Text>
+          <Text mt={2}>Actividades</Text>
         </Flex>
 
         <Flex
