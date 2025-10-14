@@ -19,7 +19,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 
-function ActivitiesLanding() {
+function Activities() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedActivity, setSelectedActivity] = useState(null);
@@ -65,16 +65,53 @@ function ActivitiesLanding() {
     onOpen();
   };
 
-  // 🔹 Confirmar inscripción con fetch
+  // // 🔹 Confirmar inscripción con fetch
+  // const confirmInscription = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:3000/inscriptions", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         activityId: selectedActivity.id,
+  //         userName: "Test User", // luego reemplazamos por el usuario real
+  //       }),
+  //     });
+
+  //     if (!res.ok) {
+  //       const errorMsg = await res.text();
+  //       alert(errorMsg);
+  //       return;
+  //     }
+
+  //     alert(`¡Inscripción confirmada en ${selectedActivity.name}!`);
+  //     onClose();
+
+  //     // 🔹 volver a traer actividades con el cupo actualizado
+  //     const updatedRes = await fetch("http://localhost:3000/activities");
+  //     const updatedData = await updatedRes.json();
+  //     setActivities(updatedData);
+  //   } catch (err) {
+  //     alert("Error al inscribirse");
+  //   }
+  // };
+
   const confirmInscription = async () => {
     try {
-      const res = await fetch("http://localhost:3000/inscriptions", {
+      const userRes = await fetch("http://localhost:3000/users/session", {
+        credentials: "include",
+      });
+      const userData = await userRes.json();
+      const userId = userData?.data?.id;
+
+      const res = await fetch("http://localhost:3000/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          userId,
           activityId: selectedActivity.id,
-          userName: "Test User", // luego reemplazamos por el usuario real
+          type: "activity",
         }),
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -86,12 +123,12 @@ function ActivitiesLanding() {
       alert(`¡Inscripción confirmada en ${selectedActivity.name}!`);
       onClose();
 
-      // 🔹 volver a traer actividades con el cupo actualizado
+      // Recargar actividades actualizadas
       const updatedRes = await fetch("http://localhost:3000/activities");
       const updatedData = await updatedRes.json();
       setActivities(updatedData);
     } catch (err) {
-      alert("Error al inscribirse");
+      alert("Error al inscribirse en la actividad");
     }
   };
 
@@ -176,4 +213,4 @@ function ActivitiesLanding() {
   );
 }
 
-export default ActivitiesLanding;
+export default Activities;

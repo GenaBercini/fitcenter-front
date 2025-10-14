@@ -7,10 +7,8 @@ import About from "../pages/About";
 import Blog from "../pages/Blog";
 import Contact from "../pages/Contact";
 import UserProfile from "../pages/UserProfile";
-import Booking from "../pages/Booking";
-import ScheduledAppoiments from "../pages/ScheduledAppointments";
+import Schedule from "../pages/Schedule";
 import PurchaseHistory from "../pages/PurchaseHistory";
-import Turns from "../components/Landing/Turns";
 import Dashboard from "../pages/Dashboard";
 
 import Branches from "../pages/Branches";
@@ -41,15 +39,11 @@ export const rutas = [
     <Route path="/cart" element={<Cart />} />
 
     <Route path="/perfil" element={<UserProfile />} />
-    {/* <Route path="/turno" element={<Turnos />} />
-    <Route path="/agendados" element={<TurnosAgendados />} />
-    <Route path="/historial" element={<HistorialCompra />} /> */}
 
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="branches" element={<Branches />} />
       <Route path="memberships" element={<Memberships />} />
       <Route path="administrators" element={<Administrators />} />
-
       <Route path="categories" element={<Categories />} />
       <Route path="classes" element={<Classes />} />
       <Route path="clients" element={<Clients />} />
@@ -65,10 +59,8 @@ export const rutas = [
     <Route path="/profile" element={<HomeView />} />
     <Route path="/activities" element={<Activities />} />
     <Route path="/users" element={<UserProfile />} />
-    <Route path="/booking" element={<Booking />} />
-    {/* <Route path="/agendados" element={<ScheduledAppoiments />} /> */}
+    <Route path="/schedule" element={<Schedule />} />
     <Route path="/historial" element={<PurchaseHistory />} />
-    {/* <Route path="/turns" element={<Turns />} /> */}
     {/* Rutas privadas */}
 
     <Route element={<ProtectedRoute />}></Route>
