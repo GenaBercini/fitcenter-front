@@ -18,6 +18,7 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { useCart } from "./cartContext.jsx";
 
 export default function ProductDetail({
   isOpen,
@@ -26,14 +27,24 @@ export default function ProductDetail({
   onAddToCart,
 }) {
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart()
 
   if (!product) return null;
 
-  const handleAdd = () => {
-    onAddToCart({ ...product, quantity });
+  const handleAdd = async () => {
+  try {
+    await fetch("http://localhost:3000/api/cart/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: product.id, quantity }),
+    });
+    addToCart({ ...product, quantity });
     setQuantity(1);
     onClose();
-  };
+  } catch (error) {
+    console.error("Error agregando al carrito:", error);
+  }
+};
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
