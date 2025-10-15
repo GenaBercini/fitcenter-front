@@ -18,59 +18,25 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
+  HStack,
 } from "@chakra-ui/react";
 
 function Schedule() {
   const [schedules, setSchedules] = useState([]);
   const [filteredSchedules, setFilteredSchedules] = useState([]);
   const [selectedDay, setSelectedDay] = useState("");
-  const [userTurns, setUserTurns] = useState([]); // turnos del usuario (por día)
+  const [userTurns, setUserTurns] = useState([]);
+  const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalType, setModalType] = useState("confirm");
 
   const bgCard = useColorModeValue("white", "gray.700");
 
-  // // 🔹 Fetch de turnos
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       // Traer usuario en sesión
-  //       const userRes = await fetch("http://localhost:3000/users/session", {
-  //         credentials: "include",
-  //       });
-  //       const userData = await userRes.json();
-  //       const userId = userData?.data?.id;
-
-  //       // Traer todos los turnos
-  //       const res = await fetch("http://localhost:3000/schedule");
-  //       const data = await res.json();
-
-  //       setSchedules(data);
-  //       setFilteredSchedules(data);
-
-  //       // Simular que ya tiene un turno (cuando se conecte real, esto vendrá del backend)
-  //       if (userId) {
-  //         const scheduleRes = await fetch(
-  //           `http://localhost:3000/schedules/user/${userId}`
-  //         );
-  //         const userSchedule = await scheduleRes.json();
-  //         if (userSchedule?.data) {
-  //           setUserTurns([userSchedule.data.day]); // guardamos el día ocupado
-  //         }
-  //       }
-  //     } catch (err) {
-  //       console.error("Error al cargar turnos:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
+  //  Cargar usuario + turnos
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -78,23 +44,26 @@ function Schedule() {
           credentials: "include",
         });
         const userData = await userRes.json();
-        const userId = userData?.data?.id;
+        const id = userData?.data?.id;
+        setUserId(id);
 
-        const res = await fetch("http://localhost:3000/schedule");
-        const data = await res.json();
-        setSchedules(data);
-        setFilteredSchedules(data);
+        const schRes = await fetch("http://localhost:3000/schedule");
+        const schData = await schRes.json();
+        setSchedules(schData);
+        setFilteredSchedules(schData);
 
-        // Obtener turnos del usuario desde inscripciones
-        if (userId) {
-          const insRes = await fetch(
-            `http://localhost:3000/inscription/${userId}`
-          );
+        if (id) {
+          const insRes = await fetch(`http://localhost:3000/inscription/${id}`);
           const insData = await insRes.json();
-          const userSchedules = insData.data
+          const turns = insData.data
             .filter((i) => i.type === "schedule")
-            .map((i) => i.Schedule.day);
-          setUserTurns(userSchedules);
+            .map((i) => ({
+              id: i.id,
+              day: i.Schedule.day,
+              startTime: i.Schedule.startTime,
+              endTime: i.Schedule.endTime,
+            }));
+          setUserTurns(turns);
         }
       } catch (err) {
         console.error("Error al cargar turnos:", err);
@@ -106,7 +75,12 @@ function Schedule() {
     fetchData();
   }, []);
 
-  // 🔹 Filtrar por día
+  const showFeedback = (type, message) => {
+    setFeedback({ type, message });
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
+  //  Filtrar por día
   const handleDayChange = (e) => {
     const day = e.target.value;
     setSelectedDay(day);
@@ -117,7 +91,7 @@ function Schedule() {
     }
   };
 
-  // 🔹 Abrir modal de inscripción
+  // Abrir modal de inscripción
   const handleInscription = (schedule) => {
     setSelectedSchedule(schedule);
     if (schedule.capacity > 0) {
@@ -128,53 +102,24 @@ function Schedule() {
     onOpen();
   };
 
-  // 🔹 Confirmar inscripción
-  // const confirmInscription = async () => {
-  //   try {
-  //     const res = await fetch("http://localhost:3000/inscriptions", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         type: "schedule",
-  //         scheduleId: selectedSchedule.id,
-  //         userName: "Test User", // luego se reemplaza por el real
-  //       }),
-  //     });
-
-  //     if (!res.ok) {
-  //       const msg = await res.text();
-  //       alert(msg);
-  //       return;
-  //     }
-
-  //     alert(`¡Te inscribiste al turno del ${selectedSchedule.day}!`);
-  //     onClose();
-
-  //     // 🔹 Refrescar datos
-  //     const updatedRes = await fetch("http://localhost:3000/schedule");
-  //     const updatedData = await updatedRes.json();
-  //     setSchedules(updatedData);
-  //     setFilteredSchedules(
-  //       selectedDay
-  //         ? updatedData.filter((s) => s.day === selectedDay)
-  //         : updatedData
-  //     );
-
-  //     // Guardar el día ocupado
-  //     setUserTurns((prev) => [...prev, selectedSchedule.day]);
-  //   } catch (err) {
-  //     alert("Error al inscribirse al turno");
-  //   }
-  // };
-
+  //  Confirmar inscripción
   const confirmInscription = async () => {
-    try {
-      const userRes = await fetch("http://localhost:3000/users/session", {
-        credentials: "include",
-      });
-      const userData = await userRes.json();
-      const userId = userData?.data?.id;
+    if (userTurns.length >= 3) {
+      showFeedback(
+        "error",
+        "Ya tienes 3 turnos activos. No puedes inscribirte a más."
+      );
+      onClose();
+      return;
+    }
 
+    if (userTurns.some((t) => t.day === selectedSchedule.day)) {
+      showFeedback("error", "Ya tienes un turno asignado para este día.");
+      onClose();
+      return;
+    }
+
+    try {
       const res = await fetch("http://localhost:3000/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -186,16 +131,28 @@ function Schedule() {
         credentials: "include",
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const msg = await res.text();
-        alert(msg);
+        showFeedback("error", data.message || "Error al inscribirse al turno");
         return;
       }
 
-      alert(`¡Te inscribiste al turno del ${selectedSchedule.day}!`);
+      showFeedback(
+        "success",
+        `Inscripción confirmada al turno del ${selectedSchedule.day} (${selectedSchedule.startTime}-${selectedSchedule.endTime})`
+      );
       onClose();
+      setUserTurns((prev) => [
+        ...prev,
+        {
+          id: data.inscription.id,
+          day: selectedSchedule.day,
+          startTime: selectedSchedule.startTime,
+          endTime: selectedSchedule.endTime,
+        },
+      ]);
 
-      // Actualizar lista
+      // Actualizar capacidad
       const updatedRes = await fetch("http://localhost:3000/schedule");
       const updatedData = await updatedRes.json();
       setSchedules(updatedData);
@@ -204,9 +161,37 @@ function Schedule() {
           ? updatedData.filter((s) => s.day === selectedDay)
           : updatedData
       );
-      setUserTurns((prev) => [...prev, selectedSchedule.day]);
     } catch (err) {
-      alert("Error al inscribirse al turno");
+      showFeedback("error", "Error al inscribirse al turno");
+    }
+  };
+
+  //  Cancelar inscripción
+  const handleCancelTurn = async (turnId) => {
+    try {
+      const res = await fetch(`http://localhost:3000/inscription/${turnId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        showFeedback("error", data.message || "Error al cancelar el turno");
+        return;
+      }
+
+      showFeedback("success", "Turno cancelado con éxito");
+      setUserTurns((prev) => prev.filter((t) => t.id !== turnId));
+
+      const updatedRes = await fetch("http://localhost:3000/schedule");
+      const updatedData = await updatedRes.json();
+      setSchedules(updatedData);
+      setFilteredSchedules(
+        selectedDay
+          ? updatedData.filter((s) => s.day === selectedDay)
+          : updatedData
+      );
+    } catch (err) {
+      showFeedback("error", "Error al cancelar el turno");
     }
   };
 
@@ -225,7 +210,30 @@ function Schedule() {
     <Box p={6}>
       <Heading mb={6}>Turnos Disponibles</Heading>
 
-      {/* 🔹 Filtro por día */}
+      {/*  Cartel verde con los turnos actuales */}
+      {userTurns.length > 0 && (
+        <Alert status="success" borderRadius="md" mb={3}>
+          <AlertIcon />
+          Estás inscripto en:
+          <Box ml={2}>
+            {userTurns.map((t) => (
+              <Text key={t.id}>
+                {t.day}: {t.startTime} - {t.endTime}
+              </Text>
+            ))}
+          </Box>
+        </Alert>
+      )}
+
+      {/*  Feedback de acciones */}
+      {feedback && (
+        <Alert status={feedback.type} borderRadius="md" mb={4}>
+          <AlertIcon />
+          {feedback.message}
+        </Alert>
+      )}
+
+      {/*  Filtro */}
       <Select
         placeholder="Filtrar por día"
         value={selectedDay}
@@ -233,6 +241,7 @@ function Schedule() {
         mb={6}
         maxW="250px"
       >
+        {/* <option value="">Todos</option> */}
         <option value="Lunes">Lunes</option>
         <option value="Martes">Martes</option>
         <option value="Miércoles">Miércoles</option>
@@ -242,9 +251,17 @@ function Schedule() {
         <option value="Domingo">Domingo</option>
       </Select>
 
+      {/* Lista de turnos */}
       <VStack spacing={6} align="stretch">
         {filteredSchedules.map((schedule) => {
-          const hasTurn = userTurns.includes(schedule.day);
+          const hasTurn = userTurns.some((t) => t.day === schedule.day);
+          const currentTurn = userTurns.find(
+            (t) =>
+              t.day === schedule.day &&
+              t.startTime === schedule.startTime &&
+              t.endTime === schedule.endTime
+          );
+
           return (
             <Flex
               key={schedule.id}
@@ -257,26 +274,40 @@ function Schedule() {
             >
               <Box>
                 <Text fontSize="lg" fontWeight="bold">
-                  Día: {schedule.day}
+                  {schedule.day}
                 </Text>
                 <Text>
                   Horario: {schedule.startTime} - {schedule.endTime}
                 </Text>
                 <Text>Cupo disponible: {schedule.capacity}</Text>
               </Box>
-              <Button
-                colorScheme="pink"
-                onClick={() => handleInscription(schedule)}
-                isDisabled={hasTurn}
-              >
-                {hasTurn ? "Ya tenés turno ese día" : "Inscribirse"}
-              </Button>
+
+              {currentTurn ? (
+                <Button
+                  colorScheme="red"
+                  onClick={() => handleCancelTurn(currentTurn.id)}
+                >
+                  Cancelar turno
+                </Button>
+              ) : (
+                <Button
+                  colorScheme="pink"
+                  onClick={() => handleInscription(schedule)}
+                  isDisabled={hasTurn || userTurns.length >= 3}
+                >
+                  {hasTurn
+                    ? "Ya tenés turno ese día"
+                    : userTurns.length >= 3
+                    ? "Máx. 3 turnos"
+                    : "Inscribirse"}
+                </Button>
+              )}
             </Flex>
           );
         })}
       </VStack>
 
-      {/* 🔹 Modal */}
+      {/*  Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>

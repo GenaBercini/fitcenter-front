@@ -17,31 +17,74 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
+  HStack,
 } from "@chakra-ui/react";
 
 function Activities() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const [currentInscription, setCurrentInscription] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [selectedFilter, setSelectedFilter] = useState("Todos");
+  const [feedback, setFeedback] = useState(null); // 🔹 mensaje de éxito/error
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalType, setModalType] = useState("confirm"); // "confirm" | "full"
-
+  const [modalType, setModalType] = useState("confirm");
   const bgCard = useColorModeValue("white", "gray.700");
 
-  // 🔹 Traer actividades con fetch
+  // 🔹 Obtener usuario y actividades
   useEffect(() => {
-    fetch("http://localhost:3000/activities")
-      .then((res) => res.json())
-      .then((data) => {
-        setActivities(data);
+    const fetchInitialData = async () => {
+      try {
+        const userRes = await fetch("http://localhost:3000/users/session", {
+          credentials: "include",
+        });
+        const userData = await userRes.json();
+        const id = userData?.data?.id;
+        setUserId(id);
+
+        const actRes = await fetch("http://localhost:3000/activities");
+        const actData = await actRes.json();
+        setActivities(actData);
+      } catch (err) {
+        console.error("Error al cargar usuario o actividades", err);
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchInitialData();
   }, []);
+
+  // 🔹 Obtener inscripciones
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchInscriptions = async () => {
+      try {
+        const inscRes = await fetch(
+          `http://localhost:3000/inscription/${userId}`
+        );
+        const inscData = await inscRes.json();
+        const inscriptionsArray = inscData.data || [];
+        const activityInsc = inscriptionsArray.find(
+          (i) => i.type === "activity" && i.Activity
+        );
+        setCurrentInscription(activityInsc || null);
+      } catch (err) {
+        console.error("Error al cargar inscripciones", err);
+      }
+    };
+
+    fetchInscriptions();
+  }, [userId]);
+
+  // 🔹 Mostrar feedback temporal
+  const showFeedback = (type, message) => {
+    setFeedback({ type, message });
+    setTimeout(() => setFeedback(null), 3000);
+  };
 
   if (loading) return <Text>Cargando actividades...</Text>;
 
@@ -54,55 +97,24 @@ function Activities() {
     );
   }
 
-  // Manejar inscripción
+  // 🔹 Filtro
+  const filteredActivities =
+    selectedFilter === "Todos"
+      ? activities
+      : activities.filter(
+          (a) => a.name.toLowerCase() === selectedFilter.toLowerCase()
+        );
+
+  // 🔹 Modal
   const handleInscription = (activity) => {
     setSelectedActivity(activity);
-    if (activity.capacity > 0) {
-      setModalType("confirm");
-    } else {
-      setModalType("full");
-    }
+    if (activity.capacity > 0) setModalType("confirm");
+    else setModalType("full");
     onOpen();
   };
 
-  // // 🔹 Confirmar inscripción con fetch
-  // const confirmInscription = async () => {
-  //   try {
-  //     const res = await fetch("http://localhost:3000/inscriptions", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         activityId: selectedActivity.id,
-  //         userName: "Test User", // luego reemplazamos por el usuario real
-  //       }),
-  //     });
-
-  //     if (!res.ok) {
-  //       const errorMsg = await res.text();
-  //       alert(errorMsg);
-  //       return;
-  //     }
-
-  //     alert(`¡Inscripción confirmada en ${selectedActivity.name}!`);
-  //     onClose();
-
-  //     // 🔹 volver a traer actividades con el cupo actualizado
-  //     const updatedRes = await fetch("http://localhost:3000/activities");
-  //     const updatedData = await updatedRes.json();
-  //     setActivities(updatedData);
-  //   } catch (err) {
-  //     alert("Error al inscribirse");
-  //   }
-  // };
-
   const confirmInscription = async () => {
     try {
-      const userRes = await fetch("http://localhost:3000/users/session", {
-        credentials: "include",
-      });
-      const userData = await userRes.json();
-      const userId = userData?.data?.id;
-
       const res = await fetch("http://localhost:3000/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -114,29 +126,100 @@ function Activities() {
         credentials: "include",
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const errorMsg = await res.text();
-        alert(errorMsg);
+        showFeedback("error", data.message || "Error al inscribirse");
         return;
       }
 
-      alert(`¡Inscripción confirmada en ${selectedActivity.name}!`);
+      showFeedback(
+        "success",
+        `¡Inscripción confirmada en ${selectedActivity.name}!`
+      );
       onClose();
+      setCurrentInscription({
+        Activity: selectedActivity,
+        id: data.inscription.id,
+      });
 
-      // Recargar actividades actualizadas
       const updatedRes = await fetch("http://localhost:3000/activities");
       const updatedData = await updatedRes.json();
       setActivities(updatedData);
     } catch (err) {
-      alert("Error al inscribirse en la actividad");
+      showFeedback("error", "Error al inscribirse en la actividad");
+    }
+  };
+
+  const handleCancelInscription = async () => {
+    try {
+      if (!currentInscription) return;
+      const res = await fetch(
+        `http://localhost:3000/inscription/${currentInscription.id}`,
+        { method: "DELETE" }
+      );
+
+      const data = await res.json();
+      if (!res.ok) {
+        showFeedback("error", data.message || "Error al cancelar inscripción");
+        return;
+      }
+
+      showFeedback("success", "Inscripción cancelada con éxito");
+      setCurrentInscription(null);
+
+      const updatedRes = await fetch("http://localhost:3000/activities");
+      const updatedData = await updatedRes.json();
+      setActivities(updatedData);
+    } catch (err) {
+      showFeedback("error", "Error al cancelar la inscripción");
     }
   };
 
   return (
     <Box p={6}>
       <Heading mb={6}>Actividades Disponibles</Heading>
+
+      {/* 🔹 Filtros */}
+      <HStack spacing={4} mb={6}>
+        {["Todos", "Spinning", "CrossFit", "Yoga", "Zumba"].map((name) => (
+          <Button
+            key={name}
+            variant={selectedFilter === name ? "solid" : "outline"}
+            colorScheme="pink"
+            onClick={() => setSelectedFilter(name)}
+          >
+            {name}
+          </Button>
+        ))}
+      </HStack>
+
+      {/* 🔹 Cartel de inscripción actual */}
+      {currentInscription && currentInscription.Activity && (
+        <Alert status="success" borderRadius="md" mb={2}>
+          <AlertIcon />
+          Ya estás inscripto en:{" "}
+          <strong style={{ marginLeft: "4px" }}>
+            {currentInscription.Activity.name}
+          </strong>
+        </Alert>
+      )}
+
+      {/* 🔹 Cartel de feedback */}
+      {feedback && (
+        <Alert
+          status={feedback.type}
+          borderRadius="md"
+          mb={4}
+          transition="all 0.3s"
+        >
+          <AlertIcon />
+          {feedback.message}
+        </Alert>
+      )}
+
+      {/* 🔹 Lista de actividades */}
       <VStack spacing={6} align="stretch">
-        {activities.map((activity) => (
+        {filteredActivities.map((activity) => (
           <Flex
             key={activity.id}
             bg={bgCard}
@@ -156,12 +239,22 @@ function Activities() {
               </Text>
               <Text>Cupo disponible: {activity.capacity}</Text>
             </Box>
-            <Button
-              colorScheme="pink"
-              onClick={() => handleInscription(activity)}
-            >
-              Inscribirse
-            </Button>
+
+            {currentInscription &&
+            currentInscription.Activity &&
+            currentInscription.Activity.id === activity.id ? (
+              <Button colorScheme="red" onClick={handleCancelInscription}>
+                Cancelar inscripción
+              </Button>
+            ) : (
+              <Button
+                colorScheme="pink"
+                onClick={() => handleInscription(activity)}
+                isDisabled={!!currentInscription}
+              >
+                Inscribirse
+              </Button>
+            )}
           </Flex>
         ))}
       </VStack>
@@ -183,10 +276,9 @@ function Activities() {
                 con el instructor {selectedActivity.instructor}?
               </Text>
             )}
-
             {modalType === "full" && selectedActivity && (
               <Text>
-                Lo sentimos , no quedan cupos disponibles en{" "}
+                Lo sentimos, no quedan cupos disponibles en{" "}
                 <strong>{selectedActivity.name}</strong>.
               </Text>
             )}
