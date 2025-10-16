@@ -23,7 +23,7 @@ function HomeView() {
   const bgCard = useColorModeValue("white", "gray.700");
 
   const [activity, setActivity] = useState(null);
-  const [schedules, setSchedules] = useState([]); // 🆕 ahora es un array
+  const [schedules, setSchedules] = useState([]); // ahora es un array
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,13 +41,13 @@ function HomeView() {
           return;
         }
 
-        // 🔹 Traer todas las inscripciones del usuario
+        //  Traer todas las inscripciones del usuario
         const inscriptionRes = await fetch(
           `http://localhost:3000/inscription/${userId}`
         );
         const inscriptionData = await inscriptionRes.json();
 
-        // 🔹 Buscar actividad (solo una) y todos los turnos (varios)
+        //  Buscar actividad (solo una) y todos los turnos (varios)
         const activityIns = inscriptionData.data.find(
           (i) => i.type === "activity"
         );
@@ -56,7 +56,7 @@ function HomeView() {
         );
 
         setActivity(activityIns?.Activity || null);
-        setSchedules(scheduleIns.map((i) => i.Schedule)); // 🆕 guardamos todos
+        setSchedules(scheduleIns.map((i) => i.Schedule)); // guardamos todos
       } catch (error) {
         console.error("Error al cargar datos:", error);
       } finally {
