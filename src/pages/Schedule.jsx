@@ -227,7 +227,7 @@ function Schedule() {
           "Jueves",
           "Viernes",
           "Sábado",
-          "Domingo",
+          // "Domingo",
         ].map((day) => (
           <Button
             key={day}
