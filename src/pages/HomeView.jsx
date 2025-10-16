@@ -148,7 +148,7 @@ function HomeView() {
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaHistory size={28} color="#E91E63" />
-          <Text mt={2}>Historial</Text>
+          <Text mt={2}>Rutinas</Text>
         </Flex>
       </Grid>
 
