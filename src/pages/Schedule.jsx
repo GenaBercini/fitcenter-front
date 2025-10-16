@@ -6,7 +6,6 @@ import {
   Button,
   Heading,
   VStack,
-  Select,
   useColorModeValue,
   Alert,
   AlertIcon,
@@ -18,12 +17,11 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
+  HStack, // usado para los filtros tipo botón
 } from "@chakra-ui/react";
 
 function Schedule() {
   const [schedules, setSchedules] = useState([]);
-  const [filteredSchedules, setFilteredSchedules] = useState([]);
-  const [selectedDay, setSelectedDay] = useState("");
   const [userTurns, setUserTurns] = useState([]);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,10 +30,12 @@ function Schedule() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalType, setModalType] = useState("confirm");
-
   const bgCard = useColorModeValue("white", "gray.700");
 
-  //  Cargar usuario + turnos
+  // Filtro con botones
+  const [selectedFilter, setSelectedFilter] = useState("Todos");
+
+  // Cargar usuario + turnos
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,7 +49,6 @@ function Schedule() {
         const schRes = await fetch("http://localhost:3000/schedule");
         const schData = await schRes.json();
         setSchedules(schData);
-        setFilteredSchedules(schData);
 
         if (id) {
           const insRes = await fetch(`http://localhost:3000/inscription/${id}`);
@@ -74,21 +73,17 @@ function Schedule() {
     fetchData();
   }, []);
 
+  // Mostrar cartelito de feedback con estilos Chakra
   const showFeedback = (type, message) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  //  Filtrar por día
-  const handleDayChange = (e) => {
-    const day = e.target.value;
-    setSelectedDay(day);
-    if (day === "") {
-      setFilteredSchedules(schedules);
-    } else {
-      setFilteredSchedules(schedules.filter((s) => s.day === day));
-    }
-  };
+  //  Filtrar dinámicamente según el botón seleccionado
+  const filteredSchedules =
+    selectedFilter === "Todos"
+      ? schedules
+      : schedules.filter((s) => s.day === selectedFilter);
 
   // Abrir modal de inscripción
   const handleInscription = (schedule) => {
@@ -101,7 +96,7 @@ function Schedule() {
     onOpen();
   };
 
-  //  Confirmar inscripción
+  // Confirmar inscripción
   const confirmInscription = async () => {
     if (userTurns.length >= 3) {
       showFeedback(
@@ -155,17 +150,12 @@ function Schedule() {
       const updatedRes = await fetch("http://localhost:3000/schedule");
       const updatedData = await updatedRes.json();
       setSchedules(updatedData);
-      setFilteredSchedules(
-        selectedDay
-          ? updatedData.filter((s) => s.day === selectedDay)
-          : updatedData
-      );
     } catch (err) {
       showFeedback("error", "Error al inscribirse al turno");
     }
   };
 
-  //  Cancelar inscripción
+  // Cancelar inscripción
   const handleCancelTurn = async (turnId) => {
     try {
       const res = await fetch(`http://localhost:3000/inscription/${turnId}`, {
@@ -184,11 +174,6 @@ function Schedule() {
       const updatedRes = await fetch("http://localhost:3000/schedule");
       const updatedData = await updatedRes.json();
       setSchedules(updatedData);
-      setFilteredSchedules(
-        selectedDay
-          ? updatedData.filter((s) => s.day === selectedDay)
-          : updatedData
-      );
     } catch (err) {
       showFeedback("error", "Error al cancelar el turno");
     }
@@ -209,7 +194,7 @@ function Schedule() {
     <Box p={6}>
       <Heading mb={6}>Turnos Disponibles</Heading>
 
-      {/*  Cartel verde con los turnos actuales */}
+      {/*  Cartel con los turnos actuales del usuario */}
       {userTurns.length > 0 && (
         <Alert status="success" borderRadius="md" mb={3}>
           <AlertIcon />
@@ -224,7 +209,7 @@ function Schedule() {
         </Alert>
       )}
 
-      {/*  Feedback de acciones */}
+      {/*  Feedback de acciones debajo del cartel verde */}
       {feedback && (
         <Alert status={feedback.type} borderRadius="md" mb={4}>
           <AlertIcon />
@@ -232,23 +217,28 @@ function Schedule() {
         </Alert>
       )}
 
-      {/*  Filtro */}
-      <Select
-        placeholder="Filtrar por día"
-        value={selectedDay}
-        onChange={handleDayChange}
-        mb={6}
-        maxW="250px"
-      >
-        {/* <option value="">Todos</option> */}
-        <option value="Lunes">Lunes</option>
-        <option value="Martes">Martes</option>
-        <option value="Miércoles">Miércoles</option>
-        <option value="Jueves">Jueves</option>
-        <option value="Viernes">Viernes</option>
-        <option value="Sábado">Sábado</option>
-        <option value="Domingo">Domingo</option>
-      </Select>
+      {/* Nuevo filtro con botones (reemplaza el Select anterior) */}
+      <HStack spacing={4} mb={6}>
+        {[
+          "Todos",
+          "Lunes",
+          "Martes",
+          "Miércoles",
+          "Jueves",
+          "Viernes",
+          "Sábado",
+          "Domingo",
+        ].map((day) => (
+          <Button
+            key={day}
+            variant={selectedFilter === day ? "solid" : "outline"}
+            colorScheme="pink"
+            onClick={() => setSelectedFilter(day)}
+          >
+            {day}
+          </Button>
+        ))}
+      </HStack>
 
       {/* Lista de turnos */}
       <VStack spacing={6} align="stretch">
@@ -306,7 +296,7 @@ function Schedule() {
         })}
       </VStack>
 
-      {/*  Modal */}
+      {/* Modal de confirmación */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
