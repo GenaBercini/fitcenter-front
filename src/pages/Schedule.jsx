@@ -18,7 +18,6 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
-  HStack,
 } from "@chakra-ui/react";
 
 function Schedule() {
