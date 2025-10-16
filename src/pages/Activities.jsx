@@ -193,7 +193,7 @@ function Activities() {
         ))}
       </HStack>
 
-      {/* 🔹 Cartel de inscripción actual */}
+      {/* Cartel de inscripción actual */}
       {currentInscription && currentInscription.Activity && (
         <Alert status="success" borderRadius="md" mb={2}>
           <AlertIcon />

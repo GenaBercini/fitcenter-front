@@ -194,6 +194,29 @@ function Schedule() {
     <Box p={6}>
       <Heading mb={6}>Turnos Disponibles</Heading>
 
+      {/* Nuevo filtro con botones (reemplaza el Select anterior) */}
+      <HStack spacing={4} mb={6}>
+        {[
+          "Todos",
+          "Lunes",
+          "Martes",
+          "Miercoles",
+          "Jueves",
+          "Viernes",
+          "Sábado",
+          // "Domingo",
+        ].map((day) => (
+          <Button
+            key={day}
+            variant={selectedFilter === day ? "solid" : "outline"}
+            colorScheme="pink"
+            onClick={() => setSelectedFilter(day)}
+          >
+            {day}
+          </Button>
+        ))}
+      </HStack>
+
       {/*  Cartel con los turnos actuales del usuario */}
       {userTurns.length > 0 && (
         <Alert status="success" borderRadius="md" mb={3}>
@@ -216,29 +239,6 @@ function Schedule() {
           {feedback.message}
         </Alert>
       )}
-
-      {/* Nuevo filtro con botones (reemplaza el Select anterior) */}
-      <HStack spacing={4} mb={6}>
-        {[
-          "Todos",
-          "Lunes",
-          "Martes",
-          "Miércoles",
-          "Jueves",
-          "Viernes",
-          "Sábado",
-          // "Domingo",
-        ].map((day) => (
-          <Button
-            key={day}
-            variant={selectedFilter === day ? "solid" : "outline"}
-            colorScheme="pink"
-            onClick={() => setSelectedFilter(day)}
-          >
-            {day}
-          </Button>
-        ))}
-      </HStack>
 
       {/* Lista de turnos */}
       <VStack spacing={6} align="stretch">
