@@ -33,7 +33,7 @@ function Activities() {
   const [modalType, setModalType] = useState("confirm");
   const bgCard = useColorModeValue("white", "gray.700");
 
-  // 🔹 Obtener usuario y actividades
+  //  Obtener usuario y actividades
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -57,7 +57,7 @@ function Activities() {
     fetchInitialData();
   }, []);
 
-  // 🔹 Obtener inscripciones
+  //  Obtener inscripciones
   useEffect(() => {
     if (!userId) return;
 
@@ -80,7 +80,7 @@ function Activities() {
     fetchInscriptions();
   }, [userId]);
 
-  // 🔹 Mostrar feedback temporal
+  //  Mostrar feedback temporal
   const showFeedback = (type, message) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 3000);
@@ -97,7 +97,7 @@ function Activities() {
     );
   }
 
-  // 🔹 Filtro
+  // Filtro
   const filteredActivities =
     selectedFilter === "Todos"
       ? activities
@@ -105,7 +105,7 @@ function Activities() {
           (a) => a.name.toLowerCase() === selectedFilter.toLowerCase()
         );
 
-  // 🔹 Modal
+  //  Modal
   const handleInscription = (activity) => {
     setSelectedActivity(activity);
     if (activity.capacity > 0) setModalType("confirm");
@@ -179,7 +179,7 @@ function Activities() {
     <Box p={6}>
       <Heading mb={6}>Actividades Disponibles</Heading>
 
-      {/* 🔹 Filtros */}
+      {/*  Filtros */}
       <HStack spacing={4} mb={6}>
         {["Todos", "Spinning", "CrossFit", "Yoga", "Zumba"].map((name) => (
           <Button
@@ -204,7 +204,7 @@ function Activities() {
         </Alert>
       )}
 
-      {/* 🔹 Cartel de feedback */}
+      {/* Cartel de feedback */}
       {feedback && (
         <Alert
           status={feedback.type}
@@ -217,7 +217,7 @@ function Activities() {
         </Alert>
       )}
 
-      {/* 🔹 Lista de actividades */}
+      {/*  Lista de actividades */}
       <VStack spacing={6} align="stretch">
         {filteredActivities.map((activity) => (
           <Flex
@@ -259,7 +259,7 @@ function Activities() {
         ))}
       </VStack>
 
-      {/* 🔹 Modal */}
+      {/*  Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
