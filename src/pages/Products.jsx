@@ -144,7 +144,8 @@ const Products = () => {
           </Thead>
 
           <Tbody>
-            {filteredProducts.length > 0 ? (
+            { filteredProducts != undefined &&
+            filteredProducts.length > 0 ? (
                 filteredProducts.map((product) => (
                   <Tr key={product.id}>
                     <Td>{product.name}</Td>
