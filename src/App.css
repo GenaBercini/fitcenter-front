@@ -134,3 +134,7 @@ h6 {
     transform: rotate(360deg);
   }
 }
+
+.swal2-container {
+  z-index: 1500 !important; /* Ajustá según tu modal */
+}
