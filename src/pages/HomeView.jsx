@@ -21,51 +21,15 @@ import {
 function HomeView() {
   const navigate = useNavigate();
   const bgCard = useColorModeValue("white", "gray.700");
-  const iconColor = "pink.500";
 
   const [activity, setActivity] = useState(null);
-  const [schedule, setSchedule] = useState(null);
+  const [schedules, setSchedules] = useState([]); // ahora es un array
   const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       // Traemos el usuario en sesión
-  //       const userRes = await fetch("http://localhost:3000/users/session", {
-  //         credentials: "include",
-  //       });
-  //       const userData = await userRes.json();
-  //       const userId = userData?.data?.id;
-
-  //       if (!userId) {
-  //         setLoading(false);
-  //         return;
-  //       }
-
-  //       // Traer actividad y turno del usuario
-  //       const [activityRes, scheduleRes] = await Promise.all([
-  //         fetch(`http://localhost:3000/activities/user/${userId}`),
-  //         fetch(`http://localhost:3000/schedules/user/${userId}`),
-  //       ]);
-
-  //       const activityData = await activityRes.json();
-  //       const scheduleData = await scheduleRes.json();
-
-  //       setActivity(activityData?.data || null);
-  //       setSchedule(scheduleData?.data || null);
-  //     } catch (error) {
-  //       console.error(error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Traemos el usuario en sesión
         const userRes = await fetch("http://localhost:3000/users/session", {
           credentials: "include",
         });
@@ -77,22 +41,22 @@ function HomeView() {
           return;
         }
 
-        // 🔹 Obtener todas las inscripciones del usuario
+        //  Traer todas las inscripciones del usuario
         const inscriptionRes = await fetch(
           `http://localhost:3000/inscription/${userId}`
         );
         const inscriptionData = await inscriptionRes.json();
 
-        // 🔹 Dividir entre actividad y turno
-        const activity = inscriptionData.data.find(
+        //  Buscar actividad (solo una) y todos los turnos (varios)
+        const activityIns = inscriptionData.data.find(
           (i) => i.type === "activity"
         );
-        const schedule = inscriptionData.data.find(
+        const scheduleIns = inscriptionData.data.filter(
           (i) => i.type === "schedule"
         );
 
-        setActivity(activity?.Activity || null);
-        setSchedule(schedule?.Schedule || null);
+        setActivity(activityIns?.Activity || null);
+        setSchedules(scheduleIns.map((i) => i.Schedule)); // guardamos todos
       } catch (error) {
         console.error("Error al cargar datos:", error);
       } finally {
@@ -102,6 +66,14 @@ function HomeView() {
 
     fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <Flex align="center" justify="center" h="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
 
   return (
     <Box p={6} bg={useColorModeValue("gray.50", "gray.800")} minH="100vh">
@@ -176,7 +148,7 @@ function HomeView() {
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaHistory size={28} color="#E91E63" />
-          <Text mt={2}>Historial</Text>
+          <Text mt={2}>Rutinas</Text>
         </Flex>
       </Grid>
 
@@ -221,12 +193,16 @@ function HomeView() {
             )}
 
             <Text fontWeight="bold" color="pink.500" mt={3}>
-              Turno
+              Turnos
             </Text>
-            {schedule ? (
-              <Text>
-                Día: {schedule.day} — {schedule.startTime} a {schedule.endTime}
-              </Text>
+            {schedules.length > 0 ? (
+              <VStack align="start" spacing={1} mt={1}>
+                {schedules.map((s, index) => (
+                  <Text key={index}>
+                    Día: {s.day} — {s.startTime} a {s.endTime}
+                  </Text>
+                ))}
+              </VStack>
             ) : (
               <Text color="gray.500">No estás inscripto a ningún turno</Text>
             )}
