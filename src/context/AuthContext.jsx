@@ -29,22 +29,22 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signInWithGoogle = async (token) => {
-  setLoading(true);
-  try {
-    const res = await fetch("http://localhost:3000/users/auth/google/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ token }),
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || "Error con Google login");
-    setUser(result.data);
-    return result.data;
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:3000/users/auth/google/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ token }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Error con Google login");
+      setUser(result.data);
+      return result.data;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const signIn = async (email, password) => {
     setLoading(true);
@@ -70,31 +70,31 @@ export const AuthProvider = ({ children }) => {
 
   const signUp = async (userData) => {
     try {
-    setLoading(true);
-    if (!userData.email || !userData.password) {
-      setLoading(false);
-      throw new Error("Por favor, complete todos los campos");
-    }
-    const res = await fetch("http://localhost:3000/users/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(userData),
-    });
+      setLoading(true);
+      if (!userData.email || !userData.password) {
+        setLoading(false);
+        throw new Error("Por favor, complete todos los campos");
+      }
+      const res = await fetch("http://localhost:3000/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(userData),
+      });
 
-     const result = await res.json();
-    if (!res.ok) {
-      setLoading(false);
-      throw new Error(result.message || "Error al registrarse");
-    }
-    console.log(result)
+      const result = await res.json();
+      if (!res.ok) {
+        setLoading(false);
+        throw new Error(result.message || "Error al registrarse");
+      }
+      console.log(result);
 
-    setUser(result.data);
-    setLoading(false);
-    return result.data;
-  } catch (error) {
-    throw new Error(error.message || "Error al registrarse");
-  }
+      setUser(result.data);
+      setLoading(false);
+      return result.data;
+    } catch (error) {
+      throw new Error(error.message || "Error al registrarse");
+    }
   };
 
   const signOut = async () => {
@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }) => {
         isAuthModalOpen,
         openAuthModal,
         closeAuthModal,
-        signInWithGoogle
+        signInWithGoogle,
       }}
     >
       {children}
