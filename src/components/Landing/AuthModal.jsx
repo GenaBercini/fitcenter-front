@@ -32,12 +32,13 @@ import ImageInput from "../Landing/ImageInput";
 import { FcGoogle } from "react-icons/fc";
 
 export default function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, signIn, signUp, user } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [tabIndex, setTabIndex] = useState(0); // 0 = Cliente, 1 = Profesor
   const [disabledSend, setDisabledSend] = useState(true);
   const navigate = useNavigate();
+
   const toast = useToast();
 
   const { values, errors, handleChange, validateForm, handleResetForm } =
@@ -48,7 +49,8 @@ export default function AuthModal() {
       apellido: "",
       direccion: "",
       celular: "",
-      imagen: "https://cgkwvxeecaiaejwsuurm.supabase.co/storage/v1/object/public/user-images/public/4b194a8e-e783-4d30-8da4-3719363e89a8.png", // imagen por defecto
+      imagen:
+        "https://cgkwvxeecaiaejwsuurm.supabase.co/storage/v1/object/public/user-images/public/4b194a8e-e783-4d30-8da4-3719363e89a8.png", // imagen por defecto
       nroMatricula: "",
       tipoProfesor: false,
     });
@@ -86,8 +88,9 @@ export default function AuthModal() {
     const valid = validateForm(["email", "password"]);
     if (!valid) return;
     setLoading(true);
+
     try {
-      await signIn(values.email, values.password);
+      const loggedUser = await signIn(values.email, values.password);
       toast({
         title: "Login exitoso!",
         variant: "solid",
@@ -95,9 +98,12 @@ export default function AuthModal() {
         position: "bottom-left",
         status: "success",
       });
-      if (user?.role === "admin") {
-        navigate("/dashboard");
-      }
+
+      if (loggedUser?.role === "admin") navigate("/dashboard");
+      if (loggedUser?.role === "instructor") navigate("/instructor");
+      if (loggedUser?.role === "professor") navigate("/professor");
+      if (loggedUser?.role === "client") navigate("/home");
+
       handleCloseModal();
     } catch (err) {
       handleCloseModal();
@@ -128,7 +134,7 @@ export default function AuthModal() {
     setLoading(true);
     let rolUser = "";
     if (tabIndex === 1) {
-      if (tipoProfesor) {
+      if (values.tipoProfesor) {
         rolUser = "instructor";
       } else {
         rolUser = "professor";
@@ -180,8 +186,7 @@ export default function AuthModal() {
       tipoProfesor: false,
     });
     setTabIndex(tabIndex === 0 ? 1 : 0);
-
-  }
+  };
 
   const handleCloseModal = () => {
     setIsLogin(true);
