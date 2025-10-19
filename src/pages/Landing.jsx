@@ -22,7 +22,7 @@ import Swal from "sweetalert2";
 import MembershipPlan from "../pages/MembershipPlan";
 import InstructorsSection from "../components/Landing/InstructorsSection";
 import ProductsSection from "../components/Landing/ProductsSection";
-import AuthModal from "../components/Landing/AuthModal";
+import AuthModal from "../components/Auth/AuthModal";
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 

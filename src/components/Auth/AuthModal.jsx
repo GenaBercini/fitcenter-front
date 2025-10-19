@@ -26,8 +26,8 @@ import Swal from "sweetalert2";
 import { useAuth } from "../../context/AuthContext";
 import { FaPhoneAlt } from "react-icons/fa";
 import { useFormValidation } from "../../utils/useFormValidation";
-import ValidatedInput from "../Landing/ValidateInput";
-import PasswordInput from "../Landing/PasswordInput";
+import ValidatedInput from "./ValidateInput";
+import PasswordInput from "./PasswordInput";
 import ImageInput from "../Landing/ImageInput";
 import { FcGoogle } from "react-icons/fc";
 
@@ -48,17 +48,33 @@ export default function AuthModal() {
       apellido: "",
       direccion: "",
       celular: "",
-      imagen: "https://cgkwvxeecaiaejwsuurm.supabase.co/storage/v1/object/public/user-images/public/4b194a8e-e783-4d30-8da4-3719363e89a8.png", // imagen por defecto
+      imagen:
+        "https://cgkwvxeecaiaejwsuurm.supabase.co/storage/v1/object/public/user-images/public/4b194a8e-e783-4d30-8da4-3719363e89a8.png", // imagen por defecto
       nroMatricula: "",
-      tipoProfesor: false,
+      esInstructor: false,
     });
 
   useEffect(() => {
     const requiredFields = isLogin
-      ? ["email", "password"]
-      : ["email", "password"].concat(
-          tabIndex === 1 ? ["nroMatricula", "tipoProfesor"] : []
-        );
+    ? ["email", "password"]
+    : tabIndex === 1
+    ? [
+        "nombre",
+        "apellido",
+        "direccion",
+        "celular",
+        "email",
+        "password",
+        "nroMatricula",
+      ]
+    : [
+        "nombre",
+        "apellido",
+        "direccion",
+        "celular",
+        "email",
+        "password",
+      ];
     setDisabledSend(
       requiredFields.some((field) => !values[field] || errors[field])
     );
@@ -121,18 +137,22 @@ export default function AuthModal() {
       "password",
       "imagen",
     ];
-    if (tabIndex === 1) fields.push("nroMatricula", "tipoProfesor");
+    if (tabIndex === 1) fields.push("nroMatricula", "esInstructor");
     const valid = validateForm(fields);
-    if (!valid) return;
+    if (!valid) {
+      toast({
+        title: "Por favor revisa los campos requeridos",
+        status: "warning",
+        position: "bottom-left",
+      });
+      return;
+    }
 
     setLoading(true);
+
     let rolUser = "";
     if (tabIndex === 1) {
-      if (tipoProfesor) {
-        rolUser = "instructor";
-      } else {
-        rolUser = "professor";
-      }
+      rolUser = values.esInstructor ? "instructor" : "professor";
     } else {
       rolUser = "client";
     }
@@ -177,11 +197,10 @@ export default function AuthModal() {
       celular: "",
       imagen: "",
       nroMatricula: "",
-      tipoProfesor: false,
+      esInstructor: false,
     });
     setTabIndex(tabIndex === 0 ? 1 : 0);
-
-  }
+  };
 
   const handleCloseModal = () => {
     setIsLogin(true);
@@ -196,7 +215,7 @@ export default function AuthModal() {
       celular: "",
       imagen: "",
       nroMatricula: "",
-      tipoProfesor: false,
+      esInstructor: false,
     });
   };
 
@@ -318,9 +337,9 @@ export default function AuthModal() {
                               </FormLabel>
                               <Switch
                                 id="instructor"
-                                isChecked={values.tipoProfesor}
+                                isChecked={values.esInstructor}
                                 onChange={(e) =>
-                                  handleChange("tipoProfesor", e.target.checked)
+                                  handleChange("esInstructor", e.target.checked)
                                 }
                               />
                             </FormControl>
@@ -373,6 +392,7 @@ export default function AuthModal() {
           <Button
             colorScheme="blue"
             isLoading={loading}
+            loadingText={isLogin ? "Iniciando..." : "Registrando..."}
             w="full"
             onClick={isLogin ? handleLogin : handleRegister}
             isDisabled={disabledSend}

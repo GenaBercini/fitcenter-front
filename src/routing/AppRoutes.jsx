@@ -2,7 +2,6 @@ import React from "react";
 import { Route } from "react-router-dom";
 import Landing from "../pages/Landing";
 import Cart from "../pages/cart";
-import HomeView from "../pages/HomeView";
 import About from "../pages/About";
 import Blog from "../pages/Blog";
 import Contact from "../pages/Contact";
@@ -25,21 +24,23 @@ import Products from "../pages/Products";
 import Professors from "../pages/Professors";
 import Profile from "../pages/Profile";
 import Routines from "../pages/Routines";
-
 import { ProtectedRoute } from "./ProtectedRoute";
-import { Activity } from "react";
+import { Routes } from "react-router-dom";
 
-export const rutas = [
-  <>
-    {/* Rutas publicas */}
+const AppRoutes = () => (
+  <Routes>
+    {/* Rutas públicas */}
     <Route path="/" element={<Landing />} />
     <Route path="/about" element={<About />} />
     <Route path="/blog" element={<Blog />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/cart" element={<Cart />} />
-
     <Route path="/perfil" element={<UserProfile />} />
+    <Route path="/activities" element={<Activities />} />
+    <Route path="/schedule" element={<Schedule />} />
+    <Route path="/historial" element={<PurchaseHistory />} />
 
+    {/* Dashboard con rutas anidadas */}
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="branches" element={<Branches />} />
       <Route path="memberships" element={<Memberships />} />
@@ -56,13 +57,11 @@ export const rutas = [
       <Route path="routines" element={<Routines />} />
     </Route>
 
-    <Route path="/profile" element={<HomeView />} />
-    <Route path="/activities" element={<Activities />} />
-    <Route path="/users" element={<UserProfile />} />
-    <Route path="/schedule" element={<Schedule />} />
-    <Route path="/historial" element={<PurchaseHistory />} />
-    {/* Rutas privadas */}
+    {/* Ruta protegida */}
+    <Route element={<ProtectedRoute />}>
+      {/* Aquí podrías agregar rutas privadas */}
+    </Route>
+  </Routes>
+);
 
-    <Route element={<ProtectedRoute />}></Route>
-  </>,
-];
+export default AppRoutes;
