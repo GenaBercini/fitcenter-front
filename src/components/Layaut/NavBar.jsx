@@ -14,7 +14,7 @@ import {
   Button,
   Avatar,
 } from "@chakra-ui/react";
-import AuthModal from "../Landing/AuthModal";
+import AuthModal from "../Auth/AuthModal";
 import { IoMdMenu, IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
