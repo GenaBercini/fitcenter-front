@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
-const Links = ["Dashboard", "Cart", "Turns"];
+const Links = ["Home", "Cart", "Turns"];
 
 const NavLink = ({ children, to }) => {
   return (
@@ -45,11 +45,6 @@ export default function NavBar() {
   const handleGoToProfile = () => {
     navigate("/profile");
   };
-  const handleSignOut = () => {
-    navigate("/");
-    signOut();
-  };
-
   return (
     <>
       <Box p={2}>
@@ -70,22 +65,30 @@ export default function NavBar() {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={"center"}>
-            <Image
-              src="../../../public/culturista-musculoso-sosteniendo-gran-barra-grandes-pesos.png"
-              boxSize="40px"
-              fit="cover"
-              alt="Pesas"
-            />
+            <Box as="button" onClick={() => navigate("/")} cursor="pointer">
+              <Image
+                src="../../../public/culturista-musculoso-sosteniendo-gran-barra-grandes-pesos.png"
+                boxSize="40px"
+                fit="cover"
+                alt="Pesas"
+              />
+            </Box>
             <HStack
               as={"nav"}
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
-              {Links.map((link) => (
-                <NavLink key={link} to={`/${link.toLowerCase()}`}>
-                  {link}
-                </NavLink>
-              ))}
+              {Links.map((link) =>
+                link == "Home" ? (
+                  <NavLink key={link} to={`/`}>
+                    {link}
+                  </NavLink>
+                ) : (
+                  <NavLink key={link} to={`/${link.toLowerCase()}`}>
+                    {link}
+                  </NavLink>
+                )
+              )}
             </HStack>
           </HStack>
           <HStack w="40%" maxW="sm" borderWidth="1px" rounded="lg" spacing={0}>
@@ -95,7 +98,7 @@ export default function NavBar() {
             </Button>
           </HStack>
           <Flex alignItems={"center"} justifyContent={"end"} minW="20%">
-            {(user != null) ? (
+            {user != null ? (
               <Menu>
                 <MenuButton
                   as={Button}
@@ -103,10 +106,7 @@ export default function NavBar() {
                   variant="link"
                   cursor="pointer"
                 >
-                  <Avatar
-                    size="sm"
-                    src={user.image_url}
-                  />
+                  <Avatar size="sm" src={user.image_url} />
                 </MenuButton>
                 <MenuList>
                   <MenuItem onClick={handleGoToProfile}>Profile</MenuItem>
@@ -137,11 +137,17 @@ export default function NavBar() {
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
-              {Links.map((link) => (
-                <NavLink key={link} to={`/${link.toLowerCase()}`}>
-                  {link}
-                </NavLink>
-              ))}
+              {Links.map((link) =>
+                link == "Home" ? (
+                  <NavLink key={link} to={`/`}>
+                    {link}
+                  </NavLink>
+                ) : (
+                  <NavLink key={link} to={`/${link.toLowerCase()}`}>
+                    {link}
+                  </NavLink>
+                )
+              )}
             </Stack>
           </Box>
         ) : null}
