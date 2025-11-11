@@ -98,7 +98,7 @@ const Products = () => {
     <Box bg={"white"} p={3} borderRadius={"10px"}>
       <Stack width="full" gap="5">
         <Flex justifyContent={"space-between"}>
-          <Heading size="xl">Products</Heading>
+          <Heading size="xl">Productos</Heading>
 
           <InputGroup w={400}>
             <InputLeftElement pointerEvents='none'>
@@ -134,12 +134,12 @@ const Products = () => {
         <Table size="md" variant="simple">
           <Thead>
             <Tr>
-              <Th>Product</Th>
-              <Th>Category</Th>
-              <Th>Description</Th>
+              <Th>Nombre</Th>
+              <Th>Categoría</Th>
+              <Th>Descripción</Th>
               <Th>Stock</Th>
-              <Th>Price</Th>
-              <Th>Edit</Th>
+              <Th>Precio</Th>
+              <Th>Editar</Th>
             </Tr>
           </Thead>
 
