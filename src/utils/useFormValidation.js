@@ -58,9 +58,9 @@ export function useFormValidation(initialValues = {}) {
               "Matrícula solo puede contener letras, números o guiones";
           }
           break;
-        case "tipoProfesor":
+        case "esInstructor":
           if (typeof value !== "boolean")
-            newErrors.tipoProfesor = "Debe ser verdadero o falso";
+            newErrors.esInstructor = "Debe ser verdadero o falso";
           break;
         default:
           break;
