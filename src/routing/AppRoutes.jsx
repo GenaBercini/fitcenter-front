@@ -40,6 +40,10 @@ const AppRoutes = () => (
     <Route path="/instructor" element={<InstructorProfile />} />
     <Route path="/professor" element={<ProfessorProfile />} />
     <Route path="/perfil" element={<UserProfile />} />
+    <Route path="/activities" element={<Activities />} />
+    <Route path="/schedule" element={<Schedule />} />
+    <Route path="/historial" element={<PurchaseHistory />} />
+
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="branches" element={<Branches />} />
       <Route path="memberships" element={<Memberships />} />
