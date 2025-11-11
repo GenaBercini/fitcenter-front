@@ -71,70 +71,7 @@ const Dashboard = () => {
       {/* Main */}
       <Box flex="1" p={6}>
 
-        {/* <Box bg="orange.100" color="orange.800" py={2} px={4} mb={6} borderRadius="md">
-          <Text fontWeight="bold">
-            Se ha registrado un nuevo socio
-          </Text>
-        </Box> */}
-
-        {/* <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={6}>
-          <StatCard title="Ventas en productos" value="$1M" color="purple.500" />
-          <StatCard title="Clases dictadas totales" value="1369" color="blue.400" />
-          <StatCard title="Profesores activos" value="567" color="red.400"/>
-
-        <Box
-          bg="orange.100"
-          color="orange.800"
-          py={2}
-          px={4}
-          mb={6}
-          borderRadius="md"
-        >
-          <Text fontWeight="bold">Se ha registrado un nuevo socio</Text>
-        </Box>
-
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={6}>
-          <StatCard
-            title="Ventas en productos"
-            value="$1M"
-            color="purple.500"
-          />
-          <StatCard
-            title="Clases dictadas totales"
-            value="1369"
-            color="blue.400"
-          />
-          <StatCard title="Profesores activos" value="567" color="red.400" />
-
-        </SimpleGrid>
-
-        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-          <Box bg="white" p={4} borderRadius="md" shadow="sm">
-            <Heading size="sm" mb={4}>
-              Nuevos clientes
-            </Heading>
-            <CustomerRow name="Genaro Bercini" />
-            <CustomerRow name="Nicolás Piccoli" />
-            <CustomerRow name="Tomás Cravero" />
-            <CustomerRow name="Kevin Egidi" />
-            <CustomerRow name="Ramiro Rojtberg" />
-          </Box>
-
-          <Box
-            bg="white"
-            p={4}
-            borderRadius="md"
-            shadow="sm"
-            marginLeft={"10px"}
-          >
-            <Heading size="sm" mb={4}>
-              Últimos cambios
-            </Heading>
-            <Text fontSize="sm" color="gray.500">
-              No hay cambios
-            </Text>
-          </Box>
-        </SimpleGrid> */}
+        {/* para las subrutas del panel */}
         <Outlet />
 
       </Box>
