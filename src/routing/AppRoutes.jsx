@@ -14,7 +14,11 @@ import ProfessorProfile from "../pages/ProfessorProfile";
 import Branches from "../pages/Branches";
 import Memberships from "../pages/Memberships";
 import Administrators from "../pages/Administrators";
+
 import Activities from "../pages/Activities";
+import HomeProfile from "../pages/HomeProfile";
+import Routine from "../pages/Routines";
+
 import Categories from "../pages/Categories";
 import Classes from "../pages/Classes";
 import Clients from "../pages/Clients";
@@ -37,12 +41,17 @@ const AppRoutes = () => (
     <Route path="/blog" element={<Blog />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/cart" element={<Cart />} />
+
     <Route path="/activities" element={<Activities />} />
     <Route path="/schedule" element={<Schedule />} />
     <Route path="/historial" element={<PurchaseHistory />} />
+    <Route path="/homeProfile" element={<HomeProfile />} />
+    <Route path="/perfil" element={<UserProfile />} />
+    <Route path="/routine" element={<Routine />} />
+
     <Route path="/instructor" element={<InstructorProfile />} />
     <Route path="/professor" element={<ProfessorProfile />} />
-    <Route path="/perfil" element={<UserProfile />} />
+
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="branches" element={<Branches />} />
       <Route path="memberships" element={<Memberships />} />

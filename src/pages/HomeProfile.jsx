@@ -9,6 +9,8 @@ import {
   VStack,
   useColorModeValue,
   Spinner,
+  Badge,
+  HStack,
 } from "@chakra-ui/react";
 import {
   FaUser,
@@ -16,38 +18,54 @@ import {
   FaClipboardList,
   FaHistory,
   FaDumbbell,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 
 function HomeView() {
   const navigate = useNavigate();
   const bgCard = useColorModeValue("white", "gray.700");
+  const bgPage = useColorModeValue("gray.50", "gray.800");
+  const textColor = useColorModeValue("gray.700", "gray.100");
 
   const [activity, setActivity] = useState(null);
-  const [schedules, setSchedules] = useState([]); // ahora es un array
+  const [schedules, setSchedules] = useState([]);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [missingData, setMissingData] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Traemos el usuario en sesión
+        //  Obtener usuario en sesión
         const userRes = await fetch("http://localhost:3000/users/session", {
           credentials: "include",
         });
         const userData = await userRes.json();
-        const userId = userData?.data?.id;
+        const userInfo = userData?.data;
 
-        if (!userId) {
+        if (!userInfo) {
           setLoading(false);
           return;
         }
 
-        //  Traer todas las inscripciones del usuario
+        setUser(userInfo);
+
+        //  Comprobar si falta completar información
+        const incompleteFields = [
+          "first_name",
+          "last_name",
+          "email",
+          "address",
+          "phone",
+        ].some((key) => !userInfo[key] || userInfo[key].trim() === "");
+        setMissingData(incompleteFields);
+
+        //  Traer inscripciones
         const inscriptionRes = await fetch(
-          `http://localhost:3000/inscription/${userId}`
+          `http://localhost:3000/inscription/${userInfo.id}`
         );
         const inscriptionData = await inscriptionRes.json();
 
-        //  Buscar actividad (solo una) y todos los turnos (varios)
         const activityIns = inscriptionData.data.find(
           (i) => i.type === "activity"
         );
@@ -56,7 +74,7 @@ function HomeView() {
         );
 
         setActivity(activityIns?.Activity || null);
-        setSchedules(scheduleIns.map((i) => i.Schedule)); // guardamos todos
+        setSchedules(scheduleIns.map((i) => i.Schedule));
       } catch (error) {
         console.error("Error al cargar datos:", error);
       } finally {
@@ -76,16 +94,40 @@ function HomeView() {
   }
 
   return (
-    <Box p={6} bg={useColorModeValue("gray.50", "gray.800")} minH="100vh">
-      <Heading size="lg">
-        ¡Hola{" "}
-        <Text as="span" color="pink.500">
-          Kevin
-        </Text>
-        !
-      </Heading>
+    <Box p={6} bg={bgPage} minH="100vh">
+      {/* 🔹 Encabezado con nombre + alerta si faltan datos */}
+      <Flex align="center" justify="space-between" flexWrap="wrap">
+        <Heading size="lg" color={textColor}>
+          ¡Hola{" "}
+          <Text as="span" color="pink.500">
+            {user?.first_name || "usuario"}
+          </Text>
+          !
+        </Heading>
 
-      {/* Atajos */}
+        {missingData && (
+          <HStack
+            bg={useColorModeValue("yellow.100", "yellow.700")}
+            borderRadius="lg"
+            px={3}
+            py={1}
+            spacing={2}
+            mt={{ base: 3, md: 0 }}
+            shadow="sm"
+          >
+            <FaExclamationTriangle color="#D69E2E" />
+            <Text
+              fontSize="sm"
+              color={useColorModeValue("yellow.800", "yellow.200")}
+              fontWeight="medium"
+            >
+              Faltan completar datos del perfil
+            </Text>
+          </HStack>
+        )}
+      </Flex>
+
+      {/*  Atajos principales */}
       <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} mt={6}>
         <Flex
           bg={bgCard}
@@ -96,7 +138,7 @@ function HomeView() {
           flexDir="column"
           shadow="md"
           cursor="pointer"
-          onClick={() => navigate("/users")}
+          onClick={() => navigate("/perfil")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaUser size={28} color="#E91E63" />
@@ -134,6 +176,34 @@ function HomeView() {
           <FaClipboardList size={28} color="#E91E63" />
           <Text mt={2}>Actividades</Text>
         </Flex>
+        {/* <Flex
+          bg={bgCard}
+          p={5}
+          borderRadius="xl"
+          align="center"
+          justify="center"
+          flexDir="column"
+          shadow="md"
+          cursor="pointer"
+          onClick={() => {
+            if (user?.membershipType !== "Premium") {
+              alert(
+                "Necesitas una membresía Premium para acceder a las actividades."
+              );
+              return;
+            }
+            navigate("/activities");
+          }}
+          _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
+        >
+          <FaDumbbell size={28} color="#E91E63" />
+          <Text mt={2}>Actividades</Text>
+          {user?.membershipType !== "Premium" && (
+            <Badge colorScheme="yellow" mt={2}>
+              Requiere membresia Premium
+            </Badge>
+          )}
+        </Flex> */}
 
         <Flex
           bg={bgCard}
@@ -144,7 +214,7 @@ function HomeView() {
           flexDir="column"
           shadow="md"
           cursor="pointer"
-          onClick={() => navigate("/historial")}
+          onClick={() => navigate("/routine")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaHistory size={28} color="#E91E63" />
@@ -152,9 +222,9 @@ function HomeView() {
         </Flex>
       </Grid>
 
-      {/* Sección entrenamiento */}
+      {/*  Sección entrenamiento */}
       <Box mt={10}>
-        <Heading size="md" mb={4}>
+        <Heading size="md" mb={4} color={textColor}>
           Entrenamiento
         </Heading>
         <Flex
@@ -169,7 +239,9 @@ function HomeView() {
           <Flex align="center" mb={3}>
             <FaDumbbell size={28} color="#E91E63" />
             <VStack align="start" spacing={0} ml={4}>
-              <Text fontWeight="bold">Ver plan actual</Text>
+              <Text fontWeight="bold" color={textColor}>
+                Ver plan actual
+              </Text>
               <Text fontSize="sm" color="gray.500">
                 Entrenamiento personalizado
               </Text>
@@ -191,6 +263,24 @@ function HomeView() {
                 No estás inscripto a ninguna actividad
               </Text>
             )}
+            {/* <Text fontWeight="bold" color="pink.500">
+              Actividad
+            </Text>
+
+            {user?.membershipType !== "Premium" ? (
+              <Text color="gray.500" fontStyle="italic">
+                No tienes acceso a actividades con tu membresía actual.
+              </Text>
+            ) : activity ? (
+              <Text>
+                {activity.name} — {activity.startTime} a {activity.endTime} -{" "}
+                {activity.description}
+              </Text>
+            ) : (
+              <Text color="gray.500">
+                No estás inscripto a ninguna actividad
+              </Text>
+            )} */}
 
             <Text fontWeight="bold" color="pink.500" mt={3}>
               Turnos
