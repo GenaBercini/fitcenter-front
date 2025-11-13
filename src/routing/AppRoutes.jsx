@@ -37,6 +37,9 @@ const AppRoutes = () => (
     <Route path="/blog" element={<Blog />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/cart" element={<Cart />} />
+    <Route path="/activities" element={<Activities />} />
+    <Route path="/schedule" element={<Schedule />} />
+    <Route path="/historial" element={<PurchaseHistory />} />
     <Route path="/instructor" element={<InstructorProfile />} />
     <Route path="/professor" element={<ProfessorProfile />} />
     <Route path="/perfil" element={<UserProfile />} />

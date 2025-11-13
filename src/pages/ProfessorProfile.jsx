@@ -11,6 +11,16 @@ import {
   Spinner,
   useDisclosure,
   SimpleGrid,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
 } from "@chakra-ui/react";
 import { FaDumbbell, FaListUl } from "react-icons/fa";
 import { useEffect, useState } from "react";
@@ -75,7 +85,10 @@ export default function ProfessorProfile() {
       const res = await fetch("http://localhost:3000/exercises", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newExercise),
+        body: JSON.stringify({
+          ...newExercise,
+          professorId: user.id,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.msg);
@@ -94,7 +107,8 @@ export default function ProfessorProfile() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...newRoutine,
-          exercises: selectedExercises.map((id) => ({ id })),
+          professorId: user.id,
+          exercises: selectedExercises,
         }),
       });
       const data = await res.json();
@@ -270,6 +284,116 @@ export default function ProfessorProfile() {
           </VStack>
         </Box>
       </Box>
+      <Modal isOpen={isOpenExercise} onClose={onCloseExercise} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Nuevo Ejercicio</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl mb={3}>
+              <FormLabel>Nombre</FormLabel>
+              <Input
+                placeholder="Ej: Sentadillas"
+                value={newExercise.name}
+                onChange={(e) =>
+                  setNewExercise((prev) => ({ ...prev, name: e.target.value }))
+                }
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Tipo de ejercicio</FormLabel>
+              <Input
+                placeholder="Ej: Piernas, Brazos..."
+                value={newExercise.typeEx}
+                onChange={(e) =>
+                  setNewExercise((prev) => ({
+                    ...prev,
+                    typeEx: e.target.value,
+                  }))
+                }
+              />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onCloseExercise}>
+              Cancelar
+            </Button>
+            <Button colorScheme="pink" onClick={handleCreateExercise}>
+              Crear
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal
+        isOpen={isOpenRoutine}
+        onClose={onCloseRoutine}
+        isCentered
+        size="lg"
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Nueva Rutina</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl mb={3}>
+              <FormLabel>Tipo de rutina</FormLabel>
+              <Input
+                placeholder="Ej: Hipertrofia"
+                value={newRoutine.typeRoutine}
+                onChange={(e) =>
+                  setNewRoutine((prev) => ({
+                    ...prev,
+                    typeRoutine: e.target.value,
+                  }))
+                }
+              />
+            </FormControl>
+
+            <FormControl mb={3}>
+              <FormLabel>Descripción</FormLabel>
+              <Input
+                placeholder="Ej: Rutina de fuerza para tren superior"
+                value={newRoutine.descRoutine}
+                onChange={(e) =>
+                  setNewRoutine((prev) => ({
+                    ...prev,
+                    descRoutine: e.target.value,
+                  }))
+                }
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Seleccionar ejercicios</FormLabel>
+              <SimpleGrid columns={[1, 2]} spacing={2}>
+                {exercises.map((ex) => (
+                  <Button
+                    key={ex.id}
+                    variant={
+                      selectedExercises.includes(ex.id) ? "solid" : "outline"
+                    }
+                    colorScheme="pink"
+                    size="sm"
+                    onClick={() => toggleExercise(ex.id)}
+                  >
+                    {ex.name}
+                  </Button>
+                ))}
+              </SimpleGrid>
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onCloseRoutine}>
+              Cancelar
+            </Button>
+            <Button colorScheme="pink" onClick={handleCreateRoutine}>
+              Crear
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 }

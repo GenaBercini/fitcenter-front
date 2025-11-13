@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -27,13 +29,12 @@ function Activities() {
   const [currentInscription, setCurrentInscription] = useState(null);
   const [userId, setUserId] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState("Todos");
-  const [feedback, setFeedback] = useState(null); // 🔹 mensaje de éxito/error
+  const [feedback, setFeedback] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalType, setModalType] = useState("confirm");
   const bgCard = useColorModeValue("white", "gray.700");
 
-  //  Obtener usuario y actividades
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -57,7 +58,6 @@ function Activities() {
     fetchInitialData();
   }, []);
 
-  //  Obtener inscripciones
   useEffect(() => {
     if (!userId) return;
 
@@ -80,7 +80,6 @@ function Activities() {
     fetchInscriptions();
   }, [userId]);
 
-  //  Mostrar feedback temporal
   const showFeedback = (type, message) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 3000);
@@ -97,7 +96,6 @@ function Activities() {
     );
   }
 
-  // Filtro
   const filteredActivities =
     selectedFilter === "Todos"
       ? activities
@@ -105,7 +103,6 @@ function Activities() {
           (a) => a.name.toLowerCase() === selectedFilter.toLowerCase()
         );
 
-  //  Modal
   const handleInscription = (activity) => {
     setSelectedActivity(activity);
     if (activity.capacity > 0) setModalType("confirm");
@@ -193,7 +190,6 @@ function Activities() {
         ))}
       </HStack>
 
-      {/* Cartel de inscripción actual */}
       {currentInscription && currentInscription.Activity && (
         <Alert status="success" borderRadius="md" mb={2}>
           <AlertIcon />
@@ -204,7 +200,6 @@ function Activities() {
         </Alert>
       )}
 
-      {/* Cartel de feedback */}
       {feedback && (
         <Alert
           status={feedback.type}
@@ -217,7 +212,6 @@ function Activities() {
         </Alert>
       )}
 
-      {/*  Lista de actividades */}
       <VStack spacing={6} align="stretch">
         {filteredActivities.map((activity) => (
           <Flex
@@ -232,9 +226,14 @@ function Activities() {
             <Box>
               <Text fontSize="lg" fontWeight="bold">
                 {activity.name}
-              </Text>
-              <Text>Instructor: {activity.instructor}</Text>
-              <Text>
+                <Text>
+                  Instructor:{" "}
+                  {activity.instructor
+                    ? `${activity.instructor.first_name || ""} ${
+                        activity.instructor.last_name || ""
+                      }`.trim()
+                    : "No asignado"}
+                </Text>
                 Horario: {activity.startTime} - {activity.endTime}
               </Text>
               <Text>Cupo disponible: {activity.capacity}</Text>
@@ -273,7 +272,13 @@ function Activities() {
             {modalType === "confirm" && selectedActivity && (
               <Text>
                 ¿Deseas inscribirte en <strong>{selectedActivity.name}</strong>{" "}
-                con el instructor {selectedActivity.instructor}?
+                con el instructor{" "}
+                {selectedActivity.instructor
+                  ? `${selectedActivity.instructor.first_name || ""} ${
+                      selectedActivity.instructor.last_name || ""
+                    }`.trim()
+                  : "No asignado"}
+                ?
               </Text>
             )}
             {modalType === "full" && selectedActivity && (
