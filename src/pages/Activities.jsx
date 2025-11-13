@@ -224,19 +224,29 @@ function Activities() {
             align="center"
           >
             <Box>
-              <Text fontSize="lg" fontWeight="bold">
+              <Text fontSize="lg" fontWeight="bold" mb={1}>
                 {activity.name}
-                <Text>
-                  Instructor:{" "}
-                  {activity.instructor
-                    ? `${activity.instructor.first_name || ""} ${
-                        activity.instructor.last_name || ""
-                      }`.trim()
-                    : "No asignado"}
-                </Text>
+              </Text>
+
+              <Text fontSize="sm" color="gray.600">
+                Instructor:{" "}
+                {activity.instructor
+                  ? `${activity.instructor.first_name || ""} ${
+                      activity.instructor.last_name || ""
+                    }`.trim()
+                  : "No asignado"}
+              </Text>
+
+              <Text fontSize="sm" color="gray.600">
                 Horario: {activity.startTime} - {activity.endTime}
               </Text>
-              <Text>Cupo disponible: {activity.capacity}</Text>
+
+              <Text
+                fontSize="sm"
+                color={activity.capacity > 0 ? "green.500" : "red.500"}
+              >
+                Cupo disponible: {activity.capacity}
+              </Text>
             </Box>
 
             {currentInscription &&

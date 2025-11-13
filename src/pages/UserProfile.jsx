@@ -144,11 +144,9 @@ const UserProfile = () => {
             {user.role?.toUpperCase()}
           </Badge>
         </VStack>
-
         <Divider my={6} />
-
         {/* Información editable */}
-        <VStack align="stretch" spacing={4}>
+        {/* <VStack align="stretch" spacing={4}>
           {[
             { label: "Nombre", key: "first_name" },
             { label: "Apellido", key: "last_name" },
@@ -188,8 +186,99 @@ const UserProfile = () => {
           </HStack>
         </VStack>
 
-        <Divider my={6} />
+        {/* 🔹 Tipo de membresía */}
+        {/* <HStack justify="space-between">
+          <Text color="gray.500">Membresía:</Text>
+          <Badge
+            colorScheme={
+              user.membershipType === "Premium"
+                ? "green"
+                : user.membershipType === "Pending"
+                ? "yellow"
+                : "gray"
+            }
+            px={2}
+            py={1}
+            borderRadius="md"
+          >
+            {user.membershipType}
+          </Badge>
+        </HStack> */}
+        <VStack align="stretch" spacing={4}>
+          <Box>
+            <Heading size="sm" color="pink.500" mb={3}>
+              Información personal
+            </Heading>
 
+            {/* Sección de datos en dos columnas */}
+            <Box
+              display="grid"
+              gridTemplateColumns="1fr 2fr"
+              rowGap={3}
+              columnGap={6}
+              alignItems="center"
+            >
+              {[
+                { label: "Nombre", key: "first_name" },
+                { label: "Apellido", key: "last_name" },
+                { label: "Correo electrónico", key: "email" },
+                { label: "Teléfono", key: "phone" },
+                { label: "Dirección", key: "address" },
+              ].map((field) => (
+                <React.Fragment key={field.key}>
+                  <Text color="gray.500" textAlign="left">
+                    {field.label}:
+                  </Text>
+                  {isEditing ? (
+                    <Input
+                      name={field.key}
+                      value={formData[field.key] || ""}
+                      onChange={handleChange}
+                      placeholder={`Ingrese ${field.label.toLowerCase()}`}
+                    />
+                  ) : (
+                    <Text fontWeight="bold" color={textColor} textAlign="left">
+                      {user[field.key] || "-"}
+                    </Text>
+                  )}
+                </React.Fragment>
+              ))}
+
+              {/* Estado */}
+              <Text color="gray.500" textAlign="left">
+                Estado:
+              </Text>
+              <Text
+                fontWeight="bold"
+                color={user.banned ? "red.400" : "green.400"}
+              >
+                {user.banned ? "Baneado" : "Activo"}
+              </Text>
+
+              {/* Membresía */}
+              <Text color="gray.500" textAlign="left">
+                Membresía:
+              </Text>
+              <Badge
+                colorScheme={
+                  user.membershipType === "Premium"
+                    ? "green"
+                    : user.membershipType === "Pending"
+                    ? "yellow"
+                    : "gray"
+                }
+                px={2}
+                py={1}
+                borderRadius="md"
+                textAlign="center"
+              >
+                {user.membershipType}
+              </Badge>
+            </Box>
+          </Box>
+        </VStack>
+
+        <Divider my={6} />
         {/* Botones */}
         <HStack justify="center" spacing={4}>
           {isEditing ? (

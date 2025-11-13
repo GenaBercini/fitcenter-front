@@ -1,4 +1,10 @@
-import { FormControl, Input, FormErrorMessage, Text, HStack } from "@chakra-ui/react";
+import {
+  FormControl,
+  Input,
+  FormErrorMessage,
+  Text,
+  HStack,
+} from "@chakra-ui/react";
 
 const ValidatedInput = ({
   values,
@@ -7,23 +13,35 @@ const ValidatedInput = ({
   placeholder,
   type,
   inputProps = {},
-  handleChange
+  handleChange,
 }) => (
   <FormControl isInvalid={errors[field]} isRequired>
     <HStack align="center">
-        <Input
-          type={type}
-          placeholder={placeholder}
-          value={values[field]}
-          onChange={(e) => handleChange(field, e.target.value)}
-          {...inputProps}
-        />
-        {(type === "email" || type === "password" || type === "nroMatricula") && (
-          <Text color="red.500" fontWeight="bold" fontSize="lg">
-            *
-          </Text>
-        )}
-      </HStack>
+      <Input
+        type={type}
+        placeholder={placeholder}
+        value={values[field]}
+        onChange={(e) => handleChange(field, e.target.value)}
+        {...inputProps}
+      />
+      {(type === "email" || type === "password" || type === "nroMatricula") && (
+        // <Text color="red.500" fontWeight="bold" fontSize="lg">
+        //   *
+        // </Text>
+        <Text
+          color="red.500"
+          fontWeight="bold"
+          fontSize="lg"
+          visibility={
+            type === "email" || type === "password" || type === "nroMatricula"
+              ? "visible"
+              : "hidden"
+          }
+        >
+          *
+        </Text>
+      )}
+    </HStack>
     <FormErrorMessage>{errors[field]}</FormErrorMessage>
   </FormControl>
 );

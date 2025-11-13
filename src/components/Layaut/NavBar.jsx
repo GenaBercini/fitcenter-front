@@ -43,7 +43,7 @@ export default function NavBar() {
     useAuth();
   const navigate = useNavigate();
   const handleGoToProfile = () => {
-    navigate("/perfil");
+    navigate("/homeProfile");
   };
   return (
     <>

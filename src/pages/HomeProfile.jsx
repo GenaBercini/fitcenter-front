@@ -138,7 +138,7 @@ function HomeView() {
           flexDir="column"
           shadow="md"
           cursor="pointer"
-          onClick={() => navigate("/users")}
+          onClick={() => navigate("/perfil")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaUser size={28} color="#E91E63" />
@@ -176,6 +176,34 @@ function HomeView() {
           <FaClipboardList size={28} color="#E91E63" />
           <Text mt={2}>Actividades</Text>
         </Flex>
+        {/* <Flex
+          bg={bgCard}
+          p={5}
+          borderRadius="xl"
+          align="center"
+          justify="center"
+          flexDir="column"
+          shadow="md"
+          cursor="pointer"
+          onClick={() => {
+            if (user?.membershipType !== "Premium") {
+              alert(
+                "Necesitas una membresía Premium para acceder a las actividades."
+              );
+              return;
+            }
+            navigate("/activities");
+          }}
+          _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
+        >
+          <FaDumbbell size={28} color="#E91E63" />
+          <Text mt={2}>Actividades</Text>
+          {user?.membershipType !== "Premium" && (
+            <Badge colorScheme="yellow" mt={2}>
+              Requiere membresia Premium
+            </Badge>
+          )}
+        </Flex> */}
 
         <Flex
           bg={bgCard}
@@ -186,7 +214,7 @@ function HomeView() {
           flexDir="column"
           shadow="md"
           cursor="pointer"
-          onClick={() => navigate("/historial")}
+          onClick={() => navigate("/routine")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
           <FaHistory size={28} color="#E91E63" />
@@ -235,6 +263,24 @@ function HomeView() {
                 No estás inscripto a ninguna actividad
               </Text>
             )}
+            {/* <Text fontWeight="bold" color="pink.500">
+              Actividad
+            </Text>
+
+            {user?.membershipType !== "Premium" ? (
+              <Text color="gray.500" fontStyle="italic">
+                No tienes acceso a actividades con tu membresía actual.
+              </Text>
+            ) : activity ? (
+              <Text>
+                {activity.name} — {activity.startTime} a {activity.endTime} -{" "}
+                {activity.description}
+              </Text>
+            ) : (
+              <Text color="gray.500">
+                No estás inscripto a ninguna actividad
+              </Text>
+            )} */}
 
             <Text fontWeight="bold" color="pink.500" mt={3}>
               Turnos
