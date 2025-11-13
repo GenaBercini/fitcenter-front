@@ -79,7 +79,7 @@ export default function InstructorProfile() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               ...newActivity,
-              instructor: `${instructor.first_name} ${instructor.last_name}`,
+              instructorId: instructor.id,
               approved: editingActivity.approved,
             }),
           }
@@ -101,6 +101,7 @@ export default function InstructorProfile() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            instructorId: instructor.id,
             ...newActivity,
             instructor: `${instructor.first_name} ${instructor.last_name}`,
             approved: false,
@@ -193,8 +194,10 @@ export default function InstructorProfile() {
           />
           <Box>
             <Text fontSize="2xl" fontWeight="bold">
-              {instructor.first_name} {instructor.last_name}
+              {instructor.first_name}
+              {instructor.last_name ? ` ${instructor.last_name}` : ""}
             </Text>
+
             <Text fontSize="sm" opacity={0.9}>
               Instructor
             </Text>
@@ -249,6 +252,12 @@ export default function InstructorProfile() {
                   <Box>
                     <Text fontWeight="bold" color={textMain}>
                       {act.name}
+                    </Text>
+                    <Text fontSize="sm" color={textSecondary}>
+                      Instructor:{" "}
+                      {act.instructor
+                        ? `${act.instructor.first_name} ${act.instructor.last_name}`
+                        : `${instructor.first_name} ${instructor.last_name}`}
                     </Text>
                     <Text fontSize="sm" color={textSecondary}>
                       Cupo: {act.capacity || "-"} |{" "}
