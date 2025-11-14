@@ -3,10 +3,28 @@ import { Box, Image, Text, Container, Heading } from "@chakra-ui/react";
 import Carousel from "./Carousel";
 import ProductDetail from "./ProductDetail";
 import { products } from "../../utils/mocks";
+import { useEffect } from "react";
+import Swal from "sweetalert2";
 
 export default function ProductsSection() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  
+    useEffect(() => {
+      fetch("http://localhost:3000/products")
+        .then((res) => res.json())
+        .then((data) => {       
+          setProducts(data.data);
+        })
+        .catch((err) => {
+          console.error("Error cargando productos:", err);
+          Swal.fire({ title: "Error", text: err.message, icon: "error" })
+          .then(() => {
+            location.reload();
+          });
+        });
+    }, []);
 
   const handleOpenDetail = (product) => {
     setSelectedProduct(product);
@@ -17,7 +35,7 @@ export default function ProductsSection() {
 
   return (
     <Container maxW="container.lg" py={10}>
-      <Carousel
+      {products.length > 0 && <Carousel
         items={products}
         visibleCount={3}
         renderItem={(p) => (
@@ -36,7 +54,7 @@ export default function ProductsSection() {
             onClick={() => handleOpenDetail(p)}
           >
             <Image
-              src={p.image}
+              src={p.img}
               alt={p.name}
               objectFit="cover"
               h="200px"
@@ -58,9 +76,7 @@ export default function ProductsSection() {
             </Box>
           </Box>
         )}
-      />
-
-      {/* Modal de detalle */}
+      />}
       <ProductDetail
         isOpen={isOpen}
         onClose={handleClose}
