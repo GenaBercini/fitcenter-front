@@ -46,9 +46,9 @@ export default function Footer() {
       >
         <HStack spacing={6}>
           <NavLink to="/">Home</NavLink>
-          <NavLink to="/about">About</NavLink>
+          <NavLink to="/about">Sobre nosotros</NavLink>
           <NavLink to="/blog">Blog</NavLink>
-          <NavLink to="/contact">Contact</NavLink>
+          <NavLink to="/contact">Contactanos</NavLink>
         </HStack>
       </Container>
 

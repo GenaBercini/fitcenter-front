@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
-const Links = ["Home", "Cart", "Turns"];
+const Links = ["Home","Carrito", "Turnos"];
 
 const NavLink = ({ children, to }) => {
   return (
@@ -92,9 +92,9 @@ export default function NavBar() {
             </HStack>
           </HStack>
           <HStack w="40%" maxW="sm" borderWidth="1px" rounded="lg" spacing={0}>
-            <Input flex="1" placeholder="Search" p={2} />
+            <Input flex="1" placeholder="buscar..." p={2} />
             <Button bg="gray.100" variant="outline">
-              Submit
+              Buscar
             </Button>
           </HStack>
           <Flex alignItems={"center"} justifyContent={"end"} minW="20%">
@@ -109,7 +109,7 @@ export default function NavBar() {
                   <Avatar size="sm" src={user.image_url} />
                 </MenuButton>
                 <MenuList>
-                  <MenuItem onClick={handleGoToProfile}>Profile</MenuItem>
+                  <MenuItem onClick={handleGoToProfile}>Perfil</MenuItem>
                   <MenuItem>Configuración</MenuItem>
                   <MenuItem onClick={() => signOut()}>Cerrar Sesión</MenuItem>
                 </MenuList>

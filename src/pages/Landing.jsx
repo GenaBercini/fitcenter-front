@@ -34,10 +34,10 @@ export default function Landing() {
   const { signInWithGoogle } = useAuth();
 
   const stats = [
-    { label: "400+", description: "Happy Members" },
-    { label: "20+", description: "Weekly Classes" },
-    { label: "8+", description: "Certified Trainers" },
-    { label: "99%", description: "Customer Satisfaction" },
+    { label: "400+", description: "Miembros felices" },
+    { label: "20+", description: "Clases semanales" },
+    { label: "8+", description: "Entrenadores certificados" },
+    { label: "99%", description: "Satisfaccion del cliente" },
   ];
 
   const handleJoinNow = () => {
@@ -121,15 +121,14 @@ export default function Landing() {
         <Stack direction={["column", "row"]} align="center" spacing={10}>
           <VStack align="start" maxW="600px">
             <Heading size="2xl" lineHeight="short">
-              Build Strength. Boost Confidence. <br />
-              Transform Your Life.
+              Desarrolla fuerza. Aumenta la confienza. <br />
+              Transforma tu vida.
             </Heading>
             <Text fontSize="lg" color="gray.600">
-              Join TitanFit and become part of a community that pushes limits
-              and inspires greatness.
+              Únete a FitCenter y forma parte de una comunidad que supera los límites e inspira la grandeza.
             </Text>
             <Button bgColor="blue.500" size="lg" onClick={handleJoinNow}>
-              Join Now
+              Empieza ahora
             </Button>
           </VStack>
 
@@ -161,11 +160,11 @@ export default function Landing() {
         ))}
       </SimpleGrid>
 
-      <SectionAccordion title="Products">
+      <SectionAccordion title="Productos">
         <ProductsSection />
       </SectionAccordion>
 
-      <SectionAccordion title="Instructors">
+      <SectionAccordion title="Instructores">
         <InstructorsSection />
       </SectionAccordion>
 
@@ -190,7 +189,7 @@ export default function Landing() {
                       fontSize="lg"
                       whiteSpace="nowrap"
                     >
-                      <Text mr={2}>Pricing</Text>
+                      <Text mr={2}>Precios</Text>
                       <AccordionIcon
                         transform={
                           isExpanded ? "rotate(0deg)" : "rotate(180deg)"
