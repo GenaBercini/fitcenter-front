@@ -14,7 +14,7 @@ import { FaCheck } from "react-icons/fa";
 const plans = [
   {
     name: "Básico",
-    price: 79,
+    price: 20,
     benefits: [
       "Acceso al gimnasio",
       "Uso de máquinas de musculación y cardio",
@@ -23,24 +23,14 @@ const plans = [
     scale: 0.9, // pequeño
   },
   {
-    name: "VIP",
-    price: 129,
+    name: "Premium",
+    price: 30,
     benefits: [
       "Todo lo del Básico",
       "Acceso a clases grupales",
       "Zona exclusiva para miembros VIP",
     ],
     scale: 1, // mediano
-  },
-  {
-    name: "Full",
-    price: 199,
-    benefits: [
-      "Todo lo del VIP",
-      "Entrenador personal 1 vez por semana",
-      "Acceso ilimitado a todas las áreas",
-    ],
-    scale: 1.1, // más grande
   },
 ];
 
@@ -69,21 +59,21 @@ export default function Membership() {
                 fontWeight={500}
                 p={2}
                 px={3}
-                color={"pink.400"}
+                color={"blue.500"}
                 rounded={"full"}
                 borderWidth="1px"
-                borderColor="pink.400"
+                borderColor="blue.500"
               >
                 {plan.name}
               </Text>
               <Stack direction={"row"} align={"center"} justify={"center"}>
-                <Text fontSize={"3xl"} color="pink.400">
+                <Text fontSize={"3xl"} color="blue.400">
                   $
                 </Text>
-                <Text fontSize={"6xl"} fontWeight={800} color="pink.500">
+                <Text fontSize={"6xl"} fontWeight={800} color="blue.500">
                   {plan.price}
                 </Text>
-                <Text color={"gray.500"}>/month</Text>
+                <Text color={"gray.500"}>/mensuales</Text>
               </Stack>
             </Stack>
 
@@ -91,7 +81,7 @@ export default function Membership() {
               <List spacing={3} minH="110px">
                 {plan.benefits.map((b, i) => (
                   <ListItem key={i}>
-                    <ListIcon as={FaCheck} color="pink.400" />
+                    <ListIcon as={FaCheck} color="blue.500" />
                     {b}
                   </ListItem>
                 ))}
@@ -100,12 +90,12 @@ export default function Membership() {
               <Button
                 mt={6}
                 w={"full"}
-                bg={"pink.400"}
+                bg={"blue.500"}
                 color={"white"}
                 rounded={"xl"}
                 boxShadow={"0 5px 20px 0px rgb(219, 39, 119 / 63%)"}
-                _hover={{ bg: "pink.500" }}
-                _focus={{ bg: "pink.500" }}
+                _hover={{ bg: "blue.500" }}
+                _focus={{ bg: "blue.500" }}
               >
                 Seleccionar
               </Button>
