@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
-const Links = ["Home","Carrito", "Turnos"];
+const Links = ["Home","Cart", "Turnos"];
 
 const NavLink = ({ children, to }) => {
   return (

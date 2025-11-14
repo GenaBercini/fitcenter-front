@@ -1,7 +1,7 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import Landing from "../pages/Landing";
-import Cart from "../pages/cart";
+import Cart from "../pages/Cart";
 import About from "../pages/About";
 import Blog from "../pages/Blog";
 import Contact from "../pages/Contact";
@@ -29,6 +29,10 @@ import Routines from "../pages/Routines";
 import Instructors from "../pages/Instructors";
 import Professors from "../pages/Professors";
 
+import CheckoutSuccess from "../pages/CheckoutSuccess";
+import CheckoutCancel from "../pages/CheckoutCancel";
+
+
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Routes } from "react-router-dom";
 
@@ -50,6 +54,10 @@ const AppRoutes = () => (
 
     <Route path="/instructor" element={<InstructorProfile />} />
     <Route path="/professor" element={<ProfessorProfile />} />
+
+    <Route path="/checkout/success" element={<CheckoutSuccess />} />
+    <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+
 
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="main" element={<Main />} />

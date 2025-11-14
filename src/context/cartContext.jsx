@@ -11,11 +11,15 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const fetchActiveCart = async () => {
+    
+    
     if (!user?.id) return;
     try {
       setLoading(true);
       const { data } = await axios.get(`${API_URL}/cart/${user.id}`);
+      console.log(data);
       if (data?.data) {
+        console.log(data);
         setCart(data.data);
       }
     } catch (err) {
