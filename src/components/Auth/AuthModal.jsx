@@ -114,7 +114,6 @@ export default function AuthModal() {
         position: "bottom-left",
         status: "success",
       });
-      console.log(loggedUser)
       if (loggedUser?.role === "admin") navigate("/dashboard");
       if (loggedUser?.role === "instructor") navigate("/instructor");
       if (loggedUser?.role === "professor") navigate("/professor");
