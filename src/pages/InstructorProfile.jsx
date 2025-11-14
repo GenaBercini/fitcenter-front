@@ -24,6 +24,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { FaEdit } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
@@ -66,7 +67,31 @@ export default function InstructorProfile() {
     };
     fetchInstructor();
   }, [user]);
+  const handleDeleteActivity = async (activityId) => {
+    if (!activityId) return;
+    const ok = window.confirm("¿Eliminar esta actividad?");
+    if (!ok) return;
 
+    try {
+      const res = await fetch(
+        `http://localhost:3000/activities/${activityId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || "Error al eliminar actividad");
+      }
+      setInstructor((prev) => ({
+        ...prev,
+        activities: prev.activities.filter((a) => a.id !== activityId),
+      }));
+    } catch (err) {
+      alert("Error al eliminar actividad: " + err.message);
+    }
+  };
   const handleCreateActivity = async () => {
     setLoadingCreate(true);
     try {
@@ -271,14 +296,25 @@ export default function InstructorProfile() {
                       </Text>
                     )}
                   </Box>
-                  <IconButton
-                    icon={<FaEdit />}
-                    aria-label="Editar"
-                    size="sm"
-                    colorScheme="pink"
-                    variant="outline"
-                    onClick={() => handleEditClick(act)}
-                  />
+                  <HStack spacing={2}>
+                    <IconButton
+                      icon={<FaEdit />}
+                      aria-label="Editar"
+                      size="sm"
+                      colorScheme="pink"
+                      variant="outline"
+                      onClick={() => handleEditClick(act)}
+                    />
+
+                    <IconButton
+                      icon={<FaTrash />}
+                      aria-label="Eliminar"
+                      size="sm"
+                      colorScheme="red"
+                      variant="ghost"
+                      onClick={() => handleDeleteActivity(act.id)}
+                    />
+                  </HStack>
                 </Flex>
               ))
             ) : (

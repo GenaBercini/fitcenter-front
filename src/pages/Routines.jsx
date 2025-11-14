@@ -118,9 +118,9 @@ function Routines() {
       .includes(filter.toLowerCase());
     const profMatch =
       r.professor &&
-      `${r.professor.first_name} ${r.professor.last_name}`
-        .toLowerCase()
-        .includes(filter.toLowerCase());
+      `${r.professor.first_name} ${r.professor.last_name || ""}`
+        .trim()
+        .toLowerCase();
     return typeMatch || profMatch;
   });
 
@@ -263,7 +263,9 @@ function Routines() {
               <Text fontSize="sm" color="gray.600">
                 Instructor:{" "}
                 {routine.professor
-                  ? `${routine.professor.first_name} ${routine.professor.last_name}`
+                  ? `${routine.professor.first_name} ${
+                      routine.professor.last_name || ""
+                    }`.trim()
                   : "No asignado"}
               </Text>
               <Text fontSize="sm" color="gray.600">
