@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import Demo from '../components/Dashboard/Accordion';
+
+import 'chartkick/chart.js'
 import {
   Box,
   Flex,
@@ -41,9 +43,13 @@ const CustomerRow = ({ name, role }) => (
   </Flex>
 );
 
+
+
+
+
 const Dashboard = () => {
   return (
-    <Flex minH="100vh" bg="gray.500">
+    <Flex minH="100vh" bg="gray.200">
 
       {/* Vertical navbar */}
 
@@ -70,7 +76,7 @@ const Dashboard = () => {
 
       {/* Main */}
       <Box flex="1" p={6}>
-
+        
         {/* para las subrutas del panel */}
         <Outlet />
 

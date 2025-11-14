@@ -34,17 +34,17 @@ const Professors = () => {
     //PROFESORES
 
     useEffect(() => {
-      fetch("http://localhost:3000/professors")
+      fetch("http://localhost:3000/users/role/professor")
         .then((res) => res.json())
         .then((data) => {
           
-          setProfessors(data);
-          setFilteredProfessors(data);
-          console.log("DATA", data);
+          setProfessors(data.data);
+          setFilteredProfessors(data.data);
+          console.log("DATA", data.data);
         })
         .catch((err) => {
           console.error("Error cargando profesores:", err);
-          Swal.fire({ title: "Error", text: err, icon: "error" })
+          Swal.fire({ title: "Error", text: "No se pudieron cargar los profesores. Intente nuevamente.", icon: "error" })
           .then(() => {
             location.reload();
           });
@@ -61,9 +61,11 @@ const Professors = () => {
     
     const applyFilters = (searchValue) => {
       const filtered = professors.filter((p) => {
-        const matchesSearch = String(p.registration_number)
-          .toLowerCase()
-          .includes(searchValue);
+        const matchesSearch =
+          p.first_name.toLowerCase().includes(searchValue) ||
+          p.last_name.toLowerCase().includes(searchValue) ||
+          p.email.toLowerCase().includes(searchValue) ||
+          String(p.registration_number).toLowerCase().includes(searchValue);
         return matchesSearch;
       });
 
@@ -83,7 +85,7 @@ const Professors = () => {
               <SearchIcon color='gray.300' />
             </InputLeftElement>
             <Input
-              placeholder='Buscar por nombre'
+              placeholder='Buscar por nombre o matrícula'
               value={searchTerm}
               onChange={handleSearch}
             />
@@ -95,16 +97,29 @@ const Professors = () => {
         <Table size="md" variant="simple">
           <Thead>
             <Tr>
+              <Th>Nombre</Th>
+              <Th>Apellido</Th>
+              <Th>Teléfono</Th>
+              <Th>Email</Th>
+              <Th>Dirección</Th>
               <Th>Matrícula</Th>
+              <Th>Desde</Th>
               <Th>Editar</Th>
             </Tr>
           </Thead>
 
           <Tbody>
-            {filteredProfessors.length > 0 ? (
+            {filteredProfessors != undefined &&
+              filteredProfessors.length > 0 ? (
                 filteredProfessors.map((professor) => (
                   <Tr key={professor.id}>
+                    <Td>{professor.first_name}</Td>
+                    <Td>{professor.last_name}</Td>
+                    <Td>{professor.phone}</Td>
+                    <Td>{professor.email}</Td>
+                    <Td>{professor.adress}</Td>
                     <Td>{professor.registration_number}</Td>
+                    <Td>{ professor.createdAt ? new Date(professor.createdAt).toLocaleDateString() : "No se informa"}</Td>
                     <Td><EditCategory category={professor} /></Td>
                   </Tr>
                 ))
