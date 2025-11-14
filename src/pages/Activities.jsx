@@ -182,7 +182,7 @@ function Activities() {
           <Button
             key={name}
             variant={selectedFilter === name ? "solid" : "outline"}
-            colorScheme="pink"
+            colorScheme="blue"
             onClick={() => setSelectedFilter(name)}
           >
             {name}
@@ -257,7 +257,7 @@ function Activities() {
               </Button>
             ) : (
               <Button
-                colorScheme="pink"
+                colorScheme="blue"
                 onClick={() => handleInscription(activity)}
                 isDisabled={!!currentInscription}
               >
@@ -304,12 +304,12 @@ function Activities() {
                 <Button variant="ghost" onClick={onClose}>
                   Cancelar
                 </Button>
-                <Button colorScheme="pink" ml={3} onClick={confirmInscription}>
+                <Button colorScheme="blue" ml={3} onClick={confirmInscription}>
                   Confirmar
                 </Button>
               </>
             ) : (
-              <Button colorScheme="pink" onClick={onClose}>
+              <Button colorScheme="blue" onClick={onClose}>
                 Cerrar
               </Button>
             )}

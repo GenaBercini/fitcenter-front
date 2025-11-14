@@ -80,7 +80,7 @@ export default function Membership() {
                 <Text fontSize={"3xl"} color="pink.400">
                   $
                 </Text>
-                <Text fontSize={"6xl"} fontWeight={800} color="pink.500">
+                <Text fontSize={"6xl"} fontWeight={800} color="blue.500">
                   {plan.price}
                 </Text>
                 <Text color={"gray.500"}>/month</Text>
@@ -104,8 +104,8 @@ export default function Membership() {
                 color={"white"}
                 rounded={"xl"}
                 boxShadow={"0 5px 20px 0px rgb(219, 39, 119 / 63%)"}
-                _hover={{ bg: "pink.500" }}
-                _focus={{ bg: "pink.500" }}
+                _hover={{ bg: "blue.500" }}
+                _focus={{ bg: "blue.500" }}
               >
                 Seleccionar
               </Button>

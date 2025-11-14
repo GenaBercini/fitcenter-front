@@ -177,7 +177,7 @@ export default function InstructorProfile() {
         overflow="hidden"
       >
         <Flex
-          bgGradient="linear(to-r, pink.500, pink.400)"
+          bgGradient="linear(to-r, blue.500, pink.400)"
           color="white"
           align="center"
           p={6}

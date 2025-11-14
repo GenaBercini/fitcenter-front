@@ -139,7 +139,7 @@ export default function ProfessorProfile() {
   if (!professor) {
     return (
       <Flex justify="center" align="center" minH="100vh">
-        <Text color="pink.500" fontWeight="bold">
+        <Text color="blue.500" fontWeight="bold">
           No se encontró la información del profesor.
         </Text>
       </Flex>
@@ -159,7 +159,7 @@ export default function ProfessorProfile() {
         overflow="hidden"
       >
         <Flex
-          bgGradient="linear(to-r, pink.500, pink.400)"
+          bgGradient="linear(to-r, blue.500, pink.400)"
           color="white"
           align="center"
           p={6}

@@ -109,11 +109,11 @@ function HomeView() {
 
   return (
     <Box p={6} bg={bgPage} minH="100vh">
-      {/* 🔹 Encabezado con nombre + alerta si faltan datos */}
+      {/* Encabezado con nombre + alerta si faltan datos */}
       <Flex align="center" justify="space-between" flexWrap="wrap">
         <Heading size="lg" color={textColor}>
           ¡Hola{" "}
-          <Text as="span" color="pink.500">
+          <Text as="span" color="blue.500">
             {user?.first_name || "usuario"}
           </Text>
           !
@@ -155,11 +155,11 @@ function HomeView() {
           onClick={() => navigate("/perfil")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaUser size={28} color="#E91E63" />
+          <FaUser size={28} color="#393bd3ff" />
           <Text mt={2}>Perfil</Text>
         </Flex>
 
-        {/* <Flex
+        <Flex
           bg={bgCard}
           p={5}
           borderRadius="xl"
@@ -171,10 +171,10 @@ function HomeView() {
           onClick={() => navigate("/schedule")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaCalendarPlus size={28} color="#E91E63" />
+          <FaCalendarPlus size={28} color="#393bd3ff" />
           <Text mt={2}>Reservar turno</Text>
-        </Flex> */}
-        <Flex
+        </Flex>
+        {/* <Flex
           bg={bgCard}
           p={5}
           borderRadius="xl"
@@ -185,11 +185,11 @@ function HomeView() {
           cursor="pointer"
           onClick={() => {
             if (
-              user?.membershipType !== "Classic" &&
+              user?.membershipType !== "Basic" &&
               user?.membershipType !== "Premium"
             ) {
               alert(
-                "Necesitas membresía Classic o Premium para reservar turnos."
+                "Necesitas membresía Basic o Premium para reservar turnos."
               );
               return;
             }
@@ -197,17 +197,17 @@ function HomeView() {
           }}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaCalendarPlus size={28} color="#E91E63" />
+          <FaCalendarPlus size={28} color="#393bd3ff" />
           <Text mt={2}>Reservar turno</Text>
 
           {user?.membershipType === "Guest" && (
             <Badge colorScheme="yellow" mt={2}>
-              Requiere membresía Classic
+              Requiere membresía Basic
             </Badge>
           )}
-        </Flex>
+        </Flex> */}
 
-        {/* <Flex
+        <Flex
           bg={bgCard}
           p={5}
           borderRadius="xl"
@@ -219,12 +219,12 @@ function HomeView() {
           onClick={() => navigate("/activities")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaClipboardList size={28} color="#E91E63" />
+          <FaClipboardList size={28} color="#393bd3ff" />
           <Text mt={2}>Actividades</Text>
-        </Flex> */}
+        </Flex>
 
         {/* ACTIVIDADES → Premium */}
-        <Flex
+        {/* <Flex
           bg={bgCard}
           p={5}
           borderRadius="xl"
@@ -244,7 +244,7 @@ function HomeView() {
           }}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaClipboardList size={28} color="#E91E63" />
+          <FaClipboardList size={28} color="#393bd3ff" />
           <Text mt={2}>Actividades</Text>
 
           {user?.membershipType !== "Premium" && (
@@ -252,9 +252,9 @@ function HomeView() {
               Requiere membresía Premium
             </Badge>
           )}
-        </Flex>
+        </Flex> */}
 
-        {/* <Flex
+        <Flex
           bg={bgCard}
           p={5}
           borderRadius="xl"
@@ -266,12 +266,12 @@ function HomeView() {
           onClick={() => navigate("/routine")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaHistory size={28} color="#E91E63" />
+          <FaHistory size={28} color="#393bd3ff" />
           <Text mt={2}>Rutinas</Text>
-        </Flex> */}
+        </Flex>
 
-        {/* RUTINAS → Classic o Premium */}
-        <Flex
+        {/* RUTINAS → Basic o Premium */}
+        {/* <Flex
           bg={bgCard}
           p={5}
           borderRadius="xl"
@@ -282,17 +282,17 @@ function HomeView() {
           cursor="pointer"
           onClick={() => {
             if (
-              user?.membershipType !== "Classic" &&
+              user?.membershipType !== "Basic" &&
               user?.membershipType !== "Premium"
             ) {
-              alert("Necesitas membresía Classic o Premium para ver rutinas.");
+              alert("Necesitas membresía Basic o Premium para ver rutinas.");
               return;
             }
             navigate("/routine");
           }}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaHistory size={28} color="#E91E63" />
+          <FaHistory size={28} color="#393bd3ff" />
           <Text mt={2}>Rutinas</Text>
 
           {user?.membershipType === "Guest" && (
@@ -300,7 +300,7 @@ function HomeView() {
               Requiere membresía Classic
             </Badge>
           )}
-        </Flex>
+        </Flex> */}
       </Grid>
 
       {/*  Sección entrenamiento */}
@@ -318,7 +318,7 @@ function HomeView() {
           alignItems="flex-start"
         >
           <Flex align="center" mb={3}>
-            <FaDumbbell size={28} color="#E91E63" />
+            <FaDumbbell size={28} color="#393bd3ff" />
             <VStack align="start" spacing={0} ml={4}>
               <Text fontWeight="bold" color={textColor}>
                 Ver plan actual
@@ -331,7 +331,7 @@ function HomeView() {
 
           {/* Información de inscripción */}
           <Box w="100%" mt={3}>
-            {/* <Text fontWeight="bold" color="pink.500">
+            <Text fontWeight="bold" color="blue.500">
               Actividad
             </Text>
             {activity ? (
@@ -343,8 +343,8 @@ function HomeView() {
               <Text color="gray.500">
                 No estás inscripto a ninguna actividad
               </Text>
-            )} */}
-            <Text fontWeight="bold" color="pink.500">
+            )}
+            {/* <Text fontWeight="bold" color="blue.500">
               Actividad
             </Text>
 
@@ -361,10 +361,10 @@ function HomeView() {
               <Text color="gray.500">
                 No estás inscripto a ninguna actividad
               </Text>
-            )}
+            )} */}
 
             {/* TURNOS */}
-            <Text fontWeight="bold" color="pink.500" mt={3}>
+            {/* <Text fontWeight="bold" color="blue.500" mt={3}>
               Turnos
             </Text>
 
@@ -382,8 +382,8 @@ function HomeView() {
               </VStack>
             ) : (
               <Text color="gray.500">No estás inscripto a ningún turno</Text>
-            )}
-            {/* <Text fontWeight="bold" color="pink.500" mt={3}>
+            )} */}
+            <Text fontWeight="bold" color="blue.500" mt={3}>
               Turnos
             </Text>
             {schedules.length > 0 ? (
@@ -396,15 +396,15 @@ function HomeView() {
               </VStack>
             ) : (
               <Text color="gray.500">No estás inscripto a ningún turno</Text>
-            )} */}
+            )}
 
-            <Text fontWeight="bold" color="pink.500" mt={3}>
+            <Text fontWeight="bold" color="blue.500" mt={3}>
               Rutina
             </Text>
-            {/* {currentRoutine ? (
+            {currentRoutine ? (
               <Text
                 cursor="pointer"
-                color="pink.400"
+                color="blue.500.400"
                 textDecoration="underline"
                 onClick={() => {
                   setSelectedRoutine(currentRoutine);
@@ -415,12 +415,12 @@ function HomeView() {
               </Text>
             ) : (
               <Text color="gray.500">No estás inscripto a ninguna rutina.</Text>
-            )} */}
+            )}
 
-            {currentRoutine ? (
+            {/* {currentRoutine ? (
               <Text
                 cursor="pointer"
-                color="pink.400"
+                color="blue.500.400"
                 textDecoration="underline"
                 onClick={() => {
                   setSelectedRoutine(currentRoutine);
@@ -435,7 +435,7 @@ function HomeView() {
               </Text>
             ) : (
               <Text color="gray.500">No estás inscripto a ninguna rutina.</Text>
-            )}
+            )} */}
           </Box>
         </Flex>
       </Box>
@@ -465,7 +465,7 @@ function HomeView() {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="pink" onClick={onClose}>
+            <Button colorScheme="blue" onClick={onClose}>
               Cerrar
             </Button>
           </ModalFooter>
