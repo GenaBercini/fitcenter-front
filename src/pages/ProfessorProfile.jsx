@@ -7,6 +7,7 @@ import {
   HStack,
   Button,
   Divider,
+  IconButton,
   useColorModeValue,
   Spinner,
   useDisclosure,
@@ -22,7 +23,7 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import { FaDumbbell, FaListUl } from "react-icons/fa";
+import { FaDumbbell, FaListUl, FaEdit, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
@@ -31,18 +32,9 @@ export default function ProfessorProfile() {
   const [professor, setProfessor] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const bgCard = useColorModeValue("white", "gray.800");
-  const bgSoftPink = useColorModeValue("pink.50", "pink.900");
-  const borderPink = useColorModeValue("pink.300", "pink.600");
-  const textSecondary = useColorModeValue("gray.600", "gray.300");
-
+  const [editingExercise, setEditingExercise] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [newExercise, setNewExercise] = useState({ name: "", typeEx: "" });
-  const {
-    isOpen: isOpenExercise,
-    onOpen: onOpenExercise,
-    onClose: onCloseExercise,
-  } = useDisclosure();
 
   const [routines, setRoutines] = useState([]);
   const [newRoutine, setNewRoutine] = useState({
@@ -50,6 +42,20 @@ export default function ProfessorProfile() {
     descRoutine: "",
   });
   const [selectedExercises, setSelectedExercises] = useState([]);
+
+  const [editingRoutine, setEditingRoutine] = useState(null);
+
+  const bgCard = useColorModeValue("white", "gray.800");
+  const bgSoftPink = useColorModeValue("pink.50", "pink.900");
+  const borderPink = useColorModeValue("pink.300", "pink.600");
+  const textSecondary = useColorModeValue("gray.600", "gray.300");
+
+  const {
+    isOpen: isOpenExercise,
+    onOpen: onOpenExercise,
+    onClose: onCloseExercise,
+  } = useDisclosure();
+
   const {
     isOpen: isOpenRoutine,
     onOpen: onOpenRoutine,
@@ -80,6 +86,19 @@ export default function ProfessorProfile() {
     fetchData();
   }, [user]);
 
+  const closeExerciseModal = () => {
+    setEditingExercise(null);
+    setNewExercise({ name: "", typeEx: "" });
+    onCloseExercise();
+  };
+
+  const closeRoutineModal = () => {
+    setEditingRoutine(null);
+    setNewRoutine({ typeRoutine: "", descRoutine: "" });
+    setSelectedExercises([]);
+    onCloseRoutine();
+  };
+
   const handleCreateExercise = async () => {
     try {
       const res = await fetch("http://localhost:3000/exercises", {
@@ -91,12 +110,49 @@ export default function ProfessorProfile() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.msg);
+      if (!res.ok) throw new Error(data.msg || "Error creando ejercicio");
       setExercises((prev) => [...prev, data.data]);
+      closeExerciseModal();
+    } catch (err) {
+      alert("Error al crear ejercicio: " + (err.message || err));
+    }
+  };
+
+  const handleSaveExercise = async () => {
+    try {
+      if (editingExercise) {
+        const res = await fetch(
+          `http://localhost:3000/exercises/${editingExercise.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newExercise),
+          }
+        );
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.msg || "Error guardando ejercicio");
+
+        setExercises((prev) =>
+          prev.map((e) => (e.id === editingExercise.id ? data.data : e))
+        );
+      } else {
+        const res = await fetch("http://localhost:3000/exercises", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...newExercise, professorId: user.id }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.msg || "Error creando ejercicio");
+        setExercises((prev) => [...prev, data.data]);
+      }
+
+      setEditingExercise(null);
       setNewExercise({ name: "", typeEx: "" });
       onCloseExercise();
     } catch (err) {
-      alert("Error al crear ejercicio: " + err.message);
+      alert("Error al guardar ejercicio: " + (err.message || err));
     }
   };
 
@@ -112,13 +168,40 @@ export default function ProfessorProfile() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.msg);
+      if (!res.ok) throw new Error(data.msg || "Error creando rutina");
       setRoutines((prev) => [...prev, data.data]);
-      setNewRoutine({ typeRoutine: "", descRoutine: "" });
-      setSelectedExercises([]);
-      onCloseRoutine();
+      closeRoutineModal();
     } catch (err) {
-      alert("Error al crear rutina: " + err.message);
+      alert("Error al crear rutina: " + (err.message || err));
+    }
+  };
+
+  const handleSaveRoutine = async () => {
+    try {
+      if (!editingRoutine) return;
+
+      const res = await fetch(
+        `http://localhost:3000/routines/${editingRoutine.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...newRoutine,
+            exercises: selectedExercises,
+          }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Error guardando rutina");
+
+      setRoutines((prev) =>
+        prev.map((r) => (r.id === editingRoutine.id ? data.data : r))
+      );
+
+      closeRoutineModal();
+    } catch (err) {
+      alert("Error al guardar rutina: " + (err.message || err));
     }
   };
 
@@ -126,6 +209,74 @@ export default function ProfessorProfile() {
     setSelectedExercises((prev) =>
       prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]
     );
+  };
+
+  const handleEditExercise = (exercise) => {
+    if (!exercise) return;
+    setEditingExercise(exercise);
+    setNewExercise({
+      name: exercise.name || "",
+      typeEx: exercise.typeEx || "",
+    });
+    onOpenExercise();
+  };
+
+  const handleEditRoutine = (routine) => {
+    if (!routine) return;
+    setEditingRoutine(routine);
+    setNewRoutine({
+      typeRoutine: routine.typeRoutine || "",
+      descRoutine: routine.descRoutine || "",
+    });
+    setSelectedExercises(
+      routine.exercises?.filter(Boolean).map((e) => e.id) || []
+    );
+    onOpenRoutine();
+  };
+
+  const handleDeleteExercise = async (exerciseId) => {
+    if (!exerciseId) return;
+    const ok = window.confirm("¿Eliminar este ejercicio?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/exercises/${exerciseId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || "Error al eliminar ejercicio");
+      }
+
+      setExercises((prev) => prev.filter((e) => e.id !== exerciseId));
+
+      setSelectedExercises((prev) => prev.filter((id) => id !== exerciseId));
+    } catch (err) {
+      alert("Error al eliminar ejercicio: " + (err.message || err));
+    }
+  };
+
+  const handleDeleteRoutine = async (routineId) => {
+    if (!routineId) return;
+    const ok = window.confirm("¿Eliminar (deshabilitar) esta rutina?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/routines/${routineId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ disabled: true }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Error al eliminar rutina");
+
+      // remove from local state
+      setRoutines((prev) => prev.filter((r) => r.id !== routineId));
+    } catch (err) {
+      alert("Error al eliminar rutina: " + (err.message || err));
+    }
   };
 
   if (loading) {
@@ -176,7 +327,7 @@ export default function ProfessorProfile() {
           />
           <Box>
             <Text fontSize="2xl" fontWeight="bold">
-              {professor?.first_name} {professor?.last_name}
+              {professor?.first_name} {professor?.last_name || ""}
             </Text>
             <Text fontSize="sm" opacity={0.9}>
               Profesor
@@ -220,21 +371,48 @@ export default function ProfessorProfile() {
 
           <SimpleGrid columns={[1, 2]} spacing={3} mb={6}>
             {exercises.length > 0 ? (
-              exercises.map((ex) => (
-                <Box
-                  key={ex.id}
-                  bg={bgSoftPink}
-                  border="1px solid"
-                  borderColor="pink.100"
-                  p={3}
-                  borderRadius="lg"
-                >
-                  <Text fontWeight="bold">{ex.name}</Text>
-                  <Text fontSize="sm" color={textSecondary}>
-                    Tipo: {ex.typeEx}
-                  </Text>
-                </Box>
-              ))
+              exercises.map((ex) =>
+                ex ? (
+                  <Flex
+                    key={ex.id}
+                    justify="space-between"
+                    align="center"
+                    bg={bgSoftPink}
+                    border="1px solid"
+                    borderColor="pink.100"
+                    p={4}
+                    borderRadius="lg"
+                    _hover={{ boxShadow: "md", transform: "scale(1.01)" }}
+                    transition="all 0.15s"
+                  >
+                    <Box>
+                      <Text fontWeight="bold">{ex.name || "-"}</Text>
+                      <Text fontSize="sm" color={textSecondary}>
+                        Tipo: {ex.typeEx || "-"}
+                      </Text>
+                    </Box>
+
+                    <HStack spacing={2}>
+                      <IconButton
+                        icon={<FaEdit />}
+                        aria-label="Editar ejercicio"
+                        size="sm"
+                        colorScheme="pink"
+                        variant="outline"
+                        onClick={() => handleEditExercise(ex)}
+                      />
+                      <IconButton
+                        icon={<FaTrash />}
+                        aria-label="Eliminar ejercicio"
+                        size="sm"
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={() => handleDeleteExercise(ex.id)}
+                      />
+                    </HStack>
+                  </Flex>
+                ) : null
+              )
             ) : (
               <Text color="gray.500">No hay ejercicios creados.</Text>
             )}
@@ -256,38 +434,69 @@ export default function ProfessorProfile() {
 
           <VStack align="stretch" spacing={3}>
             {routines.length > 0 ? (
-              routines.map((r, i) => (
-                <Box
-                  key={i}
-                  bg={bgSoftPink}
-                  border="1px solid"
-                  borderColor="pink.100"
-                  p={4}
-                  borderRadius="lg"
-                >
-                  <Text fontWeight="bold">{r.typeRoutine}</Text>
-                  <Text fontSize="sm" color={textSecondary}>
-                    {r.descRoutine}
-                  </Text>
+              routines.map((r, i) =>
+                r ? (
+                  <Flex
+                    key={r.id ?? i}
+                    justify="space-between"
+                    align="center"
+                    bg={bgSoftPink}
+                    border="1px solid"
+                    borderColor="pink.100"
+                    p={4}
+                    borderRadius="lg"
+                    _hover={{ boxShadow: "md", transform: "scale(1.01)" }}
+                    transition="all 0.15s"
+                  >
+                    <Box>
+                      <Text fontWeight="bold">{r.typeRoutine || "-"}</Text>
+                      <Text fontSize="sm" color={textSecondary}>
+                        {r.descRoutine || ""}
+                      </Text>
+                      {r.exercises?.length > 0 && (
+                        <Text fontSize="sm" mt={2}>
+                          <strong>Ejercicios:</strong>{" "}
+                          {Array.isArray(r.exercises) && r.exercises.length > 0
+                            ? r.exercises.map((e) => e?.name || "-").join(", ")
+                            : "Sin ejercicios"}
+                        </Text>
+                      )}
+                    </Box>
 
-                  {r.exercises && r.exercises.length > 0 && (
-                    <Text fontSize="sm" mt={2}>
-                      <strong>Ejercicios:</strong>{" "}
-                      {r.exercises.map((e) => e.name).join(", ")}
-                    </Text>
-                  )}
-                </Box>
-              ))
+                    <HStack spacing={2}>
+                      <IconButton
+                        icon={<FaEdit />}
+                        aria-label="Editar rutina"
+                        size="sm"
+                        colorScheme="pink"
+                        variant="outline"
+                        onClick={() => handleEditRoutine(r)}
+                      />
+                      <IconButton
+                        icon={<FaTrash />}
+                        aria-label="Eliminar rutina"
+                        size="sm"
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={() => handleDeleteRoutine(r.id)}
+                      />
+                    </HStack>
+                  </Flex>
+                ) : null
+              )
             ) : (
               <Text color="gray.500">No hay rutinas creadas.</Text>
             )}
           </VStack>
         </Box>
       </Box>
-      <Modal isOpen={isOpenExercise} onClose={onCloseExercise} isCentered>
+
+      <Modal isOpen={isOpenExercise} onClose={closeExerciseModal} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Nuevo Ejercicio</ModalHeader>
+          <ModalHeader>
+            {editingExercise ? "Editar Ejercicio" : "Nuevo Ejercicio"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
@@ -316,24 +525,48 @@ export default function ProfessorProfile() {
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onCloseExercise}>
+            <Button variant="ghost" mr={3} onClick={closeExerciseModal}>
               Cancelar
             </Button>
-            <Button colorScheme="pink" onClick={handleCreateExercise}>
-              Crear
-            </Button>
+
+            {editingExercise ? (
+              <HStack spacing={2}>
+                <Button
+                  colorScheme="red"
+                  variant="outline"
+                  onClick={() => {
+                    // delete from modal
+                    if (editingExercise?.id)
+                      handleDeleteExercise(editingExercise.id);
+                    closeExerciseModal();
+                  }}
+                >
+                  Eliminar
+                </Button>
+                <Button colorScheme="pink" onClick={handleSaveExercise}>
+                  Guardar Cambios
+                </Button>
+              </HStack>
+            ) : (
+              <Button colorScheme="pink" onClick={handleCreateExercise}>
+                Crear
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
+
       <Modal
         isOpen={isOpenRoutine}
-        onClose={onCloseRoutine}
+        onClose={closeRoutineModal}
         isCentered
         size="lg"
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Nueva Rutina</ModalHeader>
+          <ModalHeader>
+            {editingRoutine ? "Editar Rutina" : "Nueva Rutina"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mb={3}>
@@ -367,30 +600,52 @@ export default function ProfessorProfile() {
             <FormControl>
               <FormLabel>Seleccionar ejercicios</FormLabel>
               <SimpleGrid columns={[1, 2]} spacing={2}>
-                {exercises.map((ex) => (
-                  <Button
-                    key={ex.id}
-                    variant={
-                      selectedExercises.includes(ex.id) ? "solid" : "outline"
-                    }
-                    colorScheme="pink"
-                    size="sm"
-                    onClick={() => toggleExercise(ex.id)}
-                  >
-                    {ex.name}
-                  </Button>
-                ))}
+                {exercises.map((ex) =>
+                  ex ? (
+                    <Button
+                      key={ex.id}
+                      variant={
+                        selectedExercises.includes(ex.id) ? "solid" : "outline"
+                      }
+                      colorScheme="pink"
+                      size="sm"
+                      onClick={() => toggleExercise(ex.id)}
+                    >
+                      {ex.name}
+                    </Button>
+                  ) : null
+                )}
               </SimpleGrid>
             </FormControl>
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onCloseRoutine}>
+            <Button variant="ghost" mr={3} onClick={closeRoutineModal}>
               Cancelar
             </Button>
-            <Button colorScheme="pink" onClick={handleCreateRoutine}>
-              Crear
-            </Button>
+
+            {editingRoutine ? (
+              <HStack spacing={2}>
+                <Button
+                  colorScheme="red"
+                  variant="outline"
+                  onClick={() => {
+                    if (editingRoutine?.id)
+                      handleDeleteRoutine(editingRoutine.id);
+                    closeRoutineModal();
+                  }}
+                >
+                  Eliminar
+                </Button>
+                <Button colorScheme="pink" onClick={handleSaveRoutine}>
+                  Guardar Cambios
+                </Button>
+              </HStack>
+            ) : (
+              <Button colorScheme="pink" onClick={handleCreateRoutine}>
+                Crear
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
