@@ -100,7 +100,7 @@ const UserProfile = () => {
   if (loading) {
     return (
       <Flex justify="center" align="center" minH="100vh">
-        <Spinner size="xl" color="pink.500" />
+        <Spinner size="xl" color="blue.500" />
       </Flex>
     );
   }
@@ -137,76 +137,18 @@ const UserProfile = () => {
             name={`${user.first_name || ""} ${user.last_name || ""}`}
             src={user.image_url}
           />
-          <Heading size="md" color="pink.500">
+          <Heading size="md" color="blue.500">
             {user.first_name || "Sin nombre"} {user.last_name || ""}
           </Heading>
-          <Badge colorScheme="pink" fontSize="0.8em">
+          <Badge colorScheme="blue.500" fontSize="0.8em">
             {user.role?.toUpperCase()}
           </Badge>
         </VStack>
         <Divider my={6} />
-        {/* Información editable */}
-        {/* <VStack align="stretch" spacing={4}>
-          {[
-            { label: "Nombre", key: "first_name" },
-            { label: "Apellido", key: "last_name" },
-            { label: "Correo electrónico", key: "email" },
-            { label: "Teléfono", key: "phone" },
-            { label: "Dirección", key: "address" },
-            // { label: "N° de registro", key: "registration_number" },
-          ].map((field) => (
-            <HStack key={field.key} justify="space-between">
-              <Text color="gray.500" minW="30%">
-                {field.label}:
-              </Text>
-              {isEditing ? (
-                <Input
-                  name={field.key}
-                  value={formData[field.key] || ""}
-                  onChange={handleChange}
-                  placeholder={`Ingrese ${field.label.toLowerCase()}`}
-                  w="70%"
-                />
-              ) : (
-                <Text fontWeight="bold" color={textColor}>
-                  {user[field.key] || "-"}
-                </Text>
-              )}
-            </HStack>
-          ))}
 
-          <HStack justify="space-between">
-            <Text color="gray.500">Estado:</Text>
-            <Text
-              fontWeight="bold"
-              color={user.banned ? "red.400" : "green.400"}
-            >
-              {user.banned ? "Baneado" : "Activo"}
-            </Text>
-          </HStack>
-        </VStack>
-
-        {/* 🔹 Tipo de membresía */}
-        {/* <HStack justify="space-between">
-          <Text color="gray.500">Membresía:</Text>
-          <Badge
-            colorScheme={
-              user.membershipType === "Premium"
-                ? "green"
-                : user.membershipType === "Pending"
-                ? "yellow"
-                : "gray"
-            }
-            px={2}
-            py={1}
-            borderRadius="md"
-          >
-            {user.membershipType}
-          </Badge>
-        </HStack> */}
         <VStack align="stretch" spacing={4}>
           <Box>
-            <Heading size="sm" color="pink.500" mb={3}>
+            <Heading size="sm" color="blue.500" mb={3}>
               Información personal
             </Heading>
 
@@ -259,20 +201,25 @@ const UserProfile = () => {
               <Text color="gray.500" textAlign="left">
                 Membresía:
               </Text>
+
               <Badge
                 colorScheme={
-                  user.membershipType === "Premium"
+                  user.membershipType === "premium"
                     ? "green"
-                    : user.membershipType === "Pending"
-                    ? "yellow"
-                    : "gray"
+                    : user.membershipType === "basic"
+                    ? "blue"
+                    : "gray" // guest o null
                 }
                 px={2}
                 py={1}
                 borderRadius="md"
                 textAlign="center"
               >
-                {user.membershipType}
+                {user.membershipType === "premium"
+                  ? "Premium"
+                  : user.membershipType === "basic"
+                  ? "Basic"
+                  : "Sin membresía"}
               </Badge>
             </Box>
           </Box>
@@ -283,7 +230,7 @@ const UserProfile = () => {
         <HStack justify="center" spacing={4}>
           {isEditing ? (
             <>
-              <Button colorScheme="pink" onClick={handleSave}>
+              <Button colorScheme="blue" onClick={handleSave}>
                 Guardar cambios
               </Button>
               <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -291,7 +238,7 @@ const UserProfile = () => {
               </Button>
             </>
           ) : (
-            <Button colorScheme="pink" onClick={() => setIsEditing(true)}>
+            <Button colorScheme="blue" onClick={() => setIsEditing(true)}>
               Editar perfil
             </Button>
           )}

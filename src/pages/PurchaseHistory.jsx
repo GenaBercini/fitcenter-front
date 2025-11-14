@@ -34,7 +34,7 @@ const PurchaseHistory = () => {
       <Heading size="lg" mb={6}>
         <FaShoppingCart style={{ display: "inline", marginRight: "8px" }} />
         Historial de{" "}
-        <Text as="span" color="pink.500">
+        <Text as="span" color="blue.500">
           Compras
         </Text>
       </Heading>

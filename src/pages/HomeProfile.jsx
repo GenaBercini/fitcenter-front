@@ -11,6 +11,15 @@ import {
   Spinner,
   Badge,
   HStack,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   FaUser,
@@ -32,6 +41,11 @@ function HomeView() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [missingData, setMissingData] = useState(false);
+  const [currentRoutine, setCurrentRoutine] = useState(null);
+
+  const [selectedRoutine, setSelectedRoutine] = useState(null);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,11 +109,11 @@ function HomeView() {
 
   return (
     <Box p={6} bg={bgPage} minH="100vh">
-      {/* 🔹 Encabezado con nombre + alerta si faltan datos */}
+      {/* Encabezado con nombre + alerta si faltan datos */}
       <Flex align="center" justify="space-between" flexWrap="wrap">
         <Heading size="lg" color={textColor}>
           ¡Hola{" "}
-          <Text as="span" color="pink.500">
+          <Text as="span" color="blue.500">
             {user?.first_name || "usuario"}
           </Text>
           !
@@ -141,7 +155,7 @@ function HomeView() {
           onClick={() => navigate("/perfil")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaUser size={28} color="#E91E63" />
+          <FaUser size={28} color="#393bd3ff" />
           <Text mt={2}>Perfil</Text>
         </Flex>
 
@@ -157,9 +171,41 @@ function HomeView() {
           onClick={() => navigate("/schedule")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaCalendarPlus size={28} color="#E91E63" />
+          <FaCalendarPlus size={28} color="#393bd3ff" />
           <Text mt={2}>Reservar turno</Text>
         </Flex>
+        {/* <Flex
+          bg={bgCard}
+          p={5}
+          borderRadius="xl"
+          align="center"
+          justify="center"
+          flexDir="column"
+          shadow="md"
+          cursor="pointer"
+          onClick={() => {
+            if (
+              user?.membershipType !== "Basic" &&
+              user?.membershipType !== "Premium"
+            ) {
+              alert(
+                "Necesitas membresía Basic o Premium para reservar turnos."
+              );
+              return;
+            }
+            navigate("/schedule");
+          }}
+          _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
+        >
+          <FaCalendarPlus size={28} color="#393bd3ff" />
+          <Text mt={2}>Reservar turno</Text>
+
+          {user?.membershipType === "Guest" && (
+            <Badge colorScheme="yellow" mt={2}>
+              Requiere membresía Basic
+            </Badge>
+          )}
+        </Flex> */}
 
         <Flex
           bg={bgCard}
@@ -173,9 +219,11 @@ function HomeView() {
           onClick={() => navigate("/activities")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaClipboardList size={28} color="#E91E63" />
+          <FaClipboardList size={28} color="#393bd3ff" />
           <Text mt={2}>Actividades</Text>
         </Flex>
+
+        {/* ACTIVIDADES → Premium */}
         {/* <Flex
           bg={bgCard}
           p={5}
@@ -188,7 +236,7 @@ function HomeView() {
           onClick={() => {
             if (user?.membershipType !== "Premium") {
               alert(
-                "Necesitas una membresía Premium para acceder a las actividades."
+                "Necesitas una membresía Premium para acceder a actividades."
               );
               return;
             }
@@ -196,11 +244,12 @@ function HomeView() {
           }}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaDumbbell size={28} color="#E91E63" />
+          <FaClipboardList size={28} color="#393bd3ff" />
           <Text mt={2}>Actividades</Text>
+
           {user?.membershipType !== "Premium" && (
             <Badge colorScheme="yellow" mt={2}>
-              Requiere membresia Premium
+              Requiere membresía Premium
             </Badge>
           )}
         </Flex> */}
@@ -217,9 +266,41 @@ function HomeView() {
           onClick={() => navigate("/routine")}
           _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
         >
-          <FaHistory size={28} color="#E91E63" />
+          <FaHistory size={28} color="#393bd3ff" />
           <Text mt={2}>Rutinas</Text>
         </Flex>
+
+        {/* RUTINAS → Basic o Premium */}
+        {/* <Flex
+          bg={bgCard}
+          p={5}
+          borderRadius="xl"
+          align="center"
+          justify="center"
+          flexDir="column"
+          shadow="md"
+          cursor="pointer"
+          onClick={() => {
+            if (
+              user?.membershipType !== "Basic" &&
+              user?.membershipType !== "Premium"
+            ) {
+              alert("Necesitas membresía Basic o Premium para ver rutinas.");
+              return;
+            }
+            navigate("/routine");
+          }}
+          _hover={{ transform: "translateY(-4px)", transition: "0.2s" }}
+        >
+          <FaHistory size={28} color="#393bd3ff" />
+          <Text mt={2}>Rutinas</Text>
+
+          {user?.membershipType === "Guest" && (
+            <Badge colorScheme="yellow" mt={2}>
+              Requiere membresía Classic
+            </Badge>
+          )}
+        </Flex> */}
       </Grid>
 
       {/*  Sección entrenamiento */}
@@ -237,7 +318,7 @@ function HomeView() {
           alignItems="flex-start"
         >
           <Flex align="center" mb={3}>
-            <FaDumbbell size={28} color="#E91E63" />
+            <FaDumbbell size={28} color="#393bd3ff" />
             <VStack align="start" spacing={0} ml={4}>
               <Text fontWeight="bold" color={textColor}>
                 Ver plan actual
@@ -250,7 +331,7 @@ function HomeView() {
 
           {/* Información de inscripción */}
           <Box w="100%" mt={3}>
-            <Text fontWeight="bold" color="pink.500">
+            <Text fontWeight="bold" color="blue.500">
               Actividad
             </Text>
             {activity ? (
@@ -263,7 +344,7 @@ function HomeView() {
                 No estás inscripto a ninguna actividad
               </Text>
             )}
-            {/* <Text fontWeight="bold" color="pink.500">
+            {/* <Text fontWeight="bold" color="blue.500">
               Actividad
             </Text>
 
@@ -282,7 +363,27 @@ function HomeView() {
               </Text>
             )} */}
 
-            <Text fontWeight="bold" color="pink.500" mt={3}>
+            {/* TURNOS */}
+            {/* <Text fontWeight="bold" color="blue.500" mt={3}>
+              Turnos
+            </Text>
+
+            {user?.membershipType === "Guest" ? (
+              <Text color="gray.500" fontStyle="italic">
+                No tienes acceso a reservar turnos con tu membresía actual.
+              </Text>
+            ) : schedules.length > 0 ? (
+              <VStack align="start" spacing={1} mt={1}>
+                {schedules.map((s, index) => (
+                  <Text key={index}>
+                    Día: {s.day} — {s.startTime} a {s.endTime}
+                  </Text>
+                ))}
+              </VStack>
+            ) : (
+              <Text color="gray.500">No estás inscripto a ningún turno</Text>
+            )} */}
+            <Text fontWeight="bold" color="blue.500" mt={3}>
               Turnos
             </Text>
             {schedules.length > 0 ? (
@@ -296,9 +397,80 @@ function HomeView() {
             ) : (
               <Text color="gray.500">No estás inscripto a ningún turno</Text>
             )}
+
+            <Text fontWeight="bold" color="blue.500" mt={3}>
+              Rutina
+            </Text>
+            {currentRoutine ? (
+              <Text
+                cursor="pointer"
+                color="blue.500.400"
+                textDecoration="underline"
+                onClick={() => {
+                  setSelectedRoutine(currentRoutine);
+                  onOpen();
+                }}
+              >
+                {currentRoutine.Routine.typeRoutine} — Ver ejercicios
+              </Text>
+            ) : (
+              <Text color="gray.500">No estás inscripto a ninguna rutina.</Text>
+            )}
+
+            {/* {currentRoutine ? (
+              <Text
+                cursor="pointer"
+                color="blue.500.400"
+                textDecoration="underline"
+                onClick={() => {
+                  setSelectedRoutine(currentRoutine);
+                  onOpen();
+                }}
+              >
+                {currentRoutine.Routine.typeRoutine} — Ver ejercicios
+              </Text>
+            ) : user?.membershipType === "Guest" ? (
+              <Text color="gray.500" fontStyle="italic">
+                No tienes acceso a rutinas con tu membresía actual.
+              </Text>
+            ) : (
+              <Text color="gray.500">No estás inscripto a ninguna rutina.</Text>
+            )} */}
           </Box>
         </Flex>
       </Box>
+      {/* ================ MODAL DE RUTINA ================== */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Ejercicios de la rutina</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedRoutine?.Exercises?.length > 0 ? (
+              <VStack align="start" spacing={3}>
+                {selectedRoutine.Exercises.map((ex, i) => (
+                  <Box key={i} p={3} borderRadius="md" bg="gray.100" w="100%">
+                    <Text fontWeight="bold">{ex.name}</Text>
+                    <Text fontSize="sm">Series: {ex.series}</Text>
+                    <Text fontSize="sm">Repeticiones: {ex.repetitions}</Text>
+                    <Text fontSize="sm" color="gray.600">
+                      {ex.description}
+                    </Text>
+                  </Box>
+                ))}
+              </VStack>
+            ) : (
+              <Text>No hay ejercicios cargados en esta rutina.</Text>
+            )}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={onClose}>
+              Cerrar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

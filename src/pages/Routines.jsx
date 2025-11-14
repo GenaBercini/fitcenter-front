@@ -46,7 +46,7 @@ function Routines() {
 
   const bgCard = useColorModeValue("white", "gray.700");
 
-  // 1) Cargar usuario y rutinas
+  // Cargar usuario y rutinas
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -70,7 +70,7 @@ function Routines() {
     fetchInitialData();
   }, []);
 
-  // 2) Cargar inscripciones del usuario
+  // Cargar inscripciones del usuario
   useEffect(() => {
     if (!userId) return;
 
@@ -222,8 +222,8 @@ function Routines() {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           w="300px"
-          borderColor="pink.400"
-          focusBorderColor="pink.500"
+          borderColor="blue.500.400"
+          focusBorderColor="blue.500"
         />
       </Flex>
 
@@ -286,7 +286,7 @@ function Routines() {
                 </Button>
               ) : (
                 <Button
-                  colorScheme="pink"
+                  colorScheme="blue"
                   onClick={() => openInscription(routine)}
                   isDisabled={!!currentInscription}
                 >
@@ -384,7 +384,7 @@ function Routines() {
               Cancelar
             </Button>
             <Button
-              colorScheme="pink"
+              colorScheme="blue"
               ml={3}
               onClick={confirmRoutineInscription}
             >

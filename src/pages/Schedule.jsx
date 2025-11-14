@@ -209,7 +209,7 @@ function Schedule() {
           <Button
             key={day}
             variant={selectedFilter === day ? "solid" : "outline"}
-            colorScheme="pink"
+            colorScheme="blue"
             onClick={() => setSelectedFilter(day)}
           >
             {day}
@@ -280,7 +280,7 @@ function Schedule() {
                 </Button>
               ) : (
                 <Button
-                  colorScheme="pink"
+                  colorScheme="blue"
                   onClick={() => handleInscription(schedule)}
                   isDisabled={hasTurn || userTurns.length >= 3}
                 >
@@ -327,12 +327,12 @@ function Schedule() {
                 <Button variant="ghost" onClick={onClose}>
                   Cancelar
                 </Button>
-                <Button colorScheme="pink" ml={3} onClick={confirmInscription}>
+                <Button colorScheme="blue" ml={3} onClick={confirmInscription}>
                   Confirmar
                 </Button>
               </>
             ) : (
-              <Button colorScheme="pink" onClick={onClose}>
+              <Button colorScheme="blue" onClick={onClose}>
                 Cerrar
               </Button>
             )}
