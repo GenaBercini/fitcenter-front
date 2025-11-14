@@ -45,10 +45,10 @@ export default function ProfessorProfile() {
 
   const [editingRoutine, setEditingRoutine] = useState(null);
 
-  const bgCard = useColorModeValue("white", "gray.800");
-  const bgSoftPink = useColorModeValue("pink.50", "pink.900");
-  const borderPink = useColorModeValue("pink.300", "pink.600");
-  const textSecondary = useColorModeValue("gray.600", "gray.300");
+  const bgCard = "white";
+  const bgSoftBlue = "white";
+  const borderBlue = "blue.200";
+  const textSecondary = "gray.600";
 
   const {
     isOpen: isOpenExercise,
@@ -272,7 +272,6 @@ export default function ProfessorProfile() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.msg || "Error al eliminar rutina");
 
-      // remove from local state
       setRoutines((prev) => prev.filter((r) => r.id !== routineId));
     } catch (err) {
       alert("Error al eliminar rutina: " + (err.message || err));
@@ -282,7 +281,7 @@ export default function ProfessorProfile() {
   if (loading) {
     return (
       <Flex justify="center" align="center" minH="100vh">
-        <Spinner size="xl" color="pink.400" />
+        <Spinner size="xl" color="blue.400" />
       </Flex>
     );
   }
@@ -304,13 +303,13 @@ export default function ProfessorProfile() {
         maxW="1000px"
         bg={bgCard}
         border="3px solid"
-        borderColor={borderPink}
+        borderColor={borderBlue}
         borderRadius="2xl"
         boxShadow="xl"
         overflow="hidden"
       >
         <Flex
-          bgGradient="linear(to-r, blue.500, pink.400)"
+          bgGradient="linear(to-r, blue.500, blue.400)"
           color="white"
           align="center"
           p={6}
@@ -338,10 +337,10 @@ export default function ProfessorProfile() {
         <Box p={6}>
           <Text
             fontWeight="bold"
-            color="pink.600"
+            color="blue.600"
             fontSize="lg"
             borderBottom="1px solid"
-            borderColor="pink.200"
+            borderColor="blue.200"
             pb={1}
             mb={3}
           >
@@ -359,12 +358,12 @@ export default function ProfessorProfile() {
 
           <Flex justify="space-between" align="center" mb={4}>
             <HStack>
-              <FaDumbbell color="hotpink" />
-              <Text fontWeight="bold" color="pink.600" fontSize="lg">
+              <FaDumbbell color="#1E3A8A" />
+              <Text fontWeight="bold" fontSize="lg">
                 Ejercicios del Profesor
               </Text>
             </HStack>
-            <Button colorScheme="pink" size="sm" onClick={onOpenExercise}>
+            <Button colorScheme="blue" size="sm" onClick={onOpenExercise}>
               Nuevo Ejercicio
             </Button>
           </Flex>
@@ -377,9 +376,9 @@ export default function ProfessorProfile() {
                     key={ex.id}
                     justify="space-between"
                     align="center"
-                    bg={bgSoftPink}
+                    bg={bgSoftBlue}
                     border="1px solid"
-                    borderColor="pink.100"
+                    borderColor="blue.100"
                     p={4}
                     borderRadius="lg"
                     _hover={{ boxShadow: "md", transform: "scale(1.01)" }}
@@ -397,7 +396,7 @@ export default function ProfessorProfile() {
                         icon={<FaEdit />}
                         aria-label="Editar ejercicio"
                         size="sm"
-                        colorScheme="pink"
+                        colorScheme="blue"
                         variant="outline"
                         onClick={() => handleEditExercise(ex)}
                       />
@@ -422,12 +421,12 @@ export default function ProfessorProfile() {
 
           <Flex justify="space-between" align="center" mb={4}>
             <HStack>
-              <FaListUl color="hotpink" />
-              <Text fontWeight="bold" color="pink.600" fontSize="lg">
+              <FaListUl color="#1E3A8A" />
+              <Text fontWeight="bold" fontSize="lg">
                 Rutinas Creadas
               </Text>
             </HStack>
-            <Button colorScheme="pink" size="sm" onClick={onOpenRoutine}>
+            <Button colorScheme="blue" size="sm" onClick={onOpenRoutine}>
               Nueva Rutina
             </Button>
           </Flex>
@@ -440,9 +439,9 @@ export default function ProfessorProfile() {
                     key={r.id ?? i}
                     justify="space-between"
                     align="center"
-                    bg={bgSoftPink}
+                    bg={bgSoftBlue}
                     border="1px solid"
-                    borderColor="pink.100"
+                    borderColor="blue.100"
                     p={4}
                     borderRadius="lg"
                     _hover={{ boxShadow: "md", transform: "scale(1.01)" }}
@@ -468,7 +467,7 @@ export default function ProfessorProfile() {
                         icon={<FaEdit />}
                         aria-label="Editar rutina"
                         size="sm"
-                        colorScheme="pink"
+                        colorScheme="blue"
                         variant="outline"
                         onClick={() => handleEditRoutine(r)}
                       />
@@ -493,11 +492,18 @@ export default function ProfessorProfile() {
 
       <Modal isOpen={isOpenExercise} onClose={closeExerciseModal} isCentered>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
+        <ModalContent borderRadius="md" overflow="hidden">
+          <ModalHeader
+            bg="blue.600"
+            color="white"
+            fontWeight="bold"
+            borderTopRadius="md"
+            pb={3}
+          >
+            {" "}
             {editingExercise ? "Editar Ejercicio" : "Nuevo Ejercicio"}
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton color="white" />
           <ModalBody pb={6}>
             <FormControl mb={3}>
               <FormLabel>Nombre</FormLabel>
@@ -525,7 +531,12 @@ export default function ProfessorProfile() {
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={closeExerciseModal}>
+            <Button
+              colorScheme="red"
+              variant="ghost"
+              mr={3}
+              onClick={closeExerciseModal}
+            >
               Cancelar
             </Button>
 
@@ -543,12 +554,12 @@ export default function ProfessorProfile() {
                 >
                   Eliminar
                 </Button>
-                <Button colorScheme="pink" onClick={handleSaveExercise}>
+                <Button colorScheme="blue" onClick={handleSaveExercise}>
                   Guardar Cambios
                 </Button>
               </HStack>
             ) : (
-              <Button colorScheme="pink" onClick={handleCreateExercise}>
+              <Button colorScheme="blue" onClick={handleCreateExercise}>
                 Crear
               </Button>
             )}
@@ -563,11 +574,17 @@ export default function ProfessorProfile() {
         size="lg"
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
+        <ModalContent borderRadius="md" overflow="hidden">
+          <ModalHeader
+            bg="blue.600"
+            color="white"
+            fontWeight="bold"
+            borderTopRadius="md"
+            pb={3}
+          >
             {editingRoutine ? "Editar Rutina" : "Nueva Rutina"}
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton color="white" />
           <ModalBody pb={6}>
             <FormControl mb={3}>
               <FormLabel>Tipo de rutina</FormLabel>
@@ -607,7 +624,7 @@ export default function ProfessorProfile() {
                       variant={
                         selectedExercises.includes(ex.id) ? "solid" : "outline"
                       }
-                      colorScheme="pink"
+                      colorScheme="blue"
                       size="sm"
                       onClick={() => toggleExercise(ex.id)}
                     >
@@ -620,7 +637,12 @@ export default function ProfessorProfile() {
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={closeRoutineModal}>
+            <Button
+              variant="ghost"
+              color="red"
+              mr={3}
+              onClick={closeRoutineModal}
+            >
               Cancelar
             </Button>
 
@@ -637,12 +659,12 @@ export default function ProfessorProfile() {
                 >
                   Eliminar
                 </Button>
-                <Button colorScheme="pink" onClick={handleSaveRoutine}>
+                <Button colorScheme="blue" onClick={handleSaveRoutine}>
                   Guardar Cambios
                 </Button>
               </HStack>
             ) : (
-              <Button colorScheme="pink" onClick={handleCreateRoutine}>
+              <Button colorScheme="blue" onClick={handleCreateRoutine}>
                 Crear
               </Button>
             )}

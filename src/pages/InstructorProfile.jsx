@@ -45,11 +45,11 @@ export default function InstructorProfile() {
   const [loadingCreate, setLoadingCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState(null);
 
-  const bgCard = useColorModeValue("white", "gray.800");
-  const bgSoftPink = useColorModeValue("pink.50", "pink.900");
-  const borderPink = useColorModeValue("pink.300", "pink.600");
-  const textMain = useColorModeValue("gray.800", "white");
-  const textSecondary = useColorModeValue("gray.600", "gray.300");
+  const bgCard = "white";
+  const bgSoftBlue = "white";
+  const borderBlue = "blue.200";
+  const textMain = "blue.800";
+  const textSecondary = "gray.600";
 
   useEffect(() => {
     const fetchInstructor = async () => {
@@ -176,7 +176,7 @@ export default function InstructorProfile() {
   if (loading) {
     return (
       <Flex justify="center" align="center" minH="100vh">
-        <Spinner size="xl" color="pink.400" />
+        <Spinner size="xl" color="blue.400" />
       </Flex>
     );
   }
@@ -196,13 +196,13 @@ export default function InstructorProfile() {
         maxW="800px"
         bg={bgCard}
         border="3px solid"
-        borderColor={borderPink}
+        borderColor={borderBlue}
         borderRadius="2xl"
         boxShadow="xl"
         overflow="hidden"
       >
         <Flex
-          bgGradient="linear(to-r, blue.500, pink.400)"
+          bgGradient="linear(to-r, blue.500, gray.700)"
           color="white"
           align="center"
           p={6}
@@ -232,10 +232,10 @@ export default function InstructorProfile() {
         <Box p={6}>
           <Text
             fontWeight="bold"
-            color="pink.600"
+            color="gray.700"
             fontSize="lg"
             borderBottom="1px solid"
-            borderColor="pink.200"
+            borderColor="blue.300"
             pb={1}
             mb={3}
           >
@@ -251,10 +251,10 @@ export default function InstructorProfile() {
           <Divider my={4} />
 
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="bold" color="pink.600" fontSize="lg">
+            <Text fontWeight="bold" color="gray.700" fontSize="lg">
               Actividades Dictadas
             </Text>
-            <Button colorScheme="pink" size="sm" onClick={onOpen}>
+            <Button colorScheme="blue" size="sm" onClick={onOpen}>
               Crear Nueva Actividad
             </Button>
           </Flex>
@@ -266,9 +266,9 @@ export default function InstructorProfile() {
                   key={i}
                   justify="space-between"
                   align="center"
-                  bg={bgSoftPink}
+                  bg={bgSoftBlue}
                   border="1px solid"
-                  borderColor="pink.100"
+                  borderColor="blue.100"
                   p={4}
                   borderRadius="lg"
                   _hover={{ boxShadow: "md", transform: "scale(1.01)" }}
@@ -301,7 +301,7 @@ export default function InstructorProfile() {
                       icon={<FaEdit />}
                       aria-label="Editar"
                       size="sm"
-                      colorScheme="pink"
+                      colorScheme="blue"
                       variant="outline"
                       onClick={() => handleEditClick(act)}
                     />
@@ -310,7 +310,7 @@ export default function InstructorProfile() {
                       icon={<FaTrash />}
                       aria-label="Eliminar"
                       size="sm"
-                      colorScheme="red"
+                      colorScheme="blue"
                       variant="ghost"
                       onClick={() => handleDeleteActivity(act.id)}
                     />
@@ -333,8 +333,14 @@ export default function InstructorProfile() {
         isCentered
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
+        <ModalContent borderRadius="md" overflow="hidden">
+          <ModalHeader
+            bg="blue.600"
+            color="white"
+            fontWeight="bold"
+            borderTopRadius="md"
+            pb={3}
+          >
             {editingActivity ? "Editar Actividad" : "Crear Nueva Actividad"}
           </ModalHeader>
           <ModalCloseButton />
@@ -411,6 +417,7 @@ export default function InstructorProfile() {
 
           <ModalFooter>
             <Button
+              colorScheme="red"
               variant="ghost"
               onClick={() => {
                 setEditingActivity(null);
@@ -420,7 +427,7 @@ export default function InstructorProfile() {
               Cancelar
             </Button>
             <Button
-              colorScheme="pink"
+              colorScheme="blue"
               ml={3}
               onClick={handleCreateActivity}
               isLoading={loadingCreate}
