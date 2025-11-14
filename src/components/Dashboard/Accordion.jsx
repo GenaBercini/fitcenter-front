@@ -30,7 +30,7 @@ import { SiHomeassistantcommunitystore } from "react-icons/si";
 const Demo = () => {
   return (
     <Stack width="full" maxW="400px">
-      <Heading size="md">Dashboard</Heading>
+      <Heading size="md"><Link to='/dashboard/main'>Dashboard</Link></Heading>
       <Accordion allowMultiple allowToggle>
         {items.map((item) => (
           
@@ -82,11 +82,6 @@ const Demo = () => {
 };
 
 const items = [
-  {
-    value: "branches",
-    icon: <SiHomeassistantcommunitystore />,
-    title: "Sucursales",
-  },
   {
     value: "memberships",
     icon: <MdCardMembership />,
@@ -148,11 +143,6 @@ const items = [
     value: "products",
     icon: <FaProductHunt />,
     title: "Productos",
-  },
-  {
-    value: "orders",
-    icon: <FaFileInvoiceDollar />,
-    title: "Ordenes",
   },
   {
     value: "profile",

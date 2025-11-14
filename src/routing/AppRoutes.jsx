@@ -11,7 +11,7 @@ import PurchaseHistory from "../pages/PurchaseHistory";
 import Dashboard from "../pages/Dashboard";
 import InstructorProfile from "../pages/InstructorProfile";
 import ProfessorProfile from "../pages/ProfessorProfile";
-import Branches from "../pages/Branches";
+import Main from "../pages/Main";
 import Memberships from "../pages/Memberships";
 import Administrators from "../pages/Administrators";
 import Activities from "../pages/Activities";
@@ -19,7 +19,6 @@ import Categories from "../pages/Categories";
 import Classes from "../pages/Classes";
 import Clients from "../pages/Clients";
 import Excersises from "../pages/Excersises";
-import Orders from "../pages/Orders";
 import Products from "../pages/Products";
 import Profile from "../pages/Profile";
 import Routines from "../pages/Routines";
@@ -44,14 +43,13 @@ const AppRoutes = () => (
     <Route path="/professor" element={<ProfessorProfile />} />
     <Route path="/perfil" element={<UserProfile />} />
     <Route path="/dashboard/*" element={<Dashboard />}>
-      <Route path="branches" element={<Branches />} />
+      <Route path="main" element={<Main />} />
       <Route path="memberships" element={<Memberships />} />
       <Route path="administrators" element={<Administrators />} />
       <Route path="categories" element={<Categories />} />
       <Route path="classes" element={<Classes />} />
       <Route path="clients" element={<Clients />} />
       <Route path="excersises" element={<Excersises />} />
-      <Route path="orders" element={<Orders />} />
       <Route path="products" element={<Products />} />
       <Route path="profile" element={<Profile />} />
       <Route path="routines" element={<Routines />} />

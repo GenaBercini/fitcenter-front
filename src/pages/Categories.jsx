@@ -102,7 +102,8 @@ const Categories = () => {
           </Thead>
 
           <Tbody>
-            {filteredCategories.length > 0 ? (
+            {filteredCategories != undefined &&
+              filteredCategories.length > 0 ? (
                 filteredCategories.map((category) => (
                   <Tr key={category.id}>
                     <Td>{category.name}</Td>
