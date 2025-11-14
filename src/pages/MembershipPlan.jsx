@@ -10,10 +10,12 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { FaCheck } from "react-icons/fa";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const plans = [
   {
-    name: "Básico",
+    name: "Basic",
     price: 20,
     benefits: [
       "Acceso al gimnasio",
@@ -26,7 +28,7 @@ const plans = [
     name: "Premium",
     price: 30,
     benefits: [
-      "Todo lo del Básico",
+      "Todo lo del Basic",
       "Acceso a clases grupales",
       "Zona exclusiva para miembros VIP",
     ],
@@ -35,6 +37,35 @@ const plans = [
 ];
 
 export default function Membership() {
+  const { user } =
+    useAuth();
+
+  const payMembership = async (membershipType, userId) => {
+  try {
+    const { data } = await axios.put(
+      `http://localhost:3000/users/payMembership/${userId}`,
+      { membershipType }
+    );
+    console.log(data.data.url)
+
+    return data.data.url; // la URL que Stripe devuelve
+  } catch (err) {
+    console.error("Error al iniciar checkout de membresía:", err);
+  }
+};
+
+const handleMembershipCheckout = async (membershipType) => {
+  try {
+    const url = await payMembership(membershipType, user.id);
+    console.log(url)
+    if (url) {
+      window.location.href = url; // redirige a Stripe
+    }
+  } catch (err) {
+    console.error("Error con el checkout de membresía:", err);
+  }
+};
+
   return (
     <Center py={6}>
       <HStack spacing={6} align="flex-start">
@@ -96,6 +127,7 @@ export default function Membership() {
                 boxShadow={"0 5px 20px 0px rgb(219, 39, 119 / 63%)"}
                 _hover={{ bg: "blue.500" }}
                 _focus={{ bg: "blue.500" }}
+                onClick={() => handleMembershipCheckout(plan.name)}
               >
                 Seleccionar
               </Button>
