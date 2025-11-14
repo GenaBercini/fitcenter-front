@@ -53,7 +53,7 @@ export default function ProductDetail({
         <ModalBody>
           <VStack spacing={4} align="start">
             <Image
-              src={product.image}
+              src={product.img}
               alt={product.name}
               w="100%"
               maxH="300px"

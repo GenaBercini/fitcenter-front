@@ -12,6 +12,7 @@ import {
 import { FaCheck } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const plans = [
   {
@@ -43,10 +44,9 @@ export default function Membership() {
   const payMembership = async (membershipType, userId) => {
   try {
     const { data } = await axios.put(
-      `http://localhost:3000/users/payMembership/${userId}`,
-      { membershipType }
+      `${API_URL}/users/payMembership/${userId}`,
+      { membershipType: membershipType }
     );
-    console.log(data.data.url)
 
     return data.data.url; // la URL que Stripe devuelve
   } catch (err) {
@@ -57,7 +57,7 @@ export default function Membership() {
 const handleMembershipCheckout = async (membershipType) => {
   try {
     const url = await payMembership(membershipType, user.id);
-    console.log(url)
+
     if (url) {
       window.location.href = url; // redirige a Stripe
     }
