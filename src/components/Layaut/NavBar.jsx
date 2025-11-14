@@ -19,6 +19,7 @@ import { IoMdMenu, IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import { use } from "react";
 
 const Links = ["Home","Cart", "Turnos"];
 
@@ -41,10 +42,21 @@ export default function NavBar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isAuthModalOpen, openAuthModal, closeAuthModal, user, signOut } =
     useAuth();
+    console.log(user)
   const navigate = useNavigate();
   const handleGoToProfile = () => {
-    navigate("/homeProfile");
+    if (user.role === "admin") navigate("/dashboard");
+      if (user.role === "instructor") navigate("/instructor");
+      if (user.role === "professor") navigate("/professor");
+      if (user.role === "client") navigate("/home");
   };
+
+  const handleSignOut = () => {
+    signOut();
+    navigate("/");
+  };
+
+  
   return (
     <>
       <Box p={2}>
@@ -111,7 +123,7 @@ export default function NavBar() {
                 <MenuList>
                   <MenuItem onClick={handleGoToProfile}>Perfil</MenuItem>
                   <MenuItem>Configuración</MenuItem>
-                  <MenuItem onClick={() => signOut()}>Cerrar Sesión</MenuItem>
+                  <MenuItem onClick={() => handleSignOut()}>Cerrar Sesión</MenuItem>
                 </MenuList>
               </Menu>
             ) : (
