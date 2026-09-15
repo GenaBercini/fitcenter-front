@@ -15,6 +15,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/cartContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -27,8 +28,9 @@ export default function Cart() {
     checkoutCart,
     fetchActiveCart,
   } = useCart();
-  const { user,  openAuthModal, } = useAuth();
+  const { user, openAuthModal } = useAuth();
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const bg = useColorModeValue("gray.50", "gray.900");
   const cardBg = useColorModeValue("white", "gray.800");
@@ -54,15 +56,21 @@ export default function Cart() {
     }
   };
 
+  const handleGoToProducts = () => {
+    navigate("/");
+    setTimeout(() => {
+      document
+        .getElementById("productos-section")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }, 150);
+  };
+
   if (!user) {
     return (
       <Flex minH="100vh" align="center" justify="center" bg={bg}>
         <VStack spacing={4}>
           <Text fontSize="lg">Para ver tu carrito, iniciá sesión.</Text>
-          <Button
-            colorScheme="blue"
-            onClick={() =>  openAuthModal()}
-          >
+          <Button colorScheme="blue" onClick={() => openAuthModal()}>
             Loguearse
           </Button>
         </VStack>
@@ -119,7 +127,7 @@ export default function Cart() {
             <Button
               colorScheme="blue"
               variant="solid"
-              onClick={() => (window.location.href = "/")}
+              onClick={handleGoToProducts}
             >
               Ver productos
             </Button>
@@ -131,79 +139,85 @@ export default function Cart() {
             align="flex-start"
           >
             <Stack spacing={5} flex="2">
-              {items.filter(item => item.product).map((item) => (
-                <Flex
-                  key={item.id}
-                  bg={"gray.100"}
-                  borderRadius="xl"
-                  p={4}
-                  align="center"
-                  justify="space-between"
-                  transition="all 0.2s"
-                  _hover={{ transform: "translateY(-3px)", boxShadow: "lg" }}
-                >
-                  <HStack spacing={4} align="center">
-                    <Image
-                      src={item.product.img || "https://via.placeholder.com/80"}
-                      alt={item.product.name}
-                      boxSize="80px"
-                      borderRadius="lg"
-                      objectFit="cover"
-                    />
-                    <VStack align="start" spacing={1}>
-                      <Text fontWeight="semibold" fontSize="lg">
-                        {item.product.name}
-                      </Text>
-                      <Text color="gray.500">
-                        ${item.product.price.toFixed(2)}
-                      </Text>
-                    </VStack>
-                  </HStack>
-                  <HStack spacing={4} align="center">
-                    <HStack
-                      spacing={2}
-                      border="1px solid"
-                      borderColor="gray.300"
-                      borderRadius="lg"
-                      px={2}
-                      py={1}
-                    >
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => decreaseQuantity(item.product.id)}
-                        isDisabled={item.quantity <= 1}
-                      >
-                        −
-                      </Button>
-
-                      <Text fontWeight="bold">{item.quantity}</Text>
-
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => addToCart(item.product.id)}
-                      >
-                        +
-                      </Button>
-                    </HStack>
-
-                    <VStack spacing={0} align="end">
-                      <Text fontWeight="semibold">
-                        ${item.subtotal.toFixed(2)}
-                      </Text>
-                      <IconButton
-                        aria-label="Eliminar producto"
-                        icon={<DeleteIcon />}
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="red"
-                        onClick={() => removeProductCompletely(item.product.id)}
+              {items
+                .filter((item) => item.product)
+                .map((item) => (
+                  <Flex
+                    key={item.id}
+                    bg={"gray.100"}
+                    borderRadius="xl"
+                    p={4}
+                    align="center"
+                    justify="space-between"
+                    transition="all 0.2s"
+                    _hover={{ transform: "translateY(-3px)", boxShadow: "lg" }}
+                  >
+                    <HStack spacing={4} align="center">
+                      <Image
+                        src={
+                          item.product.img || "https://via.placeholder.com/80"
+                        }
+                        alt={item.product.name}
+                        boxSize="80px"
+                        borderRadius="lg"
+                        objectFit="cover"
                       />
-                    </VStack>
-                  </HStack>
-                </Flex>
-              ))}
+                      <VStack align="start" spacing={1}>
+                        <Text fontWeight="semibold" fontSize="lg">
+                          {item.product.name}
+                        </Text>
+                        <Text color="gray.500">
+                          ${item.product.price.toFixed(2)}
+                        </Text>
+                      </VStack>
+                    </HStack>
+                    <HStack spacing={4} align="center">
+                      <HStack
+                        spacing={2}
+                        border="1px solid"
+                        borderColor="gray.300"
+                        borderRadius="lg"
+                        px={2}
+                        py={1}
+                      >
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => decreaseQuantity(item.product.id)}
+                          isDisabled={item.quantity <= 1}
+                        >
+                          −
+                        </Button>
+
+                        <Text fontWeight="bold">{item.quantity}</Text>
+
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => addToCart(item.product.id)}
+                        >
+                          +
+                        </Button>
+                      </HStack>
+
+                      <VStack spacing={0} align="end">
+                        <Text fontWeight="semibold">
+                          ${item.subtotal.toFixed(2)}
+                        </Text>
+                        <IconButton
+                          aria-label="Eliminar producto"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="red"
+                          onClick={() =>
+                            removeProductCompletely(item.product.id)
+                          }
+                        />
+                      </VStack>
+                    </HStack>
+                  </Flex>
+                ))}
             </Stack>
 
             <Box
@@ -220,12 +234,16 @@ export default function Cart() {
               <Divider mb={4} />
 
               <VStack align="stretch" spacing={3} fontSize="md">
-                {items.filter(item => item.product).map((item) => (
-                  <Flex key={item.id} justify="space-between">
-                    <Text color="gray.600">{item.product.name}</Text>
-                    <Text fontWeight="medium">${item.subtotal.toFixed(2)}</Text>
-                  </Flex>
-                ))}
+                {items
+                  .filter((item) => item.product)
+                  .map((item) => (
+                    <Flex key={item.id} justify="space-between">
+                      <Text color="gray.600">{item.product.name}</Text>
+                      <Text fontWeight="medium">
+                        ${item.subtotal.toFixed(2)}
+                      </Text>
+                    </Flex>
+                  ))}
               </VStack>
 
               <Divider my={4} />

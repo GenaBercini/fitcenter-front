@@ -25,9 +25,6 @@ const ValidatedInput = ({
         {...inputProps}
       />
       {(type === "email" || type === "password" || type === "nroMatricula") && (
-        // <Text color="red.500" fontWeight="bold" fontSize="lg">
-        //   *
-        // </Text>
         <Text
           color="red.500"
           fontWeight="bold"

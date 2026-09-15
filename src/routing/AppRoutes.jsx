@@ -1,5 +1,5 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Landing from "../pages/Landing";
 import Cart from "../pages/Cart";
 import About from "../pages/About";
@@ -14,27 +14,20 @@ import ProfessorProfile from "../pages/ProfessorProfile";
 import Main from "../pages/Main";
 import Memberships from "../pages/Memberships";
 import Administrators from "../pages/Administrators";
-
 import Activities from "../pages/Activities";
 import HomeProfile from "../pages/HomeProfile";
 import Routine from "../pages/Routines";
-
 import Categories from "../pages/Categories";
 import Classes from "../pages/Classes";
 import Clients from "../pages/Clients";
 import Excersises from "../pages/Excersises";
 import Products from "../pages/Products";
-import Profile from "../pages/Profile";
 import Routines from "../pages/Routines";
 import Instructors from "../pages/Instructors";
 import Professors from "../pages/Professors";
-
 import CheckoutSuccess from "../pages/CheckoutSuccess";
 import CheckoutCancel from "../pages/CheckoutCancel";
-
-
 import { ProtectedRoute } from "./ProtectedRoute";
-import { Routes } from "react-router-dom";
 
 const AppRoutes = () => (
   <Routes>
@@ -44,12 +37,11 @@ const AppRoutes = () => (
     <Route path="/blog" element={<Blog />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/cart" element={<Cart />} />
-
+    <Route path="/myPurchases" element={<PurchaseHistory />} />
     <Route path="/activities" element={<Activities />} />
     <Route path="/schedule" element={<Schedule />} />
-    <Route path="/historial" element={<PurchaseHistory />} />
-    <Route path="/homeProfile" element={<HomeProfile />} />
-    <Route path="/perfil" element={<UserProfile />} />
+    <Route path="/home" element={<HomeProfile />} />
+    <Route path="/profile" element={<UserProfile />} />
     <Route path="/routine" element={<Routine />} />
 
     <Route path="/instructor" element={<InstructorProfile />} />
@@ -57,7 +49,6 @@ const AppRoutes = () => (
 
     <Route path="/checkout/success" element={<CheckoutSuccess />} />
     <Route path="/checkout/cancel" element={<CheckoutCancel />} />
-
 
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="main" element={<Main />} />
@@ -68,7 +59,6 @@ const AppRoutes = () => (
       <Route path="clients" element={<Clients />} />
       <Route path="excersises" element={<Excersises />} />
       <Route path="products" element={<Products />} />
-      <Route path="profile" element={<Profile />} />
       <Route path="routines" element={<Routines />} />
       <Route path="instructors" element={<Instructors />} />
       <Route path="professors" element={<Professors />} />
@@ -76,7 +66,7 @@ const AppRoutes = () => (
 
     {/* Ruta protegida */}
     <Route element={<ProtectedRoute />}>
-      {/* Aquí podrías agregar rutas privadas */}
+      {/* Rutas privadas en caso de ser necesarias */}
     </Route>
   </Routes>
 );

@@ -1,9 +1,9 @@
 import {
   Box,
-  chakra,
   Container,
   VStack,
   HStack,
+  Button,
   Link,
   Text,
   VisuallyHidden,
@@ -15,7 +15,7 @@ import { NavLink } from "react-router-dom";
 
 const SocialButton = ({ children, label, href }) => {
   return (
-    <chakra.button
+    <Button
       rounded={"full"}
       w={8}
       h={8}
@@ -29,7 +29,7 @@ const SocialButton = ({ children, label, href }) => {
     >
       <VisuallyHidden>{label}</VisuallyHidden>
       {children}
-    </chakra.button>
+    </Button>
   );
 };
 
