@@ -34,6 +34,11 @@ export default function ProductsSection() {
 
   const handleClose = () => setIsOpen(false);
 
+  // Filtrado simple por nombre
+  const filteredProducts = products.filter((p) =>
+    p.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
     <Container maxW="container.lg" py={10}>
       {products.length === 0 ? (

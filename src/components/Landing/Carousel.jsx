@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Box, Button, HStack, VStack } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
-export default function Carousel({ items, renderItem }) {
+export default function Carousel({ items = [], renderItem }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(1);
 
@@ -21,33 +21,60 @@ export default function Carousel({ items, renderItem }) {
     return () => window.removeEventListener("resize", updateVisibleCount);
   }, []);
 
+  // Resetea el índice si la lista filtrada cambia de tamaño
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [items.length]);
+
+  if (!items || items.length === 0) return null;
+
+  // Si la cantidad de items es menor o igual al espacio visible en pantalla, no aplicamos loop
+  const isSmallList = items.length <= visibleCount;
+
   const handleNext = () => {
+    if (isSmallList) return;
     setCurrentIndex((prev) => (prev + 1) % items.length);
   };
 
   const handlePrev = () => {
+    if (isSmallList) return;
     setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
   };
 
-  // Productos visibles, con slice circular
-  const visibleItems = [];
-  for (let i = 0; i < visibleCount; i++) {
-    visibleItems.push(items[(currentIndex + i) % items.length]);
-  }
+  // Generamos la lista de items a mostrar sin duplicar si no hay suficientes
+  const visibleItems = isSmallList
+    ? items
+    : Array.from(
+        { length: visibleCount },
+        (_, i) => items[(currentIndex + i) % items.length],
+      );
 
   return (
     <VStack spacing={4} align="center" width="100%">
       <HStack spacing={4} width="100%" justify="center">
-        <Button onClick={handlePrev}>
-          <ChevronLeftIcon boxSize={6} />
-        </Button>
+        {/* Oculta el botón anterior si entran todos los items en pantalla */}
+        {!isSmallList && (
+          <Button onClick={handlePrev} variant="ghost" rounded="full">
+            <ChevronLeftIcon boxSize={6} />
+          </Button>
+        )}
 
-        <HStack width="100%" overflow="hidden" justify="flex-start" spacing={0}>
+        <HStack
+          width="100%"
+          overflow="hidden"
+          justify={isSmallList ? "center" : "flex-start"}
+          spacing={0}
+        >
           {visibleItems.map((item, i) => (
             <Box
-              key={i}
+              key={item.id || i}
               flex="0 0 auto"
-              width={`${100 / visibleCount}%`}
+              width={
+                isSmallList
+                  ? `${100 / items.length}%`
+                  : `${100 / visibleCount}%`
+              }
+              maxW={`${100 / visibleCount}%`}
               px={2}
             >
               {renderItem(item)}
@@ -55,9 +82,12 @@ export default function Carousel({ items, renderItem }) {
           ))}
         </HStack>
 
-        <Button onClick={handleNext}>
-          <ChevronRightIcon boxSize={6} />
-        </Button>
+        {/* Oculta el botón siguiente si entran todos los items en pantalla */}
+        {!isSmallList && (
+          <Button onClick={handleNext} variant="ghost" rounded="full">
+            <ChevronRightIcon boxSize={6} />
+          </Button>
+        )}
       </HStack>
     </VStack>
   );
