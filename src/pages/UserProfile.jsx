@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Avatar,
@@ -22,12 +23,12 @@ const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const toast = useToast();
-
+  const navigate = useNavigate();
   const bgCard = useColorModeValue("white", "gray.700");
   const bgPage = useColorModeValue("gray.100", "gray.800");
   const textColor = useColorModeValue("gray.700", "gray.100");
 
-  //  Obtener el usuario actual
+  // Obtener el usuario actual
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -51,12 +52,12 @@ const UserProfile = () => {
     fetchUser();
   }, []);
 
-  //  Manejar cambios en los inputs
+  // Manejar cambios en los inputs
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  //  Guardar los cambios
+  // Guardar los cambios
   const handleSave = async () => {
     try {
       const response = await fetch(`http://localhost:3000/users/${user.id}`, {
@@ -140,7 +141,7 @@ const UserProfile = () => {
           <Heading size="md" color="blue.500">
             {user.first_name || "Sin nombre"} {user.last_name || ""}
           </Heading>
-          <Badge colorScheme="blue.500" fontSize="0.8em">
+          <Badge colorScheme="blue" fontSize="0.8em">
             {user.role?.toUpperCase()}
           </Badge>
         </VStack>
@@ -193,6 +194,7 @@ const UserProfile = () => {
               <Text
                 fontWeight="bold"
                 color={user.banned ? "red.400" : "green.400"}
+                textAlign="left"
               >
                 {user.banned ? "Baneado" : "Activo"}
               </Text>
@@ -202,31 +204,31 @@ const UserProfile = () => {
                 Membresía:
               </Text>
 
-              <Badge
-                colorScheme={
-                  user.membershipType === "premium"
-                    ? "green"
+              <Box textAlign="left">
+                <Badge
+                  colorScheme={
+                    user.membershipType === "premium"
+                      ? "green"
+                      : user.membershipType === "basic"
+                        ? "blue"
+                        : "gray"
+                  }
+                  px={2}
+                  py={1}
+                  borderRadius="md"
+                >
+                  {user.membershipType === "premium"
+                    ? "Premium"
                     : user.membershipType === "basic"
-                    ? "blue"
-                    : "gray" // guest o null
-                }
-                px={2}
-                py={1}
-                borderRadius="md"
-                textAlign="center"
-              >
-                {user.membershipType === "premium"
-                  ? "Premium"
-                  : user.membershipType === "basic"
-                  ? "Basic"
-                  : "Sin membresía"}
-              </Badge>
+                      ? "Basic"
+                      : "Sin membresía"}
+                </Badge>
+              </Box>
             </Box>
           </Box>
         </VStack>
 
         <Divider my={6} />
-        {/* Botones */}
         <HStack justify="center" spacing={4}>
           {isEditing ? (
             <>
@@ -238,9 +240,19 @@ const UserProfile = () => {
               </Button>
             </>
           ) : (
-            <Button colorScheme="blue" onClick={() => setIsEditing(true)}>
-              Editar perfil
-            </Button>
+            <>
+              {/* Redirección corregida al Panel */}
+              <Button
+                variant="outline"
+                colorScheme="gray"
+                onClick={() => navigate("/home")}
+              >
+                Volver
+              </Button>
+              <Button colorScheme="blue" onClick={() => setIsEditing(true)}>
+                Editar perfil
+              </Button>
+            </>
           )}
         </HStack>
       </Box>

@@ -1,323 +1,287 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Flex,
-  Text,
-  Button,
   Heading,
+  Text,
   VStack,
-  useColorModeValue,
-  Alert,
-  AlertIcon,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-  useDisclosure,
   HStack,
+  Button,
+  Spinner,
+  Container,
+  Flex,
+  useToast,
+  Badge,
 } from "@chakra-ui/react";
+import { useAuth } from "../context/AuthContext";
 
-function Activities() {
+export default function Activities() {
+  const { user } = useAuth();
   const [activities, setActivities] = useState([]);
+  const [userInscriptions, setUserInscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedActivity, setSelectedActivity] = useState(null);
-  const [currentInscription, setCurrentInscription] = useState(null);
-  const [userId, setUserId] = useState(null);
-  const [selectedFilter, setSelectedFilter] = useState("Todos");
-  const [feedback, setFeedback] = useState(null);
+  const [processingId, setProcessingId] = useState(null);
+  const [filter, setFilter] = useState("Todos");
+  const toast = useToast();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalType, setModalType] = useState("confirm");
-  const bgCard = useColorModeValue("white", "gray.700");
-
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const userRes = await fetch("http://localhost:3000/users/session", {
-          credentials: "include",
-        });
-        const userData = await userRes.json();
-        const id = userData?.data?.id;
-        setUserId(id);
-
-        const actRes = await fetch("http://localhost:3000/activities");
-        const actData = await actRes.json();
-        setActivities(actData);
-      } catch (err) {
-        console.error("Error al cargar usuario o actividades", err);
-      } finally {
-        setLoading(false);
+  const loadData = async () => {
+    try {
+      const resAct = await fetch("http://localhost:3000/activities");
+      if (resAct.ok) {
+        const dataAct = await resAct.json();
+        setActivities(Array.isArray(dataAct) ? dataAct : []);
       }
-    };
 
-    fetchInitialData();
-  }, []);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchInscriptions = async () => {
-      try {
-        const inscRes = await fetch(
-          `http://localhost:3000/inscription/${userId}`
+      if (user?.id) {
+        const resIns = await fetch(
+          `http://localhost:3000/inscription/${user.id}`,
         );
-        const inscData = await inscRes.json();
-        const inscriptionsArray = inscData.data || [];
-        const activityInsc = inscriptionsArray.find(
-          (i) => i.type === "activity" && i.Activity
-        );
-        setCurrentInscription(activityInsc || null);
-      } catch (err) {
-        console.error("Error al cargar inscripciones", err);
+        if (resIns.ok) {
+          const dataIns = await resIns.json();
+          setUserInscriptions(Array.isArray(dataIns.data) ? dataIns.data : []);
+        }
       }
-    };
-
-    fetchInscriptions();
-  }, [userId]);
-
-  const showFeedback = (type, message) => {
-    setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), 3000);
+    } catch (err) {
+      console.error("Error cargando datos:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) return <Text>Cargando actividades...</Text>;
+  useEffect(() => {
+    loadData();
+  }, [user?.id]);
 
-  if (activities.length === 0) {
-    return (
-      <Alert status="info" borderRadius="md" mt={6}>
-        <AlertIcon />
-        No hay actividades cargadas aún.
-      </Alert>
-    );
-  }
+  const handleEnroll = async (activityId) => {
+    if (!user?.id) return;
+    setProcessingId(activityId);
 
-  const filteredActivities =
-    selectedFilter === "Todos"
-      ? activities
-      : activities.filter(
-          (a) => a.name.toLowerCase() === selectedFilter.toLowerCase()
-        );
-
-  const handleInscription = (activity) => {
-    setSelectedActivity(activity);
-    if (activity.capacity > 0) setModalType("confirm");
-    else setModalType("full");
-    onOpen();
-  };
-
-  const confirmInscription = async () => {
     try {
       const res = await fetch("http://localhost:3000/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId,
-          activityId: selectedActivity.id,
+          userId: user.id,
+          activityId: activityId,
           type: "activity",
         }),
-        credentials: "include",
       });
 
-      const data = await res.json();
       if (!res.ok) {
-        showFeedback("error", data.message || "Error al inscribirse");
+        let responseData = {};
+        try {
+          responseData = await res.json();
+        } catch {
+          // Si no es json
+        }
+        const errMsg =
+          responseData.message || "Error al procesar la inscripción.";
+
+        toast({
+          title: "No se pudo inscribir",
+          description:
+            errMsg === "You already have an activity"
+              ? "Ya tienes una actividad registrada. Cancela tu inscripción actual para elegir otra."
+              : errMsg,
+          status: "warning",
+          duration: 3500,
+          isClosable: true,
+        });
         return;
       }
 
-      showFeedback(
-        "success",
-        `¡Inscripción confirmada en ${selectedActivity.name}!`
-      );
-      onClose();
-      setCurrentInscription({
-        Activity: selectedActivity,
-        id: data.inscription.id,
+      toast({
+        title: "Inscripción registrada",
+        status: "success",
+        duration: 2000,
       });
 
-      const updatedRes = await fetch("http://localhost:3000/activities");
-      const updatedData = await updatedRes.json();
-      setActivities(updatedData);
+      await loadData();
     } catch (err) {
-      showFeedback("error", "Error al inscribirse en la actividad");
+      toast({
+        title: "Error de red",
+        description: err.message,
+        status: "error",
+        duration: 3000,
+      });
+    } finally {
+      setProcessingId(null);
     }
   };
 
-  const handleCancelInscription = async () => {
+  const handleCancel = async (inscriptionId) => {
+    if (!inscriptionId) return;
+    setProcessingId(inscriptionId);
+
     try {
-      if (!currentInscription) return;
       const res = await fetch(
-        `http://localhost:3000/inscription/${currentInscription.id}`,
-        { method: "DELETE" }
+        `http://localhost:3000/inscription/${inscriptionId}`,
+        {
+          method: "DELETE",
+        },
       );
 
-      const data = await res.json();
       if (!res.ok) {
-        showFeedback("error", data.message || "Error al cancelar inscripción");
+        toast({
+          title: "No se pudo cancelar",
+          status: "error",
+          duration: 3000,
+        });
         return;
       }
 
-      showFeedback("success", "Inscripción cancelada con éxito");
-      setCurrentInscription(null);
+      toast({
+        title: "Inscripción cancelada",
+        status: "info",
+        duration: 2000,
+      });
 
-      const updatedRes = await fetch("http://localhost:3000/activities");
-      const updatedData = await updatedRes.json();
-      setActivities(updatedData);
+      await loadData();
     } catch (err) {
-      showFeedback("error", "Error al cancelar la inscripción");
+      toast({
+        title: "Error al dar de baja",
+        description: err.message,
+        status: "error",
+        duration: 3000,
+      });
+    } finally {
+      setProcessingId(null);
     }
   };
+
+  const categories = ["Todos", "Hilado", "CrossFit", "Yoga", "Zumba"];
+
+  const filtered =
+    filter === "Todos"
+      ? activities
+      : activities.filter(
+          (a) => String(a?.name).toLowerCase() === filter.toLowerCase(),
+        );
+
+  // Verificar si el usuario ya tiene CUALQUIER actividad inscripta
+  const hasAnyActivityInscription = userInscriptions.some(
+    (i) => i && i.type === "activity",
+  );
+
+  if (loading) {
+    return (
+      <Flex justify="center" align="center" minH="100vh">
+        <Spinner size="xl" color="blue.500" />
+      </Flex>
+    );
+  }
 
   return (
-    <Box p={6}>
-      <Heading mb={6}>Actividades Disponibles</Heading>
+    <Box bg="gray.50" minH="100vh" py={8} translate="no">
+      <Container maxW="6xl">
+        <Heading size="xl" mb={2} color="gray.800">
+          Actividades Disponibles
+        </Heading>
 
-      {/*  Filtros */}
-      <HStack spacing={4} mb={6}>
-        {["Todos", "Spinning", "CrossFit", "Yoga", "Zumba"].map((name) => (
-          <Button
-            key={name}
-            variant={selectedFilter === name ? "solid" : "outline"}
-            colorScheme="blue"
-            onClick={() => setSelectedFilter(name)}
-          >
-            {name}
-          </Button>
-        ))}
-      </HStack>
+        {hasAnyActivityInscription && (
+          <Text fontSize="sm" color="blue.600" mb={6} fontWeight="medium">
+            * Ya estás inscripto en una actividad. Si deseas cambiarte, primero
+            cancela tu inscripción actual.
+          </Text>
+        )}
 
-      {currentInscription && currentInscription.Activity && (
-        <Alert status="success" borderRadius="md" mb={2}>
-          <AlertIcon />
-          Ya estás inscripto en:{" "}
-          <strong style={{ marginLeft: "4px" }}>
-            {currentInscription.Activity.name}
-          </strong>
-        </Alert>
-      )}
+        <HStack spacing={3} mb={8} overflowX="auto" pb={2}>
+          {categories.map((cat) => (
+            <Button
+              key={cat}
+              size="sm"
+              borderRadius="full"
+              colorScheme={filter === cat ? "blue" : "gray"}
+              variant={filter === cat ? "solid" : "outline"}
+              onClick={() => setFilter(cat)}
+            >
+              {cat}
+            </Button>
+          ))}
+        </HStack>
 
-      {feedback && (
-        <Alert
-          status={feedback.type}
-          borderRadius="md"
-          mb={4}
-          transition="all 0.3s"
-        >
-          <AlertIcon />
-          {feedback.message}
-        </Alert>
-      )}
+        <VStack spacing={4} align="stretch">
+          {filtered.map((act) => {
+            if (!act || !act.id) return null;
 
-      <VStack spacing={6} align="stretch">
-        {filteredActivities.map((activity) => (
-          <Flex
-            key={activity.id}
-            bg={bgCard}
-            p={5}
-            borderRadius="xl"
-            shadow="md"
-            justify="space-between"
-            align="center"
-          >
-            <Box>
-              <Text fontSize="lg" fontWeight="bold" mb={1}>
-                {activity.name}
-              </Text>
+            // Buscar inscripción existente específica para esta actividad
+            const activeIns = userInscriptions.find(
+              (i) =>
+                i &&
+                i.type === "activity" &&
+                (i.activityId === act.id || i.Activity?.id === act.id),
+            );
 
-              <Text fontSize="sm" color="gray.600">
-                Instructor:{" "}
-                {activity.instructor
-                  ? `${activity.instructor.first_name || ""} ${
-                      activity.instructor.last_name || ""
-                    }`.trim()
-                  : "No asignado"}
-              </Text>
+            const isEnrolledInThis = Boolean(activeIns);
+            const isBusy =
+              processingId === act.id ||
+              (activeIns && processingId === activeIns.id);
 
-              <Text fontSize="sm" color="gray.600">
-                Horario: {activity.startTime} - {activity.endTime}
-              </Text>
-
-              <Text
-                fontSize="sm"
-                color={activity.capacity > 0 ? "green.500" : "red.500"}
+            return (
+              <Box
+                key={String(act.id)}
+                p={5}
+                bg="white"
+                borderRadius="xl"
+                shadow="sm"
+                borderWidth="1px"
+                borderColor={isEnrolledInThis ? "blue.300" : "gray.200"}
               >
-                Cupo disponible: {activity.capacity}
-              </Text>
-            </Box>
+                <Flex
+                  justify="space-between"
+                  align="center"
+                  flexWrap="wrap"
+                  gap={4}
+                >
+                  <Box>
+                    <HStack spacing={2} mb={1}>
+                      <Text fontSize="lg" fontWeight="bold" color="blue.700">
+                        {String(act.name || "")}
+                      </Text>
+                      {isEnrolledInThis ? (
+                        <Badge colorScheme="green">Inscripto</Badge>
+                      ) : null}
+                    </HStack>
 
-            {currentInscription &&
-            currentInscription.Activity &&
-            currentInscription.Activity.id === activity.id ? (
-              <Button colorScheme="red" onClick={handleCancelInscription}>
-                Cancelar inscripción
-              </Button>
-            ) : (
-              <Button
-                colorScheme="blue"
-                onClick={() => handleInscription(activity)}
-                isDisabled={!!currentInscription}
-              >
-                Inscribirse
-              </Button>
-            )}
-          </Flex>
-        ))}
-      </VStack>
+                    <Text fontSize="sm" color="gray.600">
+                      Descripción:{" "}
+                      {String(act.description || "Sin descripción")}
+                    </Text>
 
-      {/*  Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {modalType === "confirm"
-              ? "Confirmar Inscripción"
-              : "Cupo Completo"}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {modalType === "confirm" && selectedActivity && (
-              <Text>
-                ¿Deseas inscribirte en <strong>{selectedActivity.name}</strong>{" "}
-                con el instructor{" "}
-                {selectedActivity.instructor
-                  ? `${selectedActivity.instructor.first_name || ""} ${
-                      selectedActivity.instructor.last_name || ""
-                    }`.trim()
-                  : "No asignado"}
-                ?
-              </Text>
-            )}
-            {modalType === "full" && selectedActivity && (
-              <Text>
-                Lo sentimos, no quedan cupos disponibles en{" "}
-                <strong>{selectedActivity.name}</strong>.
-              </Text>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            {modalType === "confirm" ? (
-              <>
-                <Button variant="ghost" onClick={onClose}>
-                  Cancelar
-                </Button>
-                <Button colorScheme="blue" ml={3} onClick={confirmInscription}>
-                  Confirmar
-                </Button>
-              </>
-            ) : (
-              <Button colorScheme="blue" onClick={onClose}>
-                Cerrar
-              </Button>
-            )}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+                    <Text fontSize="xs" color="gray.400" mt={1}>
+                      Horario: {String(act.startTime || "--")} -{" "}
+                      {String(act.endTime || "--")}
+                    </Text>
+                  </Box>
+
+                  <Box>
+                    {isEnrolledInThis ? (
+                      <Button
+                        colorScheme="red"
+                        variant="outline"
+                        size="md"
+                        isLoading={isBusy}
+                        onClick={() => handleCancel(activeIns.id)}
+                      >
+                        Cancelar inscripción
+                      </Button>
+                    ) : (
+                      <Button
+                        colorScheme="blue"
+                        size="md"
+                        isLoading={isBusy}
+                        isDisabled={hasAnyActivityInscription} // Deshabilitado si ya tiene otra actividad
+                        onClick={() => handleEnroll(act.id)}
+                      >
+                        Inscribirse
+                      </Button>
+                    )}
+                  </Box>
+                </Flex>
+              </Box>
+            );
+          })}
+        </VStack>
+      </Container>
     </Box>
   );
 }
-
-export default Activities;

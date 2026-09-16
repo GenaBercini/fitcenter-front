@@ -7,42 +7,20 @@ import {
   HStack,
   Button,
   Divider,
-  useColorModeValue,
   IconButton,
   Spinner,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
 } from "@chakra-ui/react";
-import { FaEdit } from "react-icons/fa";
-import { FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import CreateActivityModal from "./CreateActivityModal";
 
 export default function InstructorProfile() {
   const { user } = useAuth();
   const [instructor, setInstructor] = useState(null);
   const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const [newActivity, setNewActivity] = useState({
-    name: "",
-    description: "",
-    startTime: "",
-    endTime: "",
-    capacity: "",
-  });
-
-  const [loadingCreate, setLoadingCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState(null);
 
   const bgCard = "white";
@@ -51,22 +29,24 @@ export default function InstructorProfile() {
   const textMain = "blue.800";
   const textSecondary = "gray.600";
 
+  const fetchInstructor = async () => {
+    try {
+      if (!user?.id) return;
+      const res = await fetch(`http://localhost:3000/users/${user.id}`);
+      if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+      const data = await res.json();
+      setInstructor(data.data);
+    } catch (error) {
+      console.error("Error al cargar el instructor:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchInstructor = async () => {
-      try {
-        if (!user?.id) return;
-        const res = await fetch(`http://localhost:3000/users/${user.id}`);
-        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
-        const data = await res.json();
-        setInstructor(data.data);
-      } catch (error) {
-        console.error("Error al cargar el instructor:", error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchInstructor();
   }, [user]);
+
   const handleDeleteActivity = async (activityId) => {
     if (!activityId) return;
     const ok = window.confirm("¿Eliminar esta actividad?");
@@ -75,9 +55,7 @@ export default function InstructorProfile() {
     try {
       const res = await fetch(
         `http://localhost:3000/activities/${activityId}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" },
       );
 
       if (!res.ok) {
@@ -92,85 +70,25 @@ export default function InstructorProfile() {
       alert("Error al eliminar actividad: " + err.message);
     }
   };
-  const handleCreateActivity = async () => {
-    setLoadingCreate(true);
-    try {
-      let res;
-      if (editingActivity) {
-        res = await fetch(
-          `http://localhost:3000/activities/${editingActivity.id}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...newActivity,
-              instructorId: instructor.id,
-              approved: editingActivity.approved,
-            }),
-          }
-        );
-
-        if (!res.ok) {
-          const err = await res.text();
-          alert("Error al editar actividad: " + err);
-        } else {
-          setInstructor((prev) => ({
-            ...prev,
-            activities: prev.activities.map((act) =>
-              act.id === editingActivity.id ? { ...act, ...newActivity } : act
-            ),
-          }));
-        }
-      } else {
-        res = await fetch("http://localhost:3000/activities", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            instructorId: instructor.id,
-            ...newActivity,
-            instructor: `${instructor.first_name} ${instructor.last_name}`,
-            approved: false,
-          }),
-        });
-
-        if (!res.ok) {
-          const err = await res.text();
-          alert("Error al crear actividad: " + err);
-        } else {
-          const created = await res.json();
-          setInstructor((prev) => ({
-            ...prev,
-            activities: [...(prev.activities || []), created],
-          }));
-        }
-      }
-
-      setNewActivity({
-        name: "",
-        description: "",
-        startTime: "",
-        endTime: "",
-        capacity: "",
-      });
-      setEditingActivity(null);
-      onClose();
-    } catch (err) {
-      alert("Error en la solicitud.");
-    } finally {
-      setLoadingCreate(false);
-    }
-  };
 
   const handleEditClick = (activity) => {
     setEditingActivity(activity);
-    setNewActivity({
-      name: activity.name || "",
-      description: activity.description || "",
-      startTime: activity.startTime || "",
-      endTime: activity.endTime || "",
-      capacity: activity.capacity || "",
-    });
     onOpen();
+  };
+
+  const handleCreateClick = () => {
+    setEditingActivity(null);
+    onOpen();
+  };
+
+  const renderInstructorName = (act) => {
+    if (act.instructor && typeof act.instructor === "object") {
+      return `${act.instructor.first_name || ""} ${act.instructor.last_name || ""}`.trim();
+    }
+    if (typeof act.instructor === "string") {
+      return act.instructor;
+    }
+    return `${instructor?.first_name || ""} ${instructor?.last_name || ""}`.trim();
   };
 
   if (loading) {
@@ -222,7 +140,6 @@ export default function InstructorProfile() {
               {instructor.first_name}
               {instructor.last_name ? ` ${instructor.last_name}` : ""}
             </Text>
-
             <Text fontSize="sm" opacity={0.9}>
               Instructor
             </Text>
@@ -254,16 +171,16 @@ export default function InstructorProfile() {
             <Text fontWeight="bold" color="gray.700" fontSize="lg">
               Actividades Dictadas
             </Text>
-            <Button colorScheme="blue" size="sm" onClick={onOpen}>
+            <Button colorScheme="blue" size="sm" onClick={handleCreateClick}>
               Crear Nueva Actividad
             </Button>
           </Flex>
 
           <VStack align="stretch" spacing={3}>
             {instructor.activities && instructor.activities.length > 0 ? (
-              instructor.activities.map((act, i) => (
+              instructor.activities.map((act) => (
                 <Flex
-                  key={i}
+                  key={act.id}
                   justify="space-between"
                   align="center"
                   bg={bgSoftBlue}
@@ -279,10 +196,7 @@ export default function InstructorProfile() {
                       {act.name}
                     </Text>
                     <Text fontSize="sm" color={textSecondary}>
-                      Instructor:{" "}
-                      {act.instructor
-                        ? `${act.instructor.first_name} ${act.instructor.last_name}`
-                        : `${instructor.first_name} ${instructor.last_name}`}
+                      Instructor: {renderInstructorName(act)}
                     </Text>
                     <Text fontSize="sm" color={textSecondary}>
                       Cupo: {act.capacity || "-"} |{" "}
@@ -305,7 +219,6 @@ export default function InstructorProfile() {
                       variant="outline"
                       onClick={() => handleEditClick(act)}
                     />
-
                     <IconButton
                       icon={<FaTrash />}
                       aria-label="Eliminar"
@@ -324,119 +237,13 @@ export default function InstructorProfile() {
         </Box>
       </Box>
 
-      <Modal
+      <CreateActivityModal
         isOpen={isOpen}
-        onClose={() => {
-          setEditingActivity(null);
-          onClose();
-        }}
-        isCentered
-      >
-        <ModalOverlay />
-        <ModalContent borderRadius="md" overflow="hidden">
-          <ModalHeader
-            bg="blue.600"
-            color="white"
-            fontWeight="bold"
-            borderTopRadius="md"
-            pb={3}
-          >
-            {editingActivity ? "Editar Actividad" : "Crear Nueva Actividad"}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={4}>
-              <FormControl isRequired>
-                <FormLabel>Nombre de la Actividad</FormLabel>
-                <Input
-                  placeholder="Ej: Crossfit"
-                  value={newActivity.name}
-                  onChange={(e) =>
-                    setNewActivity({ ...newActivity, name: e.target.value })
-                  }
-                />
-              </FormControl>
-
-              <FormControl>
-                <FormLabel>Descripción</FormLabel>
-                <Textarea
-                  placeholder="Breve descripción"
-                  value={newActivity.description}
-                  onChange={(e) =>
-                    setNewActivity({
-                      ...newActivity,
-                      description: e.target.value,
-                    })
-                  }
-                />
-              </FormControl>
-
-              <HStack w="100%">
-                <FormControl isRequired>
-                  <FormLabel>Hora de Inicio</FormLabel>
-                  <Input
-                    type="time"
-                    value={newActivity.startTime}
-                    onChange={(e) =>
-                      setNewActivity({
-                        ...newActivity,
-                        startTime: e.target.value,
-                      })
-                    }
-                  />
-                </FormControl>
-
-                <FormControl isRequired>
-                  <FormLabel>Hora de Fin</FormLabel>
-                  <Input
-                    type="time"
-                    value={newActivity.endTime}
-                    onChange={(e) =>
-                      setNewActivity({
-                        ...newActivity,
-                        endTime: e.target.value,
-                      })
-                    }
-                  />
-                </FormControl>
-              </HStack>
-
-              <FormControl isRequired>
-                <FormLabel>Cupo Máximo</FormLabel>
-                <Input
-                  type="number"
-                  min="1"
-                  value={newActivity.capacity}
-                  onChange={(e) =>
-                    setNewActivity({ ...newActivity, capacity: e.target.value })
-                  }
-                />
-              </FormControl>
-            </VStack>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button
-              colorScheme="red"
-              variant="ghost"
-              onClick={() => {
-                setEditingActivity(null);
-                onClose();
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              colorScheme="blue"
-              ml={3}
-              onClick={handleCreateActivity}
-              isLoading={loadingCreate}
-            >
-              {editingActivity ? "Guardar Cambios" : "Crear Actividad"}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+        onClose={onClose}
+        instructorId={instructor.id}
+        editingActivity={editingActivity}
+        onActivitySaved={fetchInstructor}
+      />
     </Flex>
   );
 }

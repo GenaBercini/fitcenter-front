@@ -11,6 +11,7 @@ import {
   Text,
   VStack,
   HStack,
+  Box,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
@@ -20,57 +21,66 @@ import {
 import { useState } from "react";
 import { useCart } from "../../context/cartContext";
 
-export default function ProductDetail({
-  isOpen,
-  onClose,
-  product,
-}) {
+export default function ProductDetail({ isOpen, onClose, product }) {
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart()
+  const { addToCart } = useCart();
 
   if (!product) return null;
 
- const handleAdd = async () => {
-  try {
-    for (let i = 0; i < quantity; i++) {
-      await addToCart(product.id);
-      console.log("agregado")
+  const handleAdd = async () => {
+    try {
+      for (let i = 0; i < quantity; i++) {
+        await addToCart(product.id);
+      }
+      setQuantity(1);
+      onClose();
+    } catch (error) {
+      console.error("Error agregando al carrito:", error);
     }
-    setQuantity(1);
-    onClose();
-  } catch (error) {
-    console.error("Error agregando al carrito:", error);
-  }
-};
-
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent borderRadius="xl">
         <ModalHeader>{product.name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <VStack spacing={4} align="start">
-            <Image
-              src={product.img}
-              alt={product.name}
+          <VStack spacing={4} align="stretch">
+            {/* Contenedor estandarizado para centrar la imagen sin recortar */}
+            <Box
+              h="260px"
               w="100%"
-              maxH="300px"
-              objectFit="cover"
-              borderRadius="md"
-            />
-            <Text fontSize="2xl" fontWeight="bold">
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="gray.50"
+              borderRadius="lg"
+              p={3}
+            >
+              <Image
+                src={product.img}
+                alt={product.name}
+                maxH="240px"
+                maxW="100%"
+                objectFit="contain"
+              />
+            </Box>
+
+            <Text fontSize="2xl" fontWeight="bold" color="blue.600">
               ${product.price.toFixed(2)}
             </Text>
             <Text color="gray.600">{product.description}</Text>
             {product.stock !== undefined && (
-              <Text color="gray.500">Stock disponible: {product.stock}</Text>
+              <Text color="gray.500" fontSize="sm">
+                Stock disponible: {product.stock}
+              </Text>
             )}
-            <HStack>
-              <Text>Cantidad:</Text>
+            <HStack pt={2}>
+              <Text fontWeight="medium">Cantidad:</Text>
               <NumberInput
                 size="sm"
+                maxW="100px"
                 max={product.stock || 10}
                 min={1}
                 value={quantity}

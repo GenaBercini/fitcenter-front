@@ -5,71 +5,68 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Button,
   Heading,
   Icon,
   Stack,
 } from "@chakra-ui/react";
-import {
-  BsFillPeopleFill,
-  BsPersonArmsUp
-} from "react-icons/bs";
-import {
-  FaClock,
-  FaFileInvoiceDollar,
-  FaList,
-  FaProductHunt,
-  FaUserCircle
-} from "react-icons/fa";
+import { BsFillPeopleFill, BsPersonArmsUp } from "react-icons/bs";
+import { FaClock, FaList, FaProductHunt, FaUserCircle } from "react-icons/fa";
 import { FaPeopleGroup, FaPersonChalkboard } from "react-icons/fa6";
 import { IoMdFitness } from "react-icons/io";
 import { MdAttachMoney, MdCardMembership, MdCategory } from "react-icons/md";
 import { RiAdminFill } from "react-icons/ri";
-import { SiHomeassistantcommunitystore } from "react-icons/si";
 
 const Demo = () => {
   return (
     <Stack width="full" maxW="400px">
-      <Heading size="md"><Link to='/dashboard/main'>Dashboard</Link></Heading>
+      <Heading size="md" color="white" mb={2}>
+        <Link to="/dashboard/main">Dashboard</Link>
+      </Heading>
       <Accordion allowMultiple allowToggle>
         {items.map((item) => (
-          
-          <AccordionItem key={item.value}>
-            
+          <AccordionItem key={item.value} border="none">
             <h2>
-              {item.content == undefined ? (
-                <AccordionButton as={Link} to={`/dashboard/${item.value}`}>
-                  <Icon fontSize="xl" color="fg.subtle" mr={2}>
+              {item.content === undefined ? (
+                <AccordionButton
+                  as={Link}
+                  to={`/dashboard/${item.value}`}
+                  _hover={{ bg: "gray.700" }}
+                  borderRadius="md"
+                >
+                  <Icon fontSize="xl" color="gray.300" mr={2}>
                     {item.icon}
                   </Icon>
                   {item.title}
-                  {item.content && item.content.length > 0 && <AccordionIcon />}
                 </AccordionButton>
               ) : (
-                <AccordionButton>
-                  <Icon fontSize="xl" color="fg.subtle" mr={2}>
+                <AccordionButton _hover={{ bg: "gray.700" }} borderRadius="md">
+                  <Icon fontSize="xl" color="gray.300" mr={2}>
                     {item.icon}
                   </Icon>
                   {item.title}
-                  {item.content && item.content.length > 0 && <AccordionIcon />}
+                  {item.content && item.content.length > 0 && (
+                    <AccordionIcon ml="auto" />
+                  )}
                 </AccordionButton>
               )}
-              
             </h2>
 
             {item.content && item.content.length > 0 && (
-              <AccordionPanel>
-                {item.content.map((item1) => (
+              <AccordionPanel pb={2} pt={1} pl={4}>
+                {item.content.map((subItem) => (
                   <AccordionButton
                     as={Link}
-                    to={`/dashboard/${item1.value}`}
-                    key={item1.value}
+                    to={`/dashboard/${subItem.value}`}
+                    key={subItem.value}
                     w="100%"
+                    _hover={{ bg: "gray.700" }}
+                    borderRadius="md"
+                    my={1}
                   >
-                    <Icon fontSize="xl" color="fg.subtle" mr={2}>
-                      {item1.icon}
+                    <Icon fontSize="lg" color="gray.400" mr={2}>
+                      {subItem.icon}
                     </Icon>
-                    {item1.title}
+                    {subItem.title}
                   </AccordionButton>
                 ))}
               </AccordionPanel>
@@ -81,6 +78,7 @@ const Demo = () => {
   );
 };
 
+// Se corrigieron los "value" para que coincidan con AppRoutes.jsx
 const items = [
   {
     value: "memberships",
@@ -88,7 +86,7 @@ const items = [
     title: "Membresías",
   },
   {
-    value: "bookings",
+    value: "schedule", // Corregido: antes decía "bookings"
     icon: <FaClock />,
     title: "Turnos",
   },
@@ -103,7 +101,7 @@ const items = [
     title: "Rutinas",
   },
   {
-    value: "excersises",
+    value: "exercises", // Corregido: antes decía "excersises"
     icon: <IoMdFitness />,
     title: "Ejercicios",
   },
@@ -137,7 +135,7 @@ const items = [
   {
     value: "categories",
     icon: <MdCategory />,
-    title: "Categorias",
+    title: "Categorías",
   },
   {
     value: "products",
@@ -145,7 +143,7 @@ const items = [
     title: "Productos",
   },
   {
-    value: "profile",
+    value: "main", // Corregido: antes decía "profile"
     icon: <FaUserCircle />,
     title: "Perfil",
   },
