@@ -29,11 +29,13 @@ import {
   FaDumbbell,
   FaExclamationTriangle,
 } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../config/api";
 
 function HomeView() {
   const navigate = useNavigate();
+  const { user, loading: authLoading, openAuthModal } = useAuth();
 
-  // 1. TODOS los hooks declarados juntos arriba
   const bgCard = useColorModeValue("white", "gray.700");
   const bgPage = useColorModeValue("gray.50", "gray.800");
   const textColor = useColorModeValue("gray.700", "gray.100");
@@ -42,7 +44,6 @@ function HomeView() {
 
   const [activities, setActivities] = useState([]);
   const [schedules, setSchedules] = useState([]);
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [missingData, setMissingData] = useState(false);
   const [currentRoutine, setCurrentRoutine] = useState(null);
@@ -51,33 +52,32 @@ function HomeView() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    const fetchData = async () => {
+    if (!user) {
+      if (!authLoading) setLoading(false);
+      return;
+    }
+
+    const incompleteFields = [
+      "first_name",
+      "last_name",
+      "email",
+      "address",
+      "phone",
+    ].some((key) => !user[key] || user[key].trim() === "");
+    setMissingData(incompleteFields);
+
+    const fetchInscriptions = async () => {
       try {
-        const userRes = await fetch("http://localhost:3000/users/session", {
-          credentials: "include",
-        });
-        const userData = await userRes.json();
-        const userInfo = userData?.data;
+        const token = localStorage.getItem("token");
+        const headers = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
 
-        if (!userInfo) {
-          setLoading(false);
-          return;
-        }
-
-        setUser(userInfo);
-
-        const incompleteFields = [
-          "first_name",
-          "last_name",
-          "email",
-          "address",
-          "phone",
-        ].some((key) => !userInfo[key] || userInfo[key].trim() === "");
-        setMissingData(incompleteFields);
-
-        // Traer inscripciones del usuario
         const inscriptionRes = await fetch(
-          `http://localhost:3000/inscription/${userInfo.id}`,
+          `${API_URL}/inscription/${user.id}`,
+          {
+            credentials: "include",
+            headers,
+          },
         );
         const inscriptionData = await inscriptionRes.json();
         const list = Array.isArray(inscriptionData.data)
@@ -93,26 +93,53 @@ function HomeView() {
           .filter((i) => i && i.type === "schedule" && i.Schedule)
           .map((i) => i.Schedule);
 
+        const routineInscription = list.find(
+          (i) => i && i.type === "routine" && i.Routine,
+        );
+
         setActivities(activityInscriptions);
         setSchedules(scheduleInscriptions);
+        setCurrentRoutine(routineInscription || null);
       } catch (error) {
-        console.error("Error al cargar datos del usuario:", error);
+        console.error("Error al cargar datos de inscripciones:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchInscriptions();
+  }, [user, authLoading]);
 
-  // 2. La condición de return temprano va DESPUÉS de declarar todos los hooks
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <Flex align="center" justify="center" h="100vh" bg={bgPage}>
         <Spinner size="xl" color="blue.500" />
       </Flex>
     );
   }
+
+  if (!user) {
+    return (
+      <Flex
+        align="center"
+        justify="center"
+        h="100vh"
+        bg={bgPage}
+        direction="column"
+        gap={4}
+      >
+        <Text color="gray.500" fontSize="lg">
+          Debes iniciar sesión para acceder a tu panel de usuario.
+        </Text>
+        <Button colorScheme="blue" onClick={openAuthModal}>
+          Iniciar Sesión
+        </Button>
+      </Flex>
+    );
+  }
+
+  const routineExercises =
+    selectedRoutine?.Routine?.exercises || selectedRoutine?.exercises || [];
 
   return (
     <Box bg={bgPage} minH="100vh" py={8}>
@@ -332,18 +359,18 @@ function HomeView() {
       <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
         <ModalOverlay />
         <ModalContent borderRadius="xl">
-          <ModalHeader>Ejercicios de la rutina</ModalHeader>
+          <ModalHeader>
+            {selectedRoutine?.Routine?.typeRoutine || "Ejercicios de la rutina"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {selectedRoutine?.Exercises?.length > 0 ? (
+            {routineExercises.length > 0 ? (
               <VStack align="start" spacing={3}>
-                {selectedRoutine.Exercises.map((ex, i) => (
+                {routineExercises.map((ex, i) => (
                   <Box key={i} p={4} borderRadius="lg" bg="gray.100" w="100%">
                     <Text fontWeight="bold">{ex.name}</Text>
-                    <Text fontSize="sm">Series: {ex.series}</Text>
-                    <Text fontSize="sm">Repeticiones: {ex.repetitions}</Text>
-                    <Text fontSize="sm" color="gray.600">
-                      {ex.description}
+                    <Text fontSize="sm" color="blue.600">
+                      Tipo: {ex.typeEx || "General"}
                     </Text>
                   </Box>
                 ))}

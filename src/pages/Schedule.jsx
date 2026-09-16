@@ -22,15 +22,19 @@ import {
   Container,
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../config/api";
 
 function Schedule() {
   const navigate = useNavigate();
+  const { user, openAuthModal } = useAuth();
   const [schedules, setSchedules] = useState([]);
   const [userTurns, setUserTurns] = useState([]);
-  const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [feedback, setFeedback] = useState(null);
+
+  const userId = user?.id;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalType, setModalType] = useState("confirm");
@@ -42,22 +46,23 @@ function Schedule() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userRes = await fetch("http://localhost:3000/users/session", {
-          credentials: "include",
-        });
-        const userData = await userRes.json();
-        const id = userData?.data?.id;
-        setUserId(id);
-
-        const schRes = await fetch("http://localhost:3000/schedule");
+        const schRes = await fetch(`${API_URL}/schedule`);
         const schData = await schRes.json();
-        setSchedules(schData);
+        setSchedules(Array.isArray(schData) ? schData : []);
 
-        if (id) {
-          const insRes = await fetch(`http://localhost:3000/inscription/${id}`);
+        if (userId) {
+          const token = localStorage.getItem("token");
+          const headers = {};
+          if (token) headers["Authorization"] = `Bearer ${token}`;
+
+          const insRes = await fetch(`${API_URL}/inscription/${userId}`, {
+            credentials: "include",
+            headers,
+          });
           const insData = await insRes.json();
-          const turns = insData.data
-            .filter((i) => i.type === "schedule")
+          const list = Array.isArray(insData.data) ? insData.data : [];
+          const turns = list
+            .filter((i) => i && i.type === "schedule" && i.Schedule)
             .map((i) => ({
               id: i.id,
               day: i.Schedule.day,
@@ -65,6 +70,8 @@ function Schedule() {
               endTime: i.Schedule.endTime,
             }));
           setUserTurns(turns);
+        } else {
+          setUserTurns([]);
         }
       } catch (err) {
         console.error("Error al cargar turnos:", err);
@@ -74,7 +81,7 @@ function Schedule() {
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
 
   const showFeedback = (type, message) => {
     setFeedback({ type, message });
@@ -87,6 +94,11 @@ function Schedule() {
       : schedules.filter((s) => s.day === selectedFilter);
 
   const handleInscription = (schedule) => {
+    if (!userId) {
+      showFeedback("warning", "Debes iniciar sesión para reservar un turno.");
+      openAuthModal();
+      return;
+    }
     setSelectedSchedule(schedule);
     if (schedule.capacity > 0) setModalType("confirm");
     else setModalType("full");
@@ -94,6 +106,12 @@ function Schedule() {
   };
 
   const confirmInscription = async () => {
+    if (!userId) {
+      showFeedback("warning", "Debes iniciar sesión para reservar un turno.");
+      openAuthModal();
+      return;
+    }
+
     if (userTurns.length >= 3) {
       showFeedback(
         "error",
@@ -110,9 +128,13 @@ function Schedule() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/inscription", {
+      const token = localStorage.getItem("token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/inscription`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           userId,
           scheduleId: selectedSchedule.id,
@@ -142,9 +164,9 @@ function Schedule() {
         },
       ]);
 
-      const updatedRes = await fetch("http://localhost:3000/schedule");
+      const updatedRes = await fetch(`${API_URL}/schedule`);
       const updatedData = await updatedRes.json();
-      setSchedules(updatedData);
+      setSchedules(Array.isArray(updatedData) ? updatedData : []);
     } catch (err) {
       showFeedback("error", "Error al inscribirse al turno");
     }
@@ -152,8 +174,14 @@ function Schedule() {
 
   const handleCancelTurn = async (turnId) => {
     try {
-      const res = await fetch(`http://localhost:3000/inscription/${turnId}`, {
+      const token = localStorage.getItem("token");
+      const headers = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/inscription/${turnId}`, {
         method: "DELETE",
+        credentials: "include",
+        headers,
       });
 
       if (!res.ok) {
@@ -165,9 +193,9 @@ function Schedule() {
       showFeedback("success", "Turno cancelado con éxito");
       setUserTurns((prev) => prev.filter((t) => t.id !== turnId));
 
-      const updatedRes = await fetch("http://localhost:3000/schedule");
+      const updatedRes = await fetch(`${API_URL}/schedule`);
       const updatedData = await updatedRes.json();
-      setSchedules(updatedData);
+      setSchedules(Array.isArray(updatedData) ? updatedData : []);
     } catch (err) {
       showFeedback("error", "Error al cancelar el turno");
     }

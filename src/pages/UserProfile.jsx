@@ -16,41 +16,31 @@ import {
   Input,
   useToast,
 } from "@chakra-ui/react";
+import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../config/api";
 
 const UserProfile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    user: authUser,
+    loading: authLoading,
+    updateUser,
+    openAuthModal,
+  } = useAuth();
+  const [user, setUser] = useState(authUser || null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(authUser || {});
   const toast = useToast();
   const navigate = useNavigate();
   const bgCard = useColorModeValue("white", "gray.700");
   const bgPage = useColorModeValue("gray.100", "gray.800");
   const textColor = useColorModeValue("gray.700", "gray.100");
 
-  // Obtener el usuario actual
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/users/session", {
-          credentials: "include",
-        });
-        const data = await response.json();
-        if (data.success) {
-          setUser(data.data);
-          setFormData(data.data);
-        } else {
-          console.error("Error:", data.message);
-        }
-      } catch (error) {
-        console.error("Error al obtener usuario:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+    if (authUser) {
+      setUser(authUser);
+      setFormData(authUser);
+    }
+  }, [authUser]);
 
   // Manejar cambios en los inputs
   const handleChange = (e) => {
@@ -60,9 +50,14 @@ const UserProfile = () => {
   // Guardar los cambios
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/users/${user.id}`, {
+      const token = localStorage.getItem("token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_URL}/users/${user.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers,
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
@@ -70,6 +65,7 @@ const UserProfile = () => {
 
       if (response.ok) {
         setUser(result.data);
+        if (updateUser) updateUser(result.data);
         setIsEditing(false);
         toast({
           title: "Perfil actualizado correctamente",
@@ -98,7 +94,13 @@ const UserProfile = () => {
     }
   };
 
-  if (loading) {
+  // Cancelar edición y restaurar datos iniciales
+  const handleCancel = () => {
+    setFormData(user);
+    setIsEditing(false);
+  };
+
+  if (authLoading) {
     return (
       <Flex justify="center" align="center" minH="100vh">
         <Spinner size="xl" color="blue.500" />
@@ -108,8 +110,20 @@ const UserProfile = () => {
 
   if (!user) {
     return (
-      <Flex justify="center" align="center" minH="100vh">
-        <Text color="gray.500">No se encontró información del usuario.</Text>
+      <Flex
+        justify="center"
+        align="center"
+        minH="100vh"
+        direction="column"
+        gap={4}
+        bg={bgPage}
+      >
+        <Text color="gray.500" fontSize="lg">
+          No se encontró sesión de usuario activa.
+        </Text>
+        <Button colorScheme="blue" onClick={openAuthModal}>
+          Iniciar Sesión
+        </Button>
       </Flex>
     );
   }
@@ -229,28 +243,33 @@ const UserProfile = () => {
         </VStack>
 
         <Divider my={6} />
+
+        {/* Acciones del formulario */}
         <HStack justify="center" spacing={4}>
           {isEditing ? (
             <>
               <Button colorScheme="blue" onClick={handleSave}>
                 Guardar cambios
               </Button>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
+              <Button
+                variant="outline"
+                colorScheme="gray"
+                onClick={handleCancel}
+              >
                 Cancelar
               </Button>
             </>
           ) : (
             <>
-              {/* Redirección corregida al Panel */}
+              <Button colorScheme="blue" onClick={() => setIsEditing(true)}>
+                Editar perfil
+              </Button>
               <Button
                 variant="outline"
                 colorScheme="gray"
                 onClick={() => navigate("/home")}
               >
                 Volver
-              </Button>
-              <Button colorScheme="blue" onClick={() => setIsEditing(true)}>
-                Editar perfil
               </Button>
             </>
           )}

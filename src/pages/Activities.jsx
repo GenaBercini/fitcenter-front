@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Heading,
@@ -12,10 +13,12 @@ import {
   useToast,
   Badge,
 } from "@chakra-ui/react";
+import { FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 
 export default function Activities() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activities, setActivities] = useState([]);
   const [userInscriptions, setUserInscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -157,7 +160,6 @@ export default function Activities() {
           (a) => String(a?.name).toLowerCase() === filter.toLowerCase(),
         );
 
-  // Verificar si el usuario ya tiene CUALQUIER actividad inscripta
   const hasAnyActivityInscription = userInscriptions.some(
     (i) => i && i.type === "activity",
   );
@@ -173,6 +175,17 @@ export default function Activities() {
   return (
     <Box bg="gray.50" minH="100vh" py={8} translate="no">
       <Container maxW="6xl">
+        {/* Botón Volver al Panel */}
+        <Button
+          leftIcon={<FiArrowLeft />}
+          variant="link"
+          colorScheme="blue"
+          onClick={() => navigate("/home")}
+          mb={4}
+        >
+          Volver al Panel
+        </Button>
+
         <Heading size="xl" mb={2} color="gray.800">
           Actividades Disponibles
         </Heading>
@@ -203,7 +216,6 @@ export default function Activities() {
           {filtered.map((act) => {
             if (!act || !act.id) return null;
 
-            // Buscar inscripción existente específica para esta actividad
             const activeIns = userInscriptions.find(
               (i) =>
                 i &&
@@ -269,7 +281,7 @@ export default function Activities() {
                         colorScheme="blue"
                         size="md"
                         isLoading={isBusy}
-                        isDisabled={hasAnyActivityInscription} // Deshabilitado si ya tiene otra actividad
+                        isDisabled={hasAnyActivityInscription}
                         onClick={() => handleEnroll(act.id)}
                       >
                         Inscribirse
