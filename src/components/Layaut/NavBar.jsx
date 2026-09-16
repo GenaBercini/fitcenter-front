@@ -1,11 +1,9 @@
 import {
   Box,
   Flex,
-  HStack,
   IconButton,
   useDisclosure,
   Stack,
-  Input,
   Image,
   Menu,
   MenuButton,
@@ -13,10 +11,13 @@ import {
   MenuItem,
   Button,
   Avatar,
+  Badge,
+  Container,
 } from "@chakra-ui/react";
 import AuthModal from "../Auth/AuthModal";
 import { IoMdMenu, IoMdClose } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { FiShoppingCart, FiShoppingBag } from "react-icons/fi";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import { use } from "react";
@@ -44,6 +45,10 @@ export default function NavBar() {
     useAuth();
   console.log(user);
   const navigate = useNavigate();
+
+  const totalItems =
+    cart?.items?.reduce((acc, item) => acc + (item.quantity || 1), 0) || 0;
+
   const handleGoToProfile = () => {
     if (user.role === "admin") navigate("/dashboard");
     if (user.role === "instructor") navigate("/instructor");
@@ -58,30 +63,34 @@ export default function NavBar() {
 
   return (
     <>
-      <Box p={2}>
-        <Flex
-          h={14}
-          p={2}
-          alignItems={"center"}
-          justifyContent={"space-between"}
-          borderWidth="1px"
-          rounded="lg"
-          shadow="lg"
-        >
-          <IconButton
-            size={"md"}
-            icon={isOpen ? <IoMdClose /> : <IoMdMenu />}
-            aria-label={"Open Menu"}
-            display={{ md: "none" }}
-            onClick={isOpen ? onClose : onOpen}
-          />
-          <HStack spacing={8} alignItems={"center"}>
-            <Box as="button" onClick={() => navigate("/")} cursor="pointer">
+      <Box bg="transparent" py={3}>
+        <Container maxW="7xl">
+          <Flex
+            h={16}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+            px={6}
+            bg="white"
+            borderWidth="1px"
+            borderColor="gray.200"
+            rounded="2xl"
+            shadow="sm"
+          >
+            {/* Logo de la marca (Más grande y con presencia) */}
+            <Box
+              as="button"
+              onClick={() => navigate("/")}
+              cursor="pointer"
+              display="flex"
+              alignItems="center"
+              _hover={{ transform: "scale(1.03)" }}
+              transition="transform 0.2s"
+            >
               <Image
                 src="../../../public/culturista-musculoso-sosteniendo-gran-barra-grandes-pesos.png"
-                boxSize="40px"
-                fit="cover"
-                alt="Pesas"
+                boxSize="48px"
+                fit="contain"
+                alt="FitCenter Logo"
               />
             </Box>
             <HStack
@@ -100,19 +109,14 @@ export default function NavBar() {
                   </NavLink>
                 ),
               )}
-            </HStack>
-          </HStack>
-          <HStack w="40%" maxW="sm" borderWidth="1px" rounded="lg" spacing={0}>
-            <Input flex="1" placeholder="buscar..." p={2} />
-            <Button bg="gray.100" variant="outline">
-              Buscar
-            </Button>
-          </HStack>
-          <Flex alignItems={"center"} justifyContent={"end"} minW="20%">
-            {user != null ? (
-              <Menu>
-                <MenuButton
-                  as={Button}
+
+              {/* Carrito de Compras */}
+              <Box position="relative">
+                <IconButton
+                  icon={<FiShoppingCart size={22} />}
+                  aria-label="Carrito de compras"
+                  variant="ghost"
+                  colorScheme="blue"
                   rounded="full"
                   variant="link"
                   cursor="pointer"
@@ -161,9 +165,9 @@ export default function NavBar() {
                   </NavLink>
                 ),
               )}
-            </Stack>
-          </Box>
-        ) : null}
+            </Flex>
+          </Flex>
+        </Container>
       </Box>
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
     </>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Flex,
@@ -21,9 +22,12 @@ import {
   useDisclosure,
   Input,
   Divider,
+  Container,
 } from "@chakra-ui/react";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 
 function Routines() {
+  const navigate = useNavigate();
   const [routines, setRoutines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoutine, setSelectedRoutine] = useState(null);
@@ -45,23 +49,31 @@ function Routines() {
   } = useDisclosure();
 
   const bgCard = useColorModeValue("white", "gray.700");
+  const bgPage = useColorModeValue("gray.50", "gray.800");
 
-  // Cargar usuario y rutinas
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         const userRes = await fetch("http://localhost:3000/users/session", {
           credentials: "include",
         });
-        const userData = await userRes.json();
-        const id = userData?.data?.id;
-        setUserId(id);
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          const id = userData?.data?.id;
+          setUserId(id);
+        }
 
         const routinesRes = await fetch("http://localhost:3000/routines");
+        if (!routinesRes.ok)
+          throw new Error("No se pudo obtener la lista de rutinas");
+
         const routinesData = await routinesRes.json();
-        setRoutines(routinesData.data);
+        // Garantiza que el estado sea un Array válido
+        setRoutines(Array.isArray(routinesData.data) ? routinesData.data : []);
       } catch (err) {
         console.error("Error al cargar usuario o rutinas", err);
+        // Asigna array vacío para evitar TypeError en .filter() si falla el fetch
+        setRoutines([]);
       } finally {
         setLoading(false);
       }
@@ -70,20 +82,21 @@ function Routines() {
     fetchInitialData();
   }, []);
 
-  // Cargar inscripciones del usuario
   useEffect(() => {
     if (!userId) return;
 
     const fetchInscriptions = async () => {
       try {
         const inscRes = await fetch(
-          `http://localhost:3000/inscription/${userId}`
+          `http://localhost:3000/inscription/${userId}`,
         );
+        if (!inscRes.ok) return;
+
         const inscData = await inscRes.json();
         const inscriptionsArray = inscData.data || [];
 
         const routineInsc = inscriptionsArray.find(
-          (i) => i.type === "routine" && i.Routine
+          (i) => i.type === "routine" && i.Routine,
         );
 
         setCurrentInscription(routineInsc || null);
@@ -100,19 +113,10 @@ function Routines() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  if (loading) return <Text>Cargando rutinas...</Text>;
+  if (loading) return <Text p={6}>Cargando rutinas...</Text>;
 
-  if (!routines || routines.length === 0) {
-    return (
-      <Alert status="info" borderRadius="md" mt={6}>
-        <AlertIcon />
-        No hay rutinas cargadas aún.
-      </Alert>
-    );
-  }
-
-  // Filtrar por texto
-  const filteredRoutines = routines.filter((r) => {
+  // Filtrado seguro con fallback por si routines fuese nulo
+  const filteredRoutines = (routines || []).filter((r) => {
     const typeMatch = r.typeRoutine
       ?.toLowerCase()
       .includes(filter.toLowerCase());
@@ -134,7 +138,6 @@ function Routines() {
     onInscriptionOpen();
   };
 
-  //  Confirmar inscripción
   const confirmRoutineInscription = async () => {
     try {
       const res = await fetch("http://localhost:3000/inscription", {
@@ -153,14 +156,14 @@ function Routines() {
       if (!res.ok) {
         showFeedback(
           "error",
-          data.message || "Error al inscribirse en la rutina"
+          data.message || "Error al inscribirse en la rutina",
         );
         return;
       }
 
       showFeedback(
         "success",
-        `¡Inscripción confirmada en la rutina ${selectedRoutine.typeRoutine}!`
+        `¡Inscripción confirmada en la rutina ${selectedRoutine.typeRoutine}!`,
       );
 
       setCurrentInscription({
@@ -168,10 +171,11 @@ function Routines() {
         id: data.inscription.id,
       });
 
-      // refrescar rutinas
       const updatedRes = await fetch("http://localhost:3000/routines");
-      const updatedData = await updatedRes.json();
-      setRoutines(updatedData.data);
+      if (updatedRes.ok) {
+        const updatedData = await updatedRes.json();
+        setRoutines(Array.isArray(updatedData.data) ? updatedData.data : []);
+      }
 
       onInscriptionClose();
     } catch (error) {
@@ -180,14 +184,13 @@ function Routines() {
     }
   };
 
-  // Cancelar inscripción
   const handleCancelInscription = async () => {
     try {
       if (!currentInscription) return;
 
       const res = await fetch(
         `http://localhost:3000/inscription/${currentInscription.id}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
 
       const data = await res.json();
@@ -195,7 +198,7 @@ function Routines() {
       if (!res.ok) {
         showFeedback(
           "error",
-          data.message || "Error al cancelar la inscripción"
+          data.message || "Error al cancelar la inscripción",
         );
         return;
       }
@@ -203,100 +206,128 @@ function Routines() {
       showFeedback("success", "Inscripción cancelada con éxito");
       setCurrentInscription(null);
 
-      // refrescar rutinas
       const updatedRes = await fetch("http://localhost:3000/routines");
-      const updatedData = await updatedRes.json();
-      setRoutines(updatedData.data);
+      if (updatedRes.ok) {
+        const updatedData = await updatedRes.json();
+        setRoutines(Array.isArray(updatedData.data) ? updatedData.data : []);
+      }
     } catch (err) {
       showFeedback("error", "Error al cancelar la inscripción");
     }
   };
 
   return (
-    <Box p={6}>
-      <Heading mb={6}>Rutinas Disponibles</Heading>
+    <Box bg={bgPage} minH="100vh" py={6}>
+      <Container maxW="7xl">
+        {/* Botón Volver al Panel */}
+        <Button
+          leftIcon={<ArrowBackIcon />}
+          variant="ghost"
+          onClick={() => navigate("/home")}
+          mb={4}
+          colorScheme="blue"
+        >
+          Volver al Panel
+        </Button>
 
-      <Flex justify="center" mb={6}>
-        <Input
-          placeholder="Filtrar por tipo o profesor"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          w="300px"
-          borderColor="blue.500.400"
-          focusBorderColor="blue.500"
-        />
-      </Flex>
+        <Heading mb={6}>Rutinas Disponibles</Heading>
 
-      {/* Cartel como en actividades */}
-      {currentInscription && currentInscription.Routine && (
-        <Alert status="success" borderRadius="md" mb={2}>
-          <AlertIcon />
-          Ya estás inscripto en:{" "}
-          <strong style={{ marginLeft: "4px" }}>
-            {currentInscription.Routine.typeRoutine}
-          </strong>
-        </Alert>
-      )}
+        <Flex justify="flex-start" mb={6}>
+          <Input
+            placeholder="Filtrar por tipo o profesor"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            maxW="320px"
+            bg="white"
+            borderColor="gray.300"
+            focusBorderColor="blue.500"
+            borderRadius="lg"
+          />
+        </Flex>
 
-      {feedback && (
-        <Alert status={feedback.type} borderRadius="md" mb={4}>
-          <AlertIcon />
-          {feedback.message}
-        </Alert>
-      )}
+        {currentInscription && currentInscription.Routine && (
+          <Alert status="success" borderRadius="xl" mb={4}>
+            <AlertIcon />
+            Ya estás inscripto en:{" "}
+            <strong style={{ marginLeft: "4px" }}>
+              {currentInscription.Routine.typeRoutine}
+            </strong>
+          </Alert>
+        )}
 
-      <VStack spacing={6} align="stretch">
-        {filteredRoutines.map((routine) => (
-          <Flex
-            key={routine.id}
-            bg={bgCard}
-            p={5}
-            borderRadius="xl"
-            shadow="md"
-            justify="space-between"
-            align="center"
-          >
-            <Box>
-              <Text fontSize="lg" fontWeight="bold">
-                {routine.typeRoutine}
-              </Text>
-              <Text fontSize="sm" color="gray.600">
-                Instructor:{" "}
-                {routine.professor
-                  ? `${routine.professor.first_name} ${
-                      routine.professor.last_name || ""
-                    }`.trim()
-                  : "No asignado"}
-              </Text>
-              <Text fontSize="sm" color="gray.600">
-                Descripción: {routine.descRoutine}
-              </Text>
-            </Box>
+        {feedback && (
+          <Alert status={feedback.type} borderRadius="xl" mb={4}>
+            <AlertIcon />
+            {feedback.message}
+          </Alert>
+        )}
 
-            <Flex gap={2}>
-              <Button colorScheme="blue" onClick={() => openDetails(routine)}>
-                Ver ejercicios
-              </Button>
+        {routines.length === 0 ? (
+          <Alert status="info" borderRadius="xl">
+            <AlertIcon />
+            No hay rutinas cargadas aún.
+          </Alert>
+        ) : (
+          <VStack spacing={4} align="stretch">
+            {filteredRoutines.map((routine) => (
+              <Flex
+                key={routine.id}
+                bg={bgCard}
+                p={5}
+                borderRadius="2xl"
+                shadow="sm"
+                borderWidth="1px"
+                borderColor="gray.100"
+                justify="space-between"
+                align="center"
+              >
+                <Box>
+                  <Text fontSize="lg" fontWeight="bold">
+                    {routine.typeRoutine}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Instructor:{" "}
+                    {routine.professor
+                      ? `${routine.professor.first_name} ${
+                          routine.professor.last_name || ""
+                        }`.trim()
+                      : "No asignado"}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Descripción: {routine.descRoutine}
+                  </Text>
+                </Box>
 
-              {currentInscription &&
-              currentInscription.Routine &&
-              currentInscription.Routine.id === routine.id ? (
-                <Button colorScheme="red" onClick={handleCancelInscription}>
-                  Cancelar inscripción
-                </Button>
-              ) : (
-                <Button
-                  colorScheme="blue"
-                  onClick={() => openInscription(routine)}
-                  isDisabled={!!currentInscription}
-                >
-                  Inscribirse
-                </Button>
-              )}
-            </Flex>
-          </Flex>
-        ))}
-      </VStack>
+                <Flex gap={2}>
+                  <Button
+                    colorScheme="blue"
+                    variant="outline"
+                    onClick={() => openDetails(routine)}
+                  >
+                    Ver ejercicios
+                  </Button>
+
+                  {currentInscription &&
+                  currentInscription.Routine &&
+                  currentInscription.Routine.id === routine.id ? (
+                    <Button colorScheme="red" onClick={handleCancelInscription}>
+                      Cancelar inscripción
+                    </Button>
+                  ) : (
+                    <Button
+                      colorScheme="blue"
+                      onClick={() => openInscription(routine)}
+                      isDisabled={!!currentInscription}
+                    >
+                      Inscribirse
+                    </Button>
+                  )}
+                </Flex>
+              </Flex>
+            ))}
+          </VStack>
+        )}
+      </Container>
 
       {/* Modal Detalles */}
       <Modal
@@ -306,7 +337,7 @@ function Routines() {
         size="lg"
       >
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent borderRadius="2xl">
           <ModalHeader>
             {selectedRoutine?.typeRoutine || "Detalle de rutina"}
           </ModalHeader>
@@ -314,18 +345,18 @@ function Routines() {
           <ModalBody>
             {selectedRoutine ? (
               <>
-                <Text mb={3}>
+                <Text mb={2}>
                   <strong>Instructor:</strong>{" "}
                   {selectedRoutine.professor
                     ? `${selectedRoutine.professor.first_name} ${selectedRoutine.professor.last_name}`
                     : "No asignado"}
                 </Text>
 
-                <Text mb={3}>
+                <Text mb={4}>
                   <strong>Descripción:</strong> {selectedRoutine.descRoutine}
                 </Text>
 
-                <Divider mb={3} />
+                <Divider mb={4} />
 
                 <Text fontWeight="bold" mb={2}>
                   Ejercicios:
@@ -337,9 +368,8 @@ function Routines() {
                       key={ex.id}
                       p={3}
                       bg="gray.50"
-                      borderRadius="md"
+                      borderRadius="xl"
                       mb={2}
-                      shadow="sm"
                     >
                       <Text fontWeight="semibold">{ex.name}</Text>
                       <Text fontSize="sm" color="gray.600">
@@ -361,10 +391,10 @@ function Routines() {
         </ModalContent>
       </Modal>
 
-      {/* Modal de Confirmación */}
+      {/* Modal Confirmación */}
       <Modal isOpen={isInscriptionOpen} onClose={onInscriptionClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent borderRadius="2xl">
           <ModalHeader>Confirmar Inscripción</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

@@ -64,30 +64,6 @@ export const products = [
   },
 ];
 
-export const instructors = [
-  {
-    id: 1,
-    name: "Jade Summers",
-    specialty: "HIIT",
-    image:
-      "https://as2.ftcdn.net/v2/jpg/01/34/21/43/1000_F_134214362_AgLWd6Sh6UqlBQlY1iUVoox3cbomiIVj.jpg",
-  },
-  {
-    id: 2,
-    name: "Marcus Steele",
-    specialty: "Powerlifting",
-    image:
-      "https://c8.alamy.com/comp/JBC6YC/side-pose-of-gym-instructor-lifting-weights-toning-his-biceps-JBC6YC.jpg",
-  },
-  {
-    id: 3,
-    name: "Gabrielle Nguyen",
-    specialty: "Yoga",
-    image:
-      "https://media.istockphoto.com/id/1470234996/es/foto/mujer-sentada-en-un-gimnasio-con-su-clase-de-yoga.jpg?s=612x612&w=0&k=20&c=7J5Sw2lr2f1E2QF2z46vJ0wMgaQNGb5bDVz9FLQ1tHI=",
-  },
-];
-
 export const plans = [
   {
     id: "monthly",

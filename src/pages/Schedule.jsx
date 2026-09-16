@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Flex,
@@ -17,10 +18,13 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
-  HStack, // usado para los filtros tipo botón
+  HStack,
+  Container,
 } from "@chakra-ui/react";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 
 function Schedule() {
+  const navigate = useNavigate();
   const [schedules, setSchedules] = useState([]);
   const [userTurns, setUserTurns] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -30,12 +34,11 @@ function Schedule() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalType, setModalType] = useState("confirm");
-  const bgCard = useColorModeValue("white", "gray.700");
 
-  // Filtro con botones
+  const bgCard = useColorModeValue("white", "gray.700");
+  const bgPage = useColorModeValue("gray.50", "gray.800");
   const [selectedFilter, setSelectedFilter] = useState("Todos");
 
-  // Cargar usuario + turnos
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -73,35 +76,28 @@ function Schedule() {
     fetchData();
   }, []);
 
-  // Mostrar cartelito de feedback con estilos Chakra
   const showFeedback = (type, message) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  //  Filtrar dinámicamente según el botón seleccionado
   const filteredSchedules =
     selectedFilter === "Todos"
       ? schedules
       : schedules.filter((s) => s.day === selectedFilter);
 
-  // Abrir modal de inscripción
   const handleInscription = (schedule) => {
     setSelectedSchedule(schedule);
-    if (schedule.capacity > 0) {
-      setModalType("confirm");
-    } else {
-      setModalType("full");
-    }
+    if (schedule.capacity > 0) setModalType("confirm");
+    else setModalType("full");
     onOpen();
   };
 
-  // Confirmar inscripción
   const confirmInscription = async () => {
     if (userTurns.length >= 3) {
       showFeedback(
         "error",
-        "Ya tienes 3 turnos activos. No puedes inscribirte a más."
+        "Ya tienes 3 turnos activos. No puedes inscribirte a más.",
       );
       onClose();
       return;
@@ -133,7 +129,7 @@ function Schedule() {
 
       showFeedback(
         "success",
-        `Inscripción confirmada al turno del ${selectedSchedule.day} (${selectedSchedule.startTime}-${selectedSchedule.endTime})`
+        `Inscripción confirmada al turno del ${selectedSchedule.day} (${selectedSchedule.startTime}-${selectedSchedule.endTime})`,
       );
       onClose();
       setUserTurns((prev) => [
@@ -146,7 +142,6 @@ function Schedule() {
         },
       ]);
 
-      // Actualizar capacidad
       const updatedRes = await fetch("http://localhost:3000/schedule");
       const updatedData = await updatedRes.json();
       setSchedules(updatedData);
@@ -155,7 +150,6 @@ function Schedule() {
     }
   };
 
-  // Cancelar inscripción
   const handleCancelTurn = async (turnId) => {
     try {
       const res = await fetch(`http://localhost:3000/inscription/${turnId}`, {
@@ -179,127 +173,139 @@ function Schedule() {
     }
   };
 
-  if (loading) return <Text>Cargando turnos...</Text>;
-
-  if (schedules.length === 0) {
-    return (
-      <Alert status="info" borderRadius="md" mt={6}>
-        <AlertIcon />
-        No hay turnos cargados aún.
-      </Alert>
-    );
-  }
+  if (loading) return <Text p={6}>Cargando turnos...</Text>;
 
   return (
-    <Box p={6}>
-      <Heading mb={6}>Turnos Disponibles</Heading>
+    <Box bg={bgPage} minH="100vh" py={6}>
+      <Container maxW="7xl">
+        {/* Botón Volver al Panel */}
+        <Button
+          leftIcon={<ArrowBackIcon />}
+          variant="ghost"
+          onClick={() => navigate("/home")}
+          mb={4}
+          colorScheme="blue"
+        >
+          Volver al Panel
+        </Button>
 
-      {/* Nuevo filtro con botones (reemplaza el Select anterior) */}
-      <HStack spacing={4} mb={6}>
-        {[
-          "Todos",
-          "Lunes",
-          "Martes",
-          "Miercoles",
-          "Jueves",
-          "Viernes",
-          "Sábado",
-          // "Domingo",
-        ].map((day) => (
-          <Button
-            key={day}
-            variant={selectedFilter === day ? "solid" : "outline"}
-            colorScheme="blue"
-            onClick={() => setSelectedFilter(day)}
-          >
-            {day}
-          </Button>
-        ))}
-      </HStack>
+        <Heading mb={6}>Turnos Disponibles</Heading>
 
-      {/*  Cartel con los turnos actuales del usuario */}
-      {userTurns.length > 0 && (
-        <Alert status="success" borderRadius="md" mb={3}>
-          <AlertIcon />
-          Estás inscripto en:
-          <Box ml={2}>
-            {userTurns.map((t) => (
-              <Text key={t.id}>
-                {t.day}: {t.startTime} - {t.endTime}
-              </Text>
-            ))}
-          </Box>
-        </Alert>
-      )}
-
-      {/*  Feedback de acciones debajo del cartel verde */}
-      {feedback && (
-        <Alert status={feedback.type} borderRadius="md" mb={4}>
-          <AlertIcon />
-          {feedback.message}
-        </Alert>
-      )}
-
-      {/* Lista de turnos */}
-      <VStack spacing={6} align="stretch">
-        {filteredSchedules.map((schedule) => {
-          const hasTurn = userTurns.some((t) => t.day === schedule.day);
-          const currentTurn = userTurns.find(
-            (t) =>
-              t.day === schedule.day &&
-              t.startTime === schedule.startTime &&
-              t.endTime === schedule.endTime
-          );
-
-          return (
-            <Flex
-              key={schedule.id}
-              bg={bgCard}
-              p={5}
-              borderRadius="xl"
-              shadow="md"
-              justify="space-between"
-              align="center"
+        <HStack spacing={2} mb={6} overflowX="auto" py={1}>
+          {[
+            "Todos",
+            "Lunes",
+            "Martes",
+            "Miercoles",
+            "Jueves",
+            "Viernes",
+            "Sábado",
+          ].map((day) => (
+            <Button
+              key={day}
+              variant={selectedFilter === day ? "solid" : "outline"}
+              colorScheme="blue"
+              borderRadius="full"
+              size="sm"
+              onClick={() => setSelectedFilter(day)}
             >
-              <Box>
-                <Text fontSize="lg" fontWeight="bold">
-                  {schedule.day}
-                </Text>
-                <Text>
-                  Horario: {schedule.startTime} - {schedule.endTime}
-                </Text>
-                <Text>Cupo disponible: {schedule.capacity}</Text>
-              </Box>
+              {day}
+            </Button>
+          ))}
+        </HStack>
 
-              {currentTurn ? (
-                <Button
-                  colorScheme="red"
-                  onClick={() => handleCancelTurn(currentTurn.id)}
-                >
-                  Cancelar turno
-                </Button>
-              ) : (
-                <Button
-                  colorScheme="blue"
-                  onClick={() => handleInscription(schedule)}
-                  isDisabled={hasTurn || userTurns.length >= 3}
-                >
-                  {hasTurn
-                    ? "Ya tenés turno ese día"
-                    : userTurns.length >= 3
-                    ? "Máx. 3 turnos"
-                    : "Inscribirse"}
-                </Button>
-              )}
-            </Flex>
-          );
-        })}
-      </VStack>
+        {userTurns.length > 0 && (
+          <Alert status="success" borderRadius="xl" mb={4}>
+            <AlertIcon />
+            Estás inscripto en:
+            <Box ml={2}>
+              {userTurns.map((t) => (
+                <Text key={t.id} fontWeight="semibold">
+                  {t.day}: {t.startTime} - {t.endTime}
+                </Text>
+              ))}
+            </Box>
+          </Alert>
+        )}
 
-      {/* Modal de confirmación */}
+        {feedback && (
+          <Alert status={feedback.type} borderRadius="xl" mb={4}>
+            <AlertIcon />
+            {feedback.message}
+          </Alert>
+        )}
+
+        {schedules.length === 0 ? (
+          <Alert status="info" borderRadius="xl">
+            <AlertIcon />
+            No hay turnos cargados aún.
+          </Alert>
+        ) : (
+          <VStack spacing={4} align="stretch">
+            {filteredSchedules.map((schedule) => {
+              const hasTurn = userTurns.some((t) => t.day === schedule.day);
+              const currentTurn = userTurns.find(
+                (t) =>
+                  t.day === schedule.day &&
+                  t.startTime === schedule.startTime &&
+                  t.endTime === schedule.endTime,
+              );
+
+              return (
+                <Flex
+                  key={schedule.id}
+                  bg={bgCard}
+                  p={5}
+                  borderRadius="2xl"
+                  shadow="sm"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                  justify="space-between"
+                  align="center"
+                >
+                  <Box>
+                    <Text fontSize="lg" fontWeight="bold">
+                      {schedule.day}
+                    </Text>
+                    <Text color="gray.600">
+                      Horario: {schedule.startTime} - {schedule.endTime}
+                    </Text>
+                    <Text fontSize="sm" color="gray.500">
+                      Cupo disponible: {schedule.capacity}
+                    </Text>
+                  </Box>
+
+                  {currentTurn ? (
+                    <Button
+                      colorScheme="red"
+                      onClick={() => handleCancelTurn(currentTurn.id)}
+                    >
+                      Cancelar turno
+                    </Button>
+                  ) : (
+                    <Button
+                      colorScheme="blue"
+                      onClick={() => handleInscription(schedule)}
+                      isDisabled={hasTurn || userTurns.length >= 3}
+                    >
+                      {hasTurn
+                        ? "Ya tenés turno ese día"
+                        : userTurns.length >= 3
+                          ? "Máx. 3 turnos"
+                          : "Inscribirse"}
+                    </Button>
+                  )}
+                </Flex>
+              );
+            })}
+          </VStack>
+        )}
+      </Container>
+
+      {/* Modal Confirmación */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent borderRadius="2xl">
           <ModalHeader>
             {modalType === "confirm"
               ? "Confirmar inscripción"
