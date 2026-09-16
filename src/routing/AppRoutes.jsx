@@ -32,7 +32,6 @@ import Professors from "../pages/Professors";
 import CheckoutSuccess from "../pages/CheckoutSuccess";
 import CheckoutCancel from "../pages/CheckoutCancel";
 
-
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Routes } from "react-router-dom";
 
@@ -57,7 +56,6 @@ const AppRoutes = () => (
 
     <Route path="/checkout/success" element={<CheckoutSuccess />} />
     <Route path="/checkout/cancel" element={<CheckoutCancel />} />
-
 
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="main" element={<Main />} />

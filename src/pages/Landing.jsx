@@ -125,7 +125,8 @@ export default function Landing() {
               Transforma tu vida.
             </Heading>
             <Text fontSize="lg" color="gray.600">
-              Únete a FitCenter y forma parte de una comunidad que supera los límites e inspira la grandeza.
+              Únete a FitCenter y forma parte de una comunidad que supera los
+              límites e inspira la grandeza.
             </Text>
             <Button bgColor="blue.500" size="lg" onClick={handleJoinNow}>
               Empieza ahora

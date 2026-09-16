@@ -21,7 +21,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import { use } from "react";
 
-const Links = ["Home","Cart", "Turnos"];
+const Links = ["Home", "Cart", "Turnos"];
 
 const NavLink = ({ children, to }) => {
   return (
@@ -42,13 +42,13 @@ export default function NavBar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isAuthModalOpen, openAuthModal, closeAuthModal, user, signOut } =
     useAuth();
-    console.log(user)
+  console.log(user);
   const navigate = useNavigate();
   const handleGoToProfile = () => {
     if (user.role === "admin") navigate("/dashboard");
-      if (user.role === "instructor") navigate("/instructor");
-      if (user.role === "professor") navigate("/professor");
-      if (user.role === "client") navigate("/home");
+    if (user.role === "instructor") navigate("/instructor");
+    if (user.role === "professor") navigate("/professor");
+    if (user.role === "client") navigate("/home");
   };
 
   const handleSignOut = () => {
@@ -56,7 +56,6 @@ export default function NavBar() {
     navigate("/");
   };
 
-  
   return (
     <>
       <Box p={2}>
@@ -99,7 +98,7 @@ export default function NavBar() {
                   <NavLink key={link} to={`/${link.toLowerCase()}`}>
                     {link}
                   </NavLink>
-                )
+                ),
               )}
             </HStack>
           </HStack>
@@ -123,7 +122,9 @@ export default function NavBar() {
                 <MenuList>
                   <MenuItem onClick={handleGoToProfile}>Perfil</MenuItem>
                   <MenuItem>Configuración</MenuItem>
-                  <MenuItem onClick={() => handleSignOut()}>Cerrar Sesión</MenuItem>
+                  <MenuItem onClick={() => handleSignOut()}>
+                    Cerrar Sesión
+                  </MenuItem>
                 </MenuList>
               </Menu>
             ) : (
@@ -158,7 +159,7 @@ export default function NavBar() {
                   <NavLink key={link} to={`/${link.toLowerCase()}`}>
                     {link}
                   </NavLink>
-                )
+                ),
               )}
             </Stack>
           </Box>
