@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -13,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:3000/users/session", {
+        const res = await fetch(`${API_URL}/users/session`, {
           credentials: "include",
         });
         if (!res.ok) throw new Error("No autenticado");
@@ -31,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   const signInWithGoogle = async (token) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/users/auth/google/save", {
+      const res = await fetch(`${API_URL}/users/auth/google/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -52,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       throw new Error("Por favor, complete todos los campos");
     }
-    const res = await fetch("http://localhost:3000/users/login", {
+    const res = await fetch(`${API_URL}/users/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -75,7 +77,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         throw new Error("Por favor, complete todos los campos");
       }
-      const res = await fetch("http://localhost:3000/users/register", {
+      const res = await fetch(`${API_URL}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -99,7 +101,7 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     setLoading(true);
-    await fetch("http://localhost:3000/users/logout", {
+    await fetch(`${API_URL}/users/logout`, {
       method: "POST",
       credentials: "include",
     });

@@ -2,6 +2,8 @@ import { Button, FormControl, FormLabel, Input, Modal, ModalBody, ModalCloseButt
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function EditCategory({category}) {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -14,7 +16,7 @@ function EditCategory({category}) {
         }
         
         console.log("category" , category);
-        console.log("http://localhost:3000/uploads/"+category.img);
+        console.log("URL de la imagen:", `${API_URL}/uploads/${category.img}`);
        
     }
 
@@ -29,7 +31,7 @@ function EditCategory({category}) {
     //const [loading, setLoading] = useState(true);
 
     function getCategories () {
-        fetch("http://localhost:3000/categories")
+        fetch(`${API_URL}/categories`)
         .then((res) => res.json())
         .then((data) => {
         
@@ -64,7 +66,7 @@ function EditCategory({category}) {
             formData.append("lastImg", category.img);
             if (image) formData.append("image", image);
     
-            fetch("http://localhost:3000/categories/"+category.id, {
+            fetch(`${API_URL}/categories/${category.id}`, {
             method: "PUT",
             body: formData,
             })
@@ -107,7 +109,7 @@ function EditCategory({category}) {
                 src={
                 image instanceof File
                     ? URL.createObjectURL(image)   // si es File, mostrar vista previa
-                    : "http://localhost:3000/uploads/" + image // si es string, usar URL del servidor
+                    : `${API_URL}/uploads/${image}` // si es string, usar URL del servidor
                 }
                 alt="Vista previa"
                 style={{ width: "100%", borderRadius: "8px", marginBottom: "10px" }}

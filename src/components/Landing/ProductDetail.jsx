@@ -51,24 +51,12 @@ export default function ProductDetail({ isOpen, onClose, product }) {
             <Box
               h="260px"
               w="100%"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              bg="gray.50"
-              borderRadius="lg"
-              p={3}
-            >
-              <Image
-                src={product.img}
-                alt={product.name}
-                maxH="240px"
-                maxW="100%"
-                objectFit="contain"
-              />
-            </Box>
-
-            <Text fontSize="2xl" fontWeight="bold" color="blue.600">
-              ${product.price.toFixed(2)}
+              maxH="300px"
+              objectFit="cover"
+              borderRadius="md"
+            />
+            <Text fontSize="2xl" fontWeight="bold">
+              ${Number(product.price || 0).toFixed(2)}
             </Text>
             <Text color="gray.600">{product.description}</Text>
             {product.stock !== undefined && (

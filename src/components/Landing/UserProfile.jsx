@@ -1,11 +1,13 @@
 
 import React, { useEffect, useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const UserProfileCard = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3000/users/1")
+    fetch(`${API_URL}/users/1`)
       .then((res) => res.json())
       .then((data) => setUser(data))
       .catch((err) => console.error("Error cargando perfil:", err));
