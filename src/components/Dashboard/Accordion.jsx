@@ -78,7 +78,6 @@ const Demo = () => {
   );
 };
 
-// Se corrigieron los "value" para que coincidan con AppRoutes.jsx
 const items = [
   {
     value: "memberships",
@@ -86,7 +85,7 @@ const items = [
     title: "Membresías",
   },
   {
-    value: "schedule", // Corregido: antes decía "bookings"
+    value: "schedule",
     icon: <FaClock />,
     title: "Turnos",
   },
@@ -101,7 +100,7 @@ const items = [
     title: "Rutinas",
   },
   {
-    value: "exercises", // Corregido: antes decía "excersises"
+    value: "exercises",
     icon: <IoMdFitness />,
     title: "Ejercicios",
   },
@@ -143,7 +142,7 @@ const items = [
     title: "Productos",
   },
   {
-    value: "main", // Corregido: antes decía "profile"
+    value: "profile", // Corregido: redirige exactamente a /dashboard/profile
     icon: <FaUserCircle />,
     title: "Perfil",
   },

@@ -81,7 +81,6 @@ export default function AdminClasses() {
         </Thead>
         <Tbody>
           {filtered.map((c) => {
-            // Evaluamos si el backend devuelve algún flag, si no existe asumimos Activa
             const isInactive =
               c.active === false || c.disabled === 1 || c.disabled === true;
 

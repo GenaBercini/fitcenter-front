@@ -18,13 +18,15 @@ import { FaSearch } from "react-icons/fa";
 import AddSchedule from "../components/Dashboard/AddSchedule";
 import EditSchedule from "../components/Dashboard/EditSchedule";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export default function AdminSchedules() {
   const [schedules, setSchedules] = useState([]);
   const [search, setSearch] = useState("");
 
   const fetchSchedules = async () => {
     try {
-      const res = await fetch("http://localhost:3000/schedule");
+      const res = await fetch(`${API_URL}/schedule`);
       if (res.ok) {
         const data = await res.json();
         setSchedules(Array.isArray(data) ? data : data.data || []);
@@ -74,6 +76,7 @@ export default function AdminSchedules() {
           <Tr>
             <Th>DÍA</Th>
             <Th>HORARIO</Th>
+            <Th>CUPO</Th>
             <Th>ESTADO</Th>
             <Th textAlign="right">EDITOR</Th>
           </Tr>
@@ -85,6 +88,7 @@ export default function AdminSchedules() {
               <Td color="gray.600">
                 {s.startTime || "--"} - {s.endTime || "--"}
               </Td>
+              <Td fontWeight="medium">{s.capacity ?? "--"}</Td>
               <Td>
                 <Badge colorScheme={s.active !== false ? "green" : "red"}>
                   {s.active !== false ? "Activo" : "Inactivo"}

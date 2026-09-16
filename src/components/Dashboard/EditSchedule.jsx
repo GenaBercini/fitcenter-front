@@ -17,21 +17,26 @@ import {
 import { useState } from "react";
 import Swal from "sweetalert2";
 
-function EditSchedule({ schedule }) {
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+function EditSchedule({ schedule, onSaved }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [day, setDay] = useState(schedule?.day || "Lunes");
   const [startTime, setStartTime] = useState(schedule?.startTime || "");
   const [endTime, setEndTime] = useState(schedule?.endTime || "");
   const [capacity, setCapacity] = useState(schedule?.capacity || "");
-  const [maxCapacity, setMaxCapacity] = useState(schedule?.maxCapacity || "");
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
+    return timeStr.split(":").length === 2 ? `${timeStr}:00` : timeStr;
+  };
 
   const handleOpen = () => {
     setDay(schedule?.day || "Lunes");
     setStartTime(schedule?.startTime || "");
     setEndTime(schedule?.endTime || "");
     setCapacity(schedule?.capacity || "");
-    setMaxCapacity(schedule?.maxCapacity || "");
     onOpen();
   };
 
@@ -39,13 +44,12 @@ function EditSchedule({ schedule }) {
     if (startTime !== "" && endTime !== "" && capacity !== "") {
       const payload = {
         day,
-        startTime,
-        endTime,
+        startTime: formatTime(startTime),
+        endTime: formatTime(endTime),
         capacity: Number(capacity),
-        maxCapacity: maxCapacity ? Number(maxCapacity) : Number(capacity),
       };
 
-      fetch("http://localhost:3000/schedule/" + schedule.id, {
+      fetch(`${API_URL}/schedule/${schedule.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -64,6 +68,8 @@ function EditSchedule({ schedule }) {
                 data.msg || data.message || "Turno modificado correctamente",
               icon: "success",
             }).then(() => {
+              if (onSaved) onSaved();
+              onClose();
               location.reload();
             });
           } else {
@@ -132,25 +138,14 @@ function EditSchedule({ schedule }) {
               </FormControl>
             </HStack>
 
-            <HStack mb={3}>
-              <FormControl isRequired>
-                <FormLabel fontSize="sm">Cupo (Capacity)</FormLabel>
-                <Input
-                  type="number"
-                  value={capacity}
-                  onChange={(e) => setCapacity(e.target.value)}
-                />
-              </FormControl>
-
-              <FormControl>
-                <FormLabel fontSize="sm">Cupo Máximo</FormLabel>
-                <Input
-                  type="number"
-                  value={maxCapacity}
-                  onChange={(e) => setMaxCapacity(e.target.value)}
-                />
-              </FormControl>
-            </HStack>
+            <FormControl mb={3} isRequired>
+              <FormLabel fontSize="sm">Cupo</FormLabel>
+              <Input
+                type="number"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+              />
+            </FormControl>
           </ModalBody>
 
           <ModalFooter>

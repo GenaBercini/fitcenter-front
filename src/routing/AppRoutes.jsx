@@ -25,11 +25,11 @@ import ProfessorProfile from "../pages/ProfessorProfile";
 import Dashboard from "../pages/Dashboard";
 import Main from "../pages/Main";
 import Administrators from "../pages/Administrators";
-import Categories from "../pages/Categories";
-import Clients from "../pages/Clients";
-import Products from "../pages/Products";
-import Instructors from "../pages/Instructors";
-import Professors from "../pages/Professors";
+import AdminCategories from "../pages/AdminCategories";
+import AdminClients from "../pages/AdminClients";
+import AdminProducts from "../pages/AdminProducts";
+import AdminInstructors from "../pages/AdminInstructors";
+import AdminProfessors from "../pages/AdminProfessors";
 
 // Vistas Internas del Dashboard (Nuevas importaciones)
 import AdminMemberships from "../pages/AdminMemberships";
@@ -63,21 +63,24 @@ const AppRoutes = () => (
     {/* PASARELA DE PAGO */}
     <Route path="/checkout/success" element={<CheckoutSuccess />} />
     <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+    <Route path="/membership/success" element={<CheckoutSuccess />} />
+    <Route path="/membership/cancel" element={<CheckoutCancel />} />
 
     {/* PANEL DE ADMINISTRACIÓN */}
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="main" element={<Main />} />
       <Route path="memberships" element={<AdminMemberships />} />
       <Route path="schedule" element={<AdminSchedules />} />
+      <Route path="profile" element={<UserProfile />} />
       <Route path="classes" element={<AdminClasses />} />
       <Route path="routines" element={<AdminRoutines />} />
       <Route path="exercises" element={<AdminExercises />} />
-      <Route path="categories" element={<Categories />} />
-      <Route path="products" element={<Products />} />
-      <Route path="clients" element={<Clients />} />
+      <Route path="categories" element={<AdminCategories />} />
+      <Route path="products" element={<AdminProducts />} />
+      <Route path="clients" element={<AdminClients />} />
       <Route path="administrators" element={<Administrators />} />
-      <Route path="instructors" element={<Instructors />} />
-      <Route path="professors" element={<Professors />} />
+      <Route path="instructors" element={<AdminInstructors />} />
+      <Route path="professors" element={<AdminProfessors />} />
     </Route>
 
     <Route element={<ProtectedRoute />}>{/* Subrutas privadas */}</Route>

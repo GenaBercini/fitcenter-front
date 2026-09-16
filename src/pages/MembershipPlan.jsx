@@ -11,8 +11,9 @@ import {
 } from "@chakra-ui/react";
 import { FaCheck } from "react-icons/fa";
 import axios from "axios";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-const API_URL = import.meta.env.VITE_API_URL;
+import API_URL from "../config/api";
 
 const plans = [
   {
@@ -38,33 +39,50 @@ const plans = [
 ];
 
 export default function Membership() {
-  const { user } =
-    useAuth();
+  const { user, loading: authLoading, openAuthModal } = useAuth();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const payMembership = async (membershipType, userId) => {
-  try {
-    const { data } = await axios.put(
-      `${API_URL}/users/payMembership/${userId}`,
-      { membershipType: membershipType }
-    );
+    try {
+      const { data } = await axios.put(
+        `${API_URL}/users/payMembership/${userId}`,
+        { membershipType },
+        { withCredentials: true },
+      );
 
-    return data.data.url; // la URL que Stripe devuelve
-  } catch (err) {
-    console.error("Error al iniciar checkout de membresía:", err);
-  }
-};
-
-const handleMembershipCheckout = async (membershipType) => {
-  try {
-    const url = await payMembership(membershipType, user.id);
-
-    if (url) {
-      window.location.href = url; // redirige a Stripe
+      return data?.data?.url;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.msg ||
+        error.message ||
+        "No se pudo conectar con el servidor";
+      throw new Error(message);
     }
-  } catch (err) {
-    console.error("Error con el checkout de membresía:", err);
-  }
-};
+  };
+
+  const handleMembershipCheckout = async (membershipType) => {
+    if (authLoading) return;
+
+    if (!user?.id) {
+      openAuthModal();
+      return;
+    }
+
+    try {
+      setCheckoutLoading(true);
+      const url = await payMembership(membershipType, user.id);
+      if (!url) {
+        throw new Error("Stripe no devolvió una URL de checkout");
+      }
+      window.location.assign(url);
+    } catch (err) {
+      console.error("Error con el checkout de membresía:", err);
+      window.alert(`No se pudo iniciar el pago: ${err.message}`);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   return (
     <Center py={6}>
@@ -127,6 +145,8 @@ const handleMembershipCheckout = async (membershipType) => {
                 boxShadow={"0 5px 20px 0px rgb(219, 39, 119 / 63%)"}
                 _hover={{ bg: "blue.500" }}
                 _focus={{ bg: "blue.500" }}
+                isLoading={checkoutLoading}
+                isDisabled={authLoading}
                 onClick={() => handleMembershipCheckout(plan.name)}
               >
                 Seleccionar
