@@ -36,6 +36,7 @@ export default function Cart() {
   const cardBg = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.800", "gray.100");
   const accent = useColorModeValue("blue.600", "blue.400");
+  const summaryBg = useColorModeValue("white", "gray.800");
 
   useEffect(() => {
     const loadCart = async () => {
@@ -97,7 +98,10 @@ export default function Cart() {
     );
   }
 
-  const items = cart.items || [];
+  // Filtrado seguro de items válidos antes del renderizado
+  const validItems = Array.isArray(cart.items)
+    ? cart.items.filter((item) => item && item.product)
+    : [];
 
   return (
     <Flex
@@ -119,7 +123,7 @@ export default function Cart() {
           🛍️ Tu carrito de compras
         </Heading>
 
-        {items.length === 0 ? (
+        {validItems.length === 0 ? (
           <VStack spacing={4} py={10}>
             <Text color="gray.500" fontSize="lg">
               Tu carrito está vacío
@@ -138,12 +142,16 @@ export default function Cart() {
             gap={10}
             align="flex-start"
           >
-            <Stack spacing={5} flex="2">
-              {items
-                .filter((item) => item.product)
-                .map((item) => (
+            <Stack spacing={5} flex="2" w="100%">
+              {validItems.map((item) => {
+                const price = Number(item.product?.price || 0);
+                const subtotal = Number(
+                  item.subtotal || price * (item.quantity || 1),
+                );
+
+                return (
                   <Flex
-                    key={item.id}
+                    key={item.id || item.product.id}
                     bg={"gray.100"}
                     borderRadius="xl"
                     p={4}
@@ -157,18 +165,16 @@ export default function Cart() {
                         src={
                           item.product.img || "https://via.placeholder.com/80"
                         }
-                        alt={item.product.name}
+                        alt={item.product.name || "Producto"}
                         boxSize="80px"
                         borderRadius="lg"
                         objectFit="cover"
                       />
                       <VStack align="start" spacing={1}>
                         <Text fontWeight="semibold" fontSize="lg">
-                          {item.product.name}
+                          {item.product.name || "Producto sin nombre"}
                         </Text>
-                        <Text color="gray.500">
-                          ${item.product.price.toFixed(2)}
-                        </Text>
+                        <Text color="gray.500">${price.toFixed(2)}</Text>
                       </VStack>
                     </HStack>
                     <HStack spacing={4} align="center">
@@ -189,7 +195,7 @@ export default function Cart() {
                           −
                         </Button>
 
-                        <Text fontWeight="bold">{item.quantity}</Text>
+                        <Text fontWeight="bold">{item.quantity || 1}</Text>
 
                         <Button
                           size="sm"
@@ -202,7 +208,7 @@ export default function Cart() {
 
                       <VStack spacing={0} align="end">
                         <Text fontWeight="semibold">
-                          ${item.subtotal.toFixed(2)}
+                          ${subtotal.toFixed(2)}
                         </Text>
                         <IconButton
                           aria-label="Eliminar producto"
@@ -217,16 +223,18 @@ export default function Cart() {
                       </VStack>
                     </HStack>
                   </Flex>
-                ))}
+                );
+              })}
             </Stack>
 
             <Box
               flex="1"
-              bg={useColorModeValue("white", "gray.800")}
+              bg={summaryBg}
               borderRadius="xl"
               boxShadow="md"
               p={6}
               minW="300px"
+              w={{ base: "100%", md: "auto" }}
             >
               <Heading size="md" mb={4} color={textColor}>
                 Resumen del pedido
@@ -234,23 +242,31 @@ export default function Cart() {
               <Divider mb={4} />
 
               <VStack align="stretch" spacing={3} fontSize="md">
-                {items
-                  .filter((item) => item.product)
-                  .map((item) => (
-                    <Flex key={item.id} justify="space-between">
-                      <Text color="gray.600">{item.product.name}</Text>
-                      <Text fontWeight="medium">
-                        ${item.subtotal.toFixed(2)}
-                      </Text>
+                {validItems.map((item) => {
+                  const subtotal = Number(
+                    item.subtotal ||
+                      Number(item.product?.price || 0) * (item.quantity || 1),
+                  );
+
+                  return (
+                    <Flex
+                      key={`summary-${item.id || item.product.id}`}
+                      justify="space-between"
+                    >
+                      <Text color="gray.600">{item.product?.name}</Text>
+                      <Text fontWeight="medium">${subtotal.toFixed(2)}</Text>
                     </Flex>
-                  ))}
+                  );
+                })}
               </VStack>
 
               <Divider my={4} />
 
               <Flex justify="space-between" fontWeight="bold" fontSize="lg">
                 <Text>Total</Text>
-                <Text color={accent}>${cart.total?.toFixed(2)}</Text>
+                <Text color={accent}>
+                  ${Number(cart.total || 0).toFixed(2)}
+                </Text>
               </Flex>
 
               <Button

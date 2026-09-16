@@ -32,17 +32,20 @@ import {
 
 function HomeView() {
   const navigate = useNavigate();
+
+  // 1. TODOS los hooks declarados juntos arriba
   const bgCard = useColorModeValue("white", "gray.700");
   const bgPage = useColorModeValue("gray.50", "gray.800");
   const textColor = useColorModeValue("gray.700", "gray.100");
+  const alertBg = useColorModeValue("yellow.100", "yellow.700");
+  const alertText = useColorModeValue("yellow.800", "yellow.200");
 
-  const [activity, setActivity] = useState(null);
+  const [activities, setActivities] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [missingData, setMissingData] = useState(false);
   const [currentRoutine, setCurrentRoutine] = useState(null);
-
   const [selectedRoutine, setSelectedRoutine] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -50,7 +53,6 @@ function HomeView() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Obtener usuario en sesión
         const userRes = await fetch("http://localhost:3000/users/session", {
           credentials: "include",
         });
@@ -64,7 +66,6 @@ function HomeView() {
 
         setUser(userInfo);
 
-        // Comprobar si falta completar información
         const incompleteFields = [
           "first_name",
           "last_name",
@@ -74,23 +75,28 @@ function HomeView() {
         ].some((key) => !userInfo[key] || userInfo[key].trim() === "");
         setMissingData(incompleteFields);
 
-        // Traer inscripciones
+        // Traer inscripciones del usuario
         const inscriptionRes = await fetch(
           `http://localhost:3000/inscription/${userInfo.id}`,
         );
         const inscriptionData = await inscriptionRes.json();
+        const list = Array.isArray(inscriptionData.data)
+          ? inscriptionData.data
+          : [];
 
-        const activityIns = inscriptionData.data.find(
-          (i) => i.type === "activity",
-        );
-        const scheduleIns = inscriptionData.data.filter(
-          (i) => i.type === "schedule",
-        );
+        // Mapear todas las actividades y turnos de forma segura
+        const activityInscriptions = list
+          .filter((i) => i && i.type === "activity" && i.Activity)
+          .map((i) => i.Activity);
 
-        setActivity(activityIns?.Activity || null);
-        setSchedules(scheduleIns.map((i) => i.Schedule));
+        const scheduleInscriptions = list
+          .filter((i) => i && i.type === "schedule" && i.Schedule)
+          .map((i) => i.Schedule);
+
+        setActivities(activityInscriptions);
+        setSchedules(scheduleInscriptions);
       } catch (error) {
-        console.error("Error al cargar datos:", error);
+        console.error("Error al cargar datos del usuario:", error);
       } finally {
         setLoading(false);
       }
@@ -99,6 +105,7 @@ function HomeView() {
     fetchData();
   }, []);
 
+  // 2. La condición de return temprano va DESPUÉS de declarar todos los hooks
   if (loading) {
     return (
       <Flex align="center" justify="center" h="100vh" bg={bgPage}>
@@ -110,7 +117,6 @@ function HomeView() {
   return (
     <Box bg={bgPage} minH="100vh" py={8}>
       <Container maxW="7xl">
-        {/* Encabezado con nombre + alerta si faltan datos */}
         <Flex align="center" justify="space-between" flexWrap="wrap">
           <Heading size="lg" color={textColor}>
             ¡Hola{" "}
@@ -122,7 +128,7 @@ function HomeView() {
 
           {missingData && (
             <HStack
-              bg={useColorModeValue("yellow.100", "yellow.700")}
+              bg={alertBg}
               borderRadius="lg"
               px={3}
               py={2}
@@ -131,18 +137,14 @@ function HomeView() {
               shadow="sm"
             >
               <FaExclamationTriangle color="#D69E2E" />
-              <Text
-                fontSize="sm"
-                color={useColorModeValue("yellow.800", "yellow.200")}
-                fontWeight="medium"
-              >
+              <Text fontSize="sm" color={alertText} fontWeight="medium">
                 Faltan completar datos del perfil
               </Text>
             </HStack>
           )}
         </Flex>
 
-        {/* Atajos principales */}
+        {/* Atajos */}
         <Grid
           templateColumns={{
             base: "1fr",
@@ -152,7 +154,6 @@ function HomeView() {
           gap={6}
           mt={6}
         >
-          {/* Tarjeta Perfil -> Redirige exactamente a /profile */}
           <Flex
             bg={bgCard}
             p={6}
@@ -265,16 +266,21 @@ function HomeView() {
               </VStack>
             </Flex>
 
-            {/* Información de inscripción */}
+            {/* Lista dinámicas de actividades */}
             <Box w="100%" mt={2}>
               <Text fontWeight="bold" color="blue.500">
-                Actividad
+                Actividades Inscriptas
               </Text>
-              {activity ? (
-                <Text color={textColor}>
-                  {activity.name} — {activity.startTime} a {activity.endTime} -{" "}
-                  {activity.description}
-                </Text>
+              {activities.length > 0 ? (
+                <VStack align="start" spacing={1} mt={1}>
+                  {activities.map((act, index) => (
+                    <Text key={index} color={textColor}>
+                      • {act.name || "Actividad"} — {act.startTime || "--:--"} a{" "}
+                      {act.endTime || "--:--"} (
+                      {act.description || "Sin descripción"})
+                    </Text>
+                  ))}
+                </VStack>
               ) : (
                 <Text color="gray.500">
                   No estás inscripto a ninguna actividad
@@ -288,7 +294,7 @@ function HomeView() {
                 <VStack align="start" spacing={1} mt={1}>
                   {schedules.map((s, index) => (
                     <Text key={index} color={textColor}>
-                      Día: {s.day} — {s.startTime} a {s.endTime}
+                      • Día: {s.day} — {s.startTime} a {s.endTime}
                     </Text>
                   ))}
                 </VStack>
@@ -310,7 +316,7 @@ function HomeView() {
                     onOpen();
                   }}
                 >
-                  {currentRoutine.Routine.typeRoutine} — Ver ejercicios
+                  {currentRoutine.Routine?.typeRoutine} — Ver ejercicios
                 </Text>
               ) : (
                 <Text color="gray.500">
@@ -322,7 +328,7 @@ function HomeView() {
         </Box>
       </Container>
 
-      {/* MODAL DE RUTINA */}
+      {/* Modal de Rutina */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
         <ModalOverlay />
         <ModalContent borderRadius="xl">
