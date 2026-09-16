@@ -5,12 +5,12 @@ import {
   Text,
   Button,
   VStack,
+  Stack,
   Image,
   SimpleGrid,
   useDisclosure,
   useToast,
   Container,
-  Flex,
 } from "@chakra-ui/react";
 import Swal from "sweetalert2";
 import MembershipPlan from "../pages/MembershipPlan";
@@ -66,51 +66,60 @@ export default function Landing() {
 
   return (
     <Box p={4}>
-      <Box mt={4} mb={4} bg="blue.50" py={2} px={10} borderRadius="3xl">
+      {/* 1. HERO SECTION */}
+      <Box
+        mt={4}
+        mb={4}
+        bg="blue.50"
+        py={8}
+        px={10}
+        borderRadius="3xl"
+        position="relative"
+        overflow="hidden"
+      >
         <Stack direction={["column", "row"]} align="center" spacing={10}>
-          <VStack align="start" maxW="600px">
+          <VStack align="start" maxW="600px" zIndex={1}>
             <Heading size="2xl" lineHeight="short">
-              Desarrolla fuerza. Aumenta la confienza. <br />
+              Desarrolla fuerza. Aumenta la confianza. <br />
               Transforma tu vida.
             </Heading>
             <Text fontSize="lg" color="gray.600">
               Únete a FitCenter y forma parte de una comunidad que supera los
               límites e inspira la grandeza.
             </Text>
-            <Button bgColor="blue.500" size="lg" onClick={handleJoinNow}>
+            <Button colorScheme="blue" size="lg" onClick={handleJoinNow}>
               Empieza ahora
             </Button>
           </VStack>
 
-            {/* Columna Derecha: Imagen a pantalla completa del contenedor */}
-            <Box
-              position={{ base: "relative", md: "absolute" }}
-              right={0}
-              top={0}
-              w={{ base: "100%", md: "55%" }}
+          {/* Columna Derecha: Imagen */}
+          <Box
+            position={{ base: "relative", md: "absolute" }}
+            right={0}
+            top={0}
+            w={{ base: "100%", md: "55%" }}
+            h="100%"
+          >
+            <Image
+              src="/2150321791.jpg"
+              alt="Gimnasio FitCenter"
+              w="100%"
               h="100%"
-            >
-              <Image
-                src="../../public/2150321791.jpg"
-                alt="Gimnasio FitCenter"
-                w="100%"
-                h="100%"
-                objectFit="cover"
-              />
-              {/* Degradado para acoplar la imagen con el texto */}
-              <Box
-                position="absolute"
-                top={0}
-                left={0}
-                w="100%"
-                h="100%"
-                bgGradient="linear(to-r, blue.900, transparent)"
-                display={{ base: "none", md: "block" }}
-              />
-            </Box>
-          </SimpleGrid>
-        </Box>
-      </Container>
+              objectFit="cover"
+            />
+            {/* Degradado */}
+            <Box
+              position="absolute"
+              top={0}
+              left={0}
+              w="100%"
+              h="100%"
+              bgGradient="linear(to-r, blue.50, transparent)"
+              display={{ base: "none", md: "block" }}
+            />
+          </Box>
+        </Stack>
+      </Box>
 
       {/* 2. MÉTRICAS / ESTADÍSTICAS */}
       <Container maxW="7xl" py={4}>
@@ -157,7 +166,7 @@ export default function Landing() {
         <MembershipPlan />
       </Container>
 
-      <AuthModal isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
+      <AuthModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 }

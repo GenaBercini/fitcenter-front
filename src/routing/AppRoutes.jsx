@@ -31,8 +31,12 @@ import Products from "../pages/Products";
 import Instructors from "../pages/Instructors";
 import Professors from "../pages/Professors";
 
-import CheckoutSuccess from "../pages/CheckoutSuccess";
-import CheckoutCancel from "../pages/CheckoutCancel";
+// Vistas Internas del Dashboard (Nuevas importaciones)
+import AdminMemberships from "../pages/AdminMemberships";
+import AdminSchedules from "../pages/AdminSchedules";
+import AdminClasses from "../pages/AdminClasses";
+import AdminRoutines from "../pages/AdminRoutines";
+import AdminExercises from "../pages/AdminExercises";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -60,6 +64,7 @@ const AppRoutes = () => (
     <Route path="/checkout/success" element={<CheckoutSuccess />} />
     <Route path="/checkout/cancel" element={<CheckoutCancel />} />
 
+    {/* PANEL DE ADMINISTRACIÓN */}
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="main" element={<Main />} />
       <Route path="memberships" element={<AdminMemberships />} />
