@@ -61,7 +61,7 @@ export default function ProductDetail({
               borderRadius="md"
             />
             <Text fontSize="2xl" fontWeight="bold">
-              ${product.price.toFixed(2)}
+              ${Number(product.price || 0).toFixed(2)}
             </Text>
             <Text color="gray.600">{product.description}</Text>
             {product.stock !== undefined && (

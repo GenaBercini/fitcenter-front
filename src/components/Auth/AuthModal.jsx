@@ -22,6 +22,8 @@ import {
 } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL;
 import Swal from "sweetalert2";
 import { useAuth } from "../../context/AuthContext";
 import { FaPhoneAlt } from "react-icons/fa";
@@ -129,7 +131,7 @@ export default function AuthModal() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/users/auth/google";
+    window.location.href = `${API_URL}/users/auth/google`;
   };
 
   const handleRegister = async () => {

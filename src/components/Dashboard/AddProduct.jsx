@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+const API_URL = import.meta.env.VITE_API_URL;
+
 import {
   Modal,
   ModalOverlay,
@@ -43,7 +45,7 @@ function AddProduct() {
   //const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3000/categories")
+    fetch(`${API_URL}/categories`)
       .then((res) => res.json())
       .then((data) => {
     
@@ -96,7 +98,7 @@ function AddProduct() {
       formData.append("categoryId", selectedCategory);
       if (image) formData.append("image", image);
 
-      fetch("http://localhost:3000/products", {
+      fetch(`${API_URL}/products`, {
         method: "POST",
         body: formData,
       })
