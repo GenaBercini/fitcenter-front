@@ -65,56 +65,22 @@ export default function Landing() {
   }, []);
 
   return (
-    <Box bg="gray.50" minH="100vh" pb={10}>
-      {/* 1. HERO BANNER PRINCIPAL (Sin espacio en blanco) */}
-      <Container maxW="7xl" pt={2} pb={6}>
-        <Box
-          bg="gray.900"
-          borderRadius="3xl"
-          overflow="hidden"
-          position="relative"
-          shadow="xl"
-        >
-          <SimpleGrid columns={{ base: 1, md: 2 }} minH="400px">
-            {/* Columna Izquierda: Mensaje y CTA */}
-            <Flex
-              direction="column"
-              justify="center"
-              align="flex-start"
-              p={{ base: 8, md: 12 }}
-              bgGradient="linear(to-r, blue.900, blue.800, transparent)"
-              zIndex={2}
-            >
-              <Heading
-                size="2xl"
-                lineHeight="tight"
-                color="white"
-                mb={4}
-                fontWeight="extrabold"
-              >
-                Desarrolla fuerza. <br />
-                Aumenta la confianza. <br />
-                <Text as="span" color="blue.400">
-                  Transforma tu vida.
-                </Text>
-              </Heading>
-              <Text fontSize="md" color="gray.300" mb={6} maxW="480px">
-                Únete a FitCenter y forma parte de una comunidad que supera los
-                límites e inspira la grandeza.
-              </Text>
-              <Button
-                colorScheme="blue"
-                size="lg"
-                px={8}
-                borderRadius="full"
-                onClick={handleJoinNow}
-                shadow="lg"
-                _hover={{ transform: "scale(1.03)" }}
-                transition="all 0.2s"
-              >
-                Empieza ahora
-              </Button>
-            </Flex>
+    <Box p={4}>
+      <Box mt={4} mb={4} bg="blue.50" py={2} px={10} borderRadius="3xl">
+        <Stack direction={["column", "row"]} align="center" spacing={10}>
+          <VStack align="start" maxW="600px">
+            <Heading size="2xl" lineHeight="short">
+              Desarrolla fuerza. Aumenta la confienza. <br />
+              Transforma tu vida.
+            </Heading>
+            <Text fontSize="lg" color="gray.600">
+              Únete a FitCenter y forma parte de una comunidad que supera los
+              límites e inspira la grandeza.
+            </Text>
+            <Button bgColor="blue.500" size="lg" onClick={handleJoinNow}>
+              Empieza ahora
+            </Button>
+          </VStack>
 
             {/* Columna Derecha: Imagen a pantalla completa del contenedor */}
             <Box

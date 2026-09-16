@@ -31,12 +31,8 @@ import Products from "../pages/Products";
 import Instructors from "../pages/Instructors";
 import Professors from "../pages/Professors";
 
-// Vistas específicas de administración
-import AdminMemberships from "../pages/AdminMemberships";
-import AdminExercises from "../pages/AdminExercises";
-import AdminClasses from "../pages/AdminClasses";
-import AdminRoutines from "../pages/AdminRoutines";
-import AdminSchedules from "../pages/AdminSchedules";
+import CheckoutSuccess from "../pages/CheckoutSuccess";
+import CheckoutCancel from "../pages/CheckoutCancel";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -64,7 +60,6 @@ const AppRoutes = () => (
     <Route path="/checkout/success" element={<CheckoutSuccess />} />
     <Route path="/checkout/cancel" element={<CheckoutCancel />} />
 
-    {/* DASHBOARD DE ADMINISTRACIÓN */}
     <Route path="/dashboard/*" element={<Dashboard />}>
       <Route path="main" element={<Main />} />
       <Route path="memberships" element={<AdminMemberships />} />

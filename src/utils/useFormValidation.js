@@ -16,11 +16,11 @@ export function useFormValidation(initialValues = {}) {
   const validateName = (name) => /^[A-Za-zÀ-ÿ\s]+$/.test(name);
   const validatePhone = (phone) => /^[0-9]+$/.test(phone);
 
-  const validateForm = (fields = Object.keys(values)) => {
+  const validateForm = (fields = Object.keys(values), valuesToValidate = values) => {
     const newErrors = {};
 
     fields.forEach((field) => {
-      const value = values[field];
+      const value = valuesToValidate[field];
       switch (field) {
         case "email":
           if (!value) newErrors.email = "El email es obligatorio";
@@ -54,7 +54,7 @@ export function useFormValidation(initialValues = {}) {
         case "nroMatricula":
           if (!value) newErrors.nroMatricula = "La matrícula es obligatoria";
           else if (!validateMatricula(value)) {
-              newErrors.nroMatricula =
+            newErrors.nroMatricula =
               "Matrícula solo puede contener letras, números o guiones";
           }
           break;
@@ -74,7 +74,7 @@ export function useFormValidation(initialValues = {}) {
   const handleChange = (field, value) => {
     const newValues = { ...values, [field]: value };
     setValues(newValues);
-    validateForm(Object.keys(newValues));
+    validateForm(Object.keys(newValues), newValues);
   };
 
   const handleResetForm = (initialValues) => {
