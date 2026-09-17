@@ -37,7 +37,7 @@ function AddRoutine({ onSaved }) {
       typeRoutine,
       descRoutine, // Nombre de columna exacto en Sequelize
       disabled: activo === 1, // disabled: false = Activa, true = Inactiva
-      professorId: 1, // FK por defecto para evitar error de clave foránea
+      professorId: null,
     };
 
     try {
@@ -51,7 +51,9 @@ function AddRoutine({ onSaved }) {
       let data = {};
       try {
         data = JSON.parse(rawText);
-      } catch {}
+      } catch {
+        data = { msg: rawText };
+      }
 
       if (res.ok || data.success || data.id) {
         Swal.fire({

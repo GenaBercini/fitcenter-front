@@ -19,13 +19,10 @@ import {
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
-import AddCategory from "../components/Dashboard/AddCategory";
+import AddUser from "../components/Dashboard/AddUser";
 import EditCategory from "../components/Dashboard/EditCategory";
 
 const Professors = () => {
-
-    const [showActive, setShowActive] = useState(true);
-    const [loading, setLoading] = useState(true);
 
     const [professors, setProfessors] = useState([]);
     const [filteredProfessors, setFilteredProfessors] = useState([]);
@@ -91,7 +88,7 @@ const Professors = () => {
             />
           </InputGroup>
 
-          <AddCategory/>
+          <AddUser role="professor" label="Agregar profesor" onSaved={() => location.reload()} />
         </Flex>
 
         <Table size="md" variant="simple">

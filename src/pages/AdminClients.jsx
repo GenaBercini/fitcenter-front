@@ -19,13 +19,10 @@ import {
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
-import AddCategory from "../components/Dashboard/AddCategory";
+import AddUser from "../components/Dashboard/AddUser";
 import EditCategory from "../components/Dashboard/EditCategory";
 
 const Clients = () => {
-
-    const [showActive, setShowActive] = useState(true);
-    const [loading, setLoading] = useState(true);
 
     const [clients, setClients] = useState([]);
     const [filteredClients, setFilteredClients] = useState([]);
@@ -90,7 +87,7 @@ const Clients = () => {
             />
           </InputGroup>
 
-          <AddCategory/>
+          <AddUser role="client" label="Agregar cliente" onSaved={() => location.reload()} />
         </Flex>
 
         <Table size="md" variant="simple">

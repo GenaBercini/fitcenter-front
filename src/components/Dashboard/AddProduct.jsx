@@ -73,6 +73,7 @@ function AddProduct() {
     formData.append("description", productDescription);
     formData.append("price", price);
     formData.append("stock", stock);
+    formData.append("active", String(!disabled));
     formData.append("disabled", disabled);
     formData.append("categoryId", selectedCategory);
     formData.append("image", image);

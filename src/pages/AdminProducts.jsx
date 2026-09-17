@@ -2,7 +2,6 @@
 
 import {
   Box,
-  Button,
   Flex,
   Heading,
   Stack,
@@ -15,8 +14,6 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
-  FormControl,
-  FormLabel,
   Switch,
 } from "@chakra-ui/react"
 import Swal from "sweetalert2";
@@ -30,18 +27,14 @@ const Products = () => {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [showActive, setShowActive] = useState(true);
-    const [loading, setLoading] = useState(true);
-  
     useEffect(() => {
-      fetch("http://localhost:3000/products")
+      fetch("http://localhost:3000/products?includeInactive=true")
         .then((res) => res.json())
         .then((data) => {
           
           setProducts(data.data);
           setFilteredProducts(data.data);
           console.log("DATA", data.data);
-          console.log("PRODUCTS", products);
         })
         .catch((err) => {
           console.error("Error cargando productos:", err);
@@ -51,6 +44,21 @@ const Products = () => {
           });
         });
     }, []);
+
+    const toggleProduct = async (product) => {
+      const res = await fetch(`http://localhost:3000/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ disabled: !product.disabled }),
+      });
+      if (!res.ok) throw new Error("No se pudo actualizar el estado");
+      const data = await res.json();
+      const updatedProducts = products.map((item) =>
+        item.id === data.data.id ? { ...item, ...data.data } : item,
+      );
+      setProducts(updatedProducts);
+      setFilteredProducts(updatedProducts);
+    };
 
 
     //FILTRO DE BUSQUEDA Y PRECIO
@@ -78,10 +86,12 @@ const Products = () => {
     
     const applyFilters = (searchValue, min, max) => {
       const filtered = products.filter((p) => {
+        const categoryName = p.category?.name || "";
+        const description = p.description || "";
         const matchesSearch =
-          p.name.toLowerCase().includes(searchValue) ||
-          p.category.name.toLowerCase().includes(searchValue) ||
-          p.description.toLowerCase().includes(searchValue);
+          (p.name || "").toLowerCase().includes(searchValue) ||
+          categoryName.toLowerCase().includes(searchValue) ||
+          description.toLowerCase().includes(searchValue);
 
         const matchesPrice =
           (!min || p.price >= parseFloat(min)) &&
@@ -139,6 +149,7 @@ const Products = () => {
               <Th>Descripción</Th>
               <Th>Stock</Th>
               <Th>Precio</Th>
+              <Th>Estado</Th>
               <Th>Editar</Th>
             </Tr>
           </Thead>
@@ -149,16 +160,23 @@ const Products = () => {
                 filteredProducts.map((product) => (
                   <Tr key={product.id}>
                     <Td>{product.name}</Td>
-                    <Td>{product.category.name}</Td>
-                    <Td>{product.description}</Td>
+                    <Td>{product.category?.name || "Sin categoría"}</Td>
+                    <Td>{product.description || "-"}</Td>
                     <Td>{product.stock}</Td>
                     <Td>${product.price}</Td>
+                    <Td>
+                      <Switch
+                        isChecked={!product.disabled}
+                        onChange={() => toggleProduct(product).catch(console.error)}
+                        aria-label={`Cambiar estado de ${product.name}`}
+                      />
+                    </Td>
                     <Td><EditProduct product={product} /></Td>
                   </Tr>
                 ))
               ) : (
                 <Tr>
-                  <Td colSpan="6" textAlign="center" py={5}>
+                  <Td colSpan="7" textAlign="center" py={5}>
                     No se encontraron productos
                   </Td>
                 </Tr>

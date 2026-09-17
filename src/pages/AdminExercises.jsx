@@ -11,6 +11,7 @@ import {
   Input,
   Flex,
   Badge,
+  Switch,
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
@@ -24,7 +25,7 @@ export default function AdminExercises() {
 
   const fetchExercises = async () => {
     try {
-      const res = await fetch("http://localhost:3000/exercises");
+      const res = await fetch("http://localhost:3000/exercises?includeInactive=true");
       if (res.ok) {
         const data = await res.json();
         setExercises(Array.isArray(data) ? data : data.data || []);
@@ -32,6 +33,16 @@ export default function AdminExercises() {
     } catch (err) {
       console.error("Error al obtener ejercicios:", err);
     }
+  };
+
+  const toggleExercise = async (exercise) => {
+    const res = await fetch(`http://localhost:3000/exercises/${exercise.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ disabled: !exercise.disabled }),
+    });
+    if (!res.ok) throw new Error("No se pudo actualizar el estado");
+    await fetchExercises();
   };
 
   useEffect(() => {
@@ -84,9 +95,15 @@ export default function AdminExercises() {
               <Td fontWeight="bold">{ex.name}</Td>
               <Td color="gray.600">{ex.typeEx || "-"}</Td>
               <Td>
-                <Badge colorScheme={ex.active !== false ? "green" : "red"}>
-                  {ex.active !== false ? "Activo" : "Inactivo"}
+                <Badge colorScheme={ex.disabled ? "red" : "green"}>
+                  {ex.disabled ? "Inactivo" : "Activo"}
                 </Badge>
+                <Switch
+                  ml={3}
+                  isChecked={!ex.disabled}
+                  onChange={() => toggleExercise(ex).catch(console.error)}
+                  aria-label={`Cambiar estado de ${ex.name}`}
+                />
               </Td>
               <Td textAlign="right">
                 <EditExercise exercise={ex} onSaved={fetchExercises} />

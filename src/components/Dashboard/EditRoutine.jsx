@@ -41,7 +41,6 @@ function EditRoutine({ routine, onSaved }) {
         typeRoutine,
         descRoutine,
         disabled: activo === 1,
-        professorId: routine?.professorId || 1,
       };
 
       fetch(`http://localhost:3000/routines/${routine.id}`, {
@@ -50,7 +49,7 @@ function EditRoutine({ routine, onSaved }) {
         body: JSON.stringify(payload),
       })
         .then((res) => res.json())
-        .then((data) => {
+        .then(() => {
           Swal.fire({
             title: "Éxito",
             text: "Rutina modificada correctamente",

@@ -11,6 +11,7 @@ import {
   Input,
   Flex,
   Badge,
+  Switch,
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
@@ -26,7 +27,7 @@ export default function AdminSchedules() {
 
   const fetchSchedules = async () => {
     try {
-      const res = await fetch(`${API_URL}/schedule`);
+      const res = await fetch(`${API_URL}/schedule?includeInactive=true`);
       if (res.ok) {
         const data = await res.json();
         setSchedules(Array.isArray(data) ? data : data.data || []);
@@ -34,6 +35,16 @@ export default function AdminSchedules() {
     } catch (err) {
       console.error("Error al obtener turnos:", err);
     }
+  };
+
+  const toggleSchedule = async (schedule) => {
+    const res = await fetch(`${API_URL}/schedule/${schedule.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ disabled: !schedule.disabled }),
+    });
+    if (!res.ok) throw new Error("No se pudo actualizar el estado");
+    await fetchSchedules();
   };
 
   useEffect(() => {
@@ -90,9 +101,15 @@ export default function AdminSchedules() {
               </Td>
               <Td fontWeight="medium">{s.capacity ?? "--"}</Td>
               <Td>
-                <Badge colorScheme={s.active !== false ? "green" : "red"}>
-                  {s.active !== false ? "Activo" : "Inactivo"}
+                <Badge colorScheme={s.disabled ? "red" : "green"}>
+                  {s.disabled ? "Inactivo" : "Activo"}
                 </Badge>
+                <Switch
+                  ml={3}
+                  isChecked={!s.disabled}
+                  onChange={() => toggleSchedule(s).catch(console.error)}
+                  aria-label={`Cambiar estado del turno ${s.id}`}
+                />
               </Td>
               <Td textAlign="right">
                 <EditSchedule schedule={s} onSaved={fetchSchedules} />

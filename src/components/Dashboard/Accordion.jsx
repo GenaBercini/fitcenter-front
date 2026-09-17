@@ -22,7 +22,7 @@ const Demo = () => {
       <Heading size="md" color="white" mb={2}>
         <Link to="/dashboard/main">Dashboard</Link>
       </Heading>
-      <Accordion allowMultiple allowToggle>
+      <Accordion allowMultiple>
         {items.map((item) => (
           <AccordionItem key={item.value} border="none">
             <h2>

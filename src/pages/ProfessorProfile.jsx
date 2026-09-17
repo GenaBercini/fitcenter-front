@@ -8,7 +8,6 @@ import {
   Button,
   Divider,
   IconButton,
-  useColorModeValue,
   Spinner,
   useDisclosure,
   SimpleGrid,
@@ -70,13 +69,26 @@ export default function ProfessorProfile() {
         const dataUser = await resUser.json();
         setProfessor(dataUser.data);
 
-        const resEx = await fetch("http://localhost:3000/exercises");
+        const resEx = await fetch(
+          `http://localhost:3000/exercises?professorId=${user.id}`,
+        );
         const dataEx = await resEx.json();
-        setExercises(dataEx.data || []);
+        const ownExercises = (Array.isArray(dataEx.data) ? dataEx.data : []).filter(
+          (exercise) => String(exercise.professorId) === String(user.id),
+        );
+        setExercises(ownExercises);
 
-        const resRoutines = await fetch("http://localhost:3000/routines");
+        const resRoutines = await fetch(
+          `http://localhost:3000/routines?professorId=${user.id}`,
+        );
         const dataRoutines = await resRoutines.json();
-        setRoutines(dataRoutines.data || []);
+        const ownRoutines = (
+          Array.isArray(dataRoutines.data) ? dataRoutines.data : []
+        ).filter(
+          (routine) =>
+            String(routine.professorId) === String(user.id),
+        );
+        setRoutines(ownRoutines);
       } catch (err) {
         console.error("Error cargando datos:", err);
       } finally {

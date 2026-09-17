@@ -11,6 +11,7 @@ import {
   Input,
   Flex,
   Badge,
+  Switch,
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
@@ -24,7 +25,7 @@ export default function AdminRoutines() {
 
   const fetchRoutines = async () => {
     try {
-      const res = await fetch("http://localhost:3000/routines");
+      const res = await fetch("http://localhost:3000/routines?includeInactive=true");
       if (res.ok) {
         const data = await res.json();
         setRoutines(Array.isArray(data) ? data : data.data || []);
@@ -32,6 +33,16 @@ export default function AdminRoutines() {
     } catch (err) {
       console.error("Error al obtener rutinas:", err);
     }
+  };
+
+  const toggleRoutine = async (routine) => {
+    const res = await fetch(`http://localhost:3000/routines/${routine.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ disabled: !routine.disabled }),
+    });
+    if (!res.ok) throw new Error("No se pudo actualizar el estado");
+    await fetchRoutines();
   };
 
   useEffect(() => {
@@ -92,6 +103,12 @@ export default function AdminRoutines() {
                   <Badge colorScheme={isInactive ? "red" : "green"}>
                     {isInactive ? "Inactiva" : "Activa"}
                   </Badge>
+                  <Switch
+                    ml={3}
+                    isChecked={!isInactive}
+                    onChange={() => toggleRoutine(r).catch(console.error)}
+                    aria-label={`Cambiar estado de ${r.typeRoutine}`}
+                  />
                 </Td>
                 <Td textAlign="right">
                   <EditRoutine routine={r} onSaved={fetchRoutines} />

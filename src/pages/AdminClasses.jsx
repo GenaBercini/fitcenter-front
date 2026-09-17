@@ -11,6 +11,7 @@ import {
   Input,
   Flex,
   Badge,
+  Switch,
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
@@ -24,7 +25,7 @@ export default function AdminClasses() {
 
   const fetchClasses = async () => {
     try {
-      const res = await fetch("http://localhost:3000/activities");
+      const res = await fetch("http://localhost:3000/activities?includeInactive=true");
       if (res.ok) {
         const data = await res.json();
         setClasses(Array.isArray(data) ? data : data.data || []);
@@ -32,6 +33,16 @@ export default function AdminClasses() {
     } catch (err) {
       console.error("Error al obtener clases:", err);
     }
+  };
+
+  const toggleClass = async (activity) => {
+    const res = await fetch(`http://localhost:3000/activities/${activity.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ disabled: !activity.disabled }),
+    });
+    if (!res.ok) throw new Error("No se pudo actualizar el estado");
+    await fetchClasses();
   };
 
   useEffect(() => {
@@ -81,8 +92,7 @@ export default function AdminClasses() {
         </Thead>
         <Tbody>
           {filtered.map((c) => {
-            const isInactive =
-              c.active === false || c.disabled === 1 || c.disabled === true;
+            const isInactive = c.disabled === true || Number(c.disabled) === 1;
 
             return (
               <Tr key={c.id}>
@@ -95,6 +105,12 @@ export default function AdminClasses() {
                   <Badge colorScheme={isInactive ? "red" : "green"}>
                     {isInactive ? "Inactiva" : "Activa"}
                   </Badge>
+                  <Switch
+                    ml={3}
+                    isChecked={!isInactive}
+                    onChange={() => toggleClass(c).catch(console.error)}
+                    aria-label={`Cambiar estado de ${c.name}`}
+                  />
                 </Td>
                 <Td textAlign="right">
                   <EditClass cls={c} />

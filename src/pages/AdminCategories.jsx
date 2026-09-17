@@ -15,6 +15,7 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
+  Switch,
 } from "@chakra-ui/react"
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
@@ -24,9 +25,6 @@ import EditCategory from "../components/Dashboard/EditCategory";
 
 const Categories = () => {
 
-    const [showActive, setShowActive] = useState(true);
-    const [loading, setLoading] = useState(true);
-
     const [categories, setCategories] = useState([]);
     const [filteredCategories, setFilteredCategories] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -34,7 +32,7 @@ const Categories = () => {
     //CATEGORIAS
 
     useEffect(() => {
-      fetch("http://localhost:3000/categories")
+      fetch("http://localhost:3000/categories?includeInactive=true")
         .then((res) => res.json())
         .then((data) => {
           
@@ -50,6 +48,21 @@ const Categories = () => {
           });
         });
     }, []);
+
+    const toggleCategory = async (category) => {
+      const res = await fetch(`http://localhost:3000/categories/${category.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ disabled: !category.disabled }),
+      });
+      if (!res.ok) throw new Error("No se pudo actualizar el estado");
+      const data = await res.json();
+      const updatedCategories = categories.map((item) =>
+        item.id === data.data.id ? data.data : item,
+      );
+      setCategories(updatedCategories);
+      setFilteredCategories(updatedCategories);
+    };
 
 
     //FILTRO DE BUSQUEDA
@@ -118,7 +131,13 @@ const Categories = () => {
                         style={{ width: "80px", borderRadius: "8px"}}
                         />
                     )}</Td>
-                    <Td>{ Number(category.disabled) == "0" ? "Activa" : "Inactiva"}</Td>
+                    <Td>
+                      <Switch
+                        isChecked={!category.disabled}
+                        onChange={() => toggleCategory(category).catch(console.error)}
+                        aria-label={`Cambiar estado de ${category.name}`}
+                      />
+                    </Td>
                     <Td><EditCategory category={category} /></Td>
                   </Tr>
                 ))

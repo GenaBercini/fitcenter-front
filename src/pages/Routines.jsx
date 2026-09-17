@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -35,6 +35,7 @@ function Routines() {
   const [loading, setLoading] = useState(true);
   const [selectedRoutine, setSelectedRoutine] = useState(null);
   const [currentInscription, setCurrentInscription] = useState(null);
+  const enrolledRoutineRef = useRef(null);
   const [filter, setFilter] = useState("");
   const [feedback, setFeedback] = useState(null);
 
@@ -63,7 +64,18 @@ function Routines() {
           throw new Error("No se pudo obtener la lista de rutinas");
 
         const routinesData = await routinesRes.json();
-        setRoutines(Array.isArray(routinesData.data) ? routinesData.data : []);
+        const availableRoutines = Array.isArray(routinesData.data)
+          ? routinesData.data
+          : [];
+        const enrolledRoutine = enrolledRoutineRef.current;
+        setRoutines(
+          enrolledRoutine &&
+            !availableRoutines.some(
+              (routine) => routine.id === enrolledRoutine.id,
+            )
+            ? [enrolledRoutine, ...availableRoutines]
+            : availableRoutines,
+        );
       } catch (err) {
         console.error("Error al cargar rutinas", err);
         setRoutines([]);
@@ -73,6 +85,14 @@ function Routines() {
     };
 
     fetchInitialData();
+    const refreshOnFocus = () => fetchInitialData();
+    window.addEventListener("focus", refreshOnFocus);
+    document.addEventListener("visibilitychange", refreshOnFocus);
+
+    return () => {
+      window.removeEventListener("focus", refreshOnFocus);
+      document.removeEventListener("visibilitychange", refreshOnFocus);
+    };
   }, []);
 
   useEffect(() => {
@@ -101,6 +121,17 @@ function Routines() {
         );
 
         setCurrentInscription(routineInsc || null);
+        enrolledRoutineRef.current = routineInsc?.Routine || null;
+        if (routineInsc?.Routine) {
+          setRoutines((currentRoutines) => {
+            const alreadyListed = currentRoutines.some(
+              (routine) => routine.id === routineInsc.Routine.id,
+            );
+            return alreadyListed
+              ? currentRoutines
+              : [routineInsc.Routine, ...currentRoutines];
+          });
+        }
       } catch (err) {
         console.error("Error al cargar inscripciones", err);
       }
@@ -121,12 +152,13 @@ function Routines() {
     const typeMatch = r.typeRoutine
       ?.toLowerCase()
       .includes(filter.toLowerCase());
-    const profMatch =
-      r.professor &&
-      `${r.professor.first_name} ${r.professor.last_name || ""}`
-        .trim()
-        .toLowerCase();
-    return typeMatch || profMatch;
+    const professorName = r.professor
+      ? `${r.professor.first_name || ""} ${r.professor.last_name || ""}`
+          .trim()
+          .toLowerCase()
+      : "";
+    const professorMatch = professorName.includes(filter.toLowerCase());
+    return typeMatch || professorMatch;
   });
 
   const openDetails = (routine) => {
@@ -192,6 +224,7 @@ function Routines() {
         Routine: selectedRoutine,
         id: data.inscription.id,
       });
+      enrolledRoutineRef.current = selectedRoutine;
 
       const updatedRes = await fetch(`${API_URL}/routines`);
       if (updatedRes.ok) {
@@ -235,6 +268,7 @@ function Routines() {
 
       showFeedback("success", "Inscripción cancelada con éxito");
       setCurrentInscription(null);
+      enrolledRoutineRef.current = null;
 
       const updatedRes = await fetch(`${API_URL}/routines`);
       if (updatedRes.ok) {

@@ -62,7 +62,12 @@ const PurchaseHistory = () => {
       .then((res) => res.json())
       .then((data) => {
         const carts = Array.isArray(data) ? data : data.data || [];
-        setPurchases(carts.filter((cart) => cart.items?.length > 0));
+        setPurchases(
+          carts.filter(
+            (purchase) =>
+              purchase.type === "membership" || purchase.items?.length > 0,
+          ),
+        );
         setLoading(false);
       })
       .catch((err) => {
@@ -131,7 +136,9 @@ const PurchaseHistory = () => {
                 <Flex justify="space-between" align="start" mb={4}>
                   <Box>
                     <Text fontSize="lg" fontWeight="bold" color={textColor}>
-                      Compra #{purchase.id}
+                      {purchase.type === "membership"
+                        ? `Membresía ${purchase.membershipType}`
+                        : `Compra #${purchase.id}`}
                     </Text>
                     <Text fontSize="sm" color="gray.500">
                       {formatDate(purchase.paymentDate || purchase.createdAt)}
@@ -153,8 +160,13 @@ const PurchaseHistory = () => {
                   </Text>
                 </Flex>
 
-                <VStack align="stretch" spacing={3}>
-                  {purchase.items.map((item) => (
+                {purchase.type === "membership" ? (
+                  <Text color={textColor}>
+                    Pago de membresía {purchase.membershipType}
+                  </Text>
+                ) : (
+                  <VStack align="stretch" spacing={3}>
+                    {purchase.items.map((item) => (
                     <Flex
                       key={item.id}
                       align="center"
@@ -183,21 +195,24 @@ const PurchaseHistory = () => {
                         {currency.format(item.subtotal || 0)}
                       </Text>
                     </Flex>
-                  ))}
-                </VStack>
+                    ))}
+                  </VStack>
+                )}
 
                 <Box mt={4} pt={4} borderTopWidth="1px" borderColor="gray.200">
-                  <Flex justify="space-between">
-                    <Text color="gray.500">Subtotal</Text>
-                    <Text color={textColor}>
-                      {currency.format(
-                        purchase.items.reduce(
-                          (subtotal, item) => subtotal + (item.subtotal || 0),
-                          0,
-                        ),
-                      )}
-                    </Text>
-                  </Flex>
+                  {purchase.type !== "membership" && (
+                    <Flex justify="space-between">
+                      <Text color="gray.500">Subtotal</Text>
+                      <Text color={textColor}>
+                        {currency.format(
+                          purchase.items.reduce(
+                            (subtotal, item) => subtotal + (item.subtotal || 0),
+                            0,
+                          ),
+                        )}
+                      </Text>
+                    </Flex>
+                  )}
                   <Flex justify="space-between" mt={1}>
                     <Text fontWeight="bold" color={textColor}>
                       Total

@@ -19,7 +19,7 @@ import Swal from "sweetalert2";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function AddCategory() {
+function AddCategory({ buttonLabel = "Agregar categoría" }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [categoryName, setName] = useState("");
   const [image, setImage] = useState(null);
@@ -38,7 +38,7 @@ function AddCategory() {
     const formData = new FormData();
     formData.append("name", categoryName);
     formData.append("active", active);
-    formData.append("img", image);
+    formData.append("image", image);
 
     const token = localStorage.getItem("token");
     const headers = {};
@@ -93,7 +93,7 @@ function AddCategory() {
   return (
     <>
       <Button colorScheme="blue" onClick={onOpen}>
-        Agregar categoría
+        {buttonLabel}
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
