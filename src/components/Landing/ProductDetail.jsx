@@ -47,13 +47,15 @@ export default function ProductDetail({ isOpen, onClose, product }) {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
-            {/* Contenedor estandarizado para centrar la imagen sin recortar */}
-            <Box
+            <Image
+              src={product.img || "https://via.placeholder.com/600x300?text=Sin+imagen"}
+              alt={product.name || "Imagen del producto"}
               h="260px"
               w="100%"
               maxH="300px"
               objectFit="cover"
               borderRadius="md"
+              fallbackSrc="https://via.placeholder.com/600x300?text=Sin+imagen"
             />
             <Text fontSize="2xl" fontWeight="bold">
               ${Number(product.price || 0).toFixed(2)}

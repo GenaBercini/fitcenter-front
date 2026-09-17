@@ -13,15 +13,20 @@ import {
   FormLabel,
   FormControl,
   HStack,
+  Select,
 } from "@chakra-ui/react";
 import Swal from "sweetalert2";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function AddClass({ onSaved }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [name, setName] = useState("");
+  const [name, setName] = useState("CrossFit");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [capacity, setCapacity] = useState("");
+
+  const classOptions = ["Hilado", "CrossFit", "Yoga", "Zumba"];
 
   const guardar = async () => {
     if (!name || !startTime || !endTime || !capacity) {
@@ -33,17 +38,16 @@ function AddClass({ onSaved }) {
       return;
     }
 
-    // Payload adaptado exactamente al modelo Sequelize de Activity
     const payload = {
       name,
       startTime,
       endTime,
       capacity: Number(capacity),
-      instructorId: 1, // Se envía ID 1 para cumplir con allowNull: false
+      instructorId: 1,
     };
 
     try {
-      const res = await fetch("http://localhost:3000/activities", {
+      const res = await fetch(`${API_URL}/activities`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -54,7 +58,7 @@ function AddClass({ onSaved }) {
       try {
         data = JSON.parse(rawText);
       } catch {
-        // En caso de que el backend responda con texto plano
+        // En caso de que responda texto plano
       }
 
       if (res.ok || data.success) {
@@ -97,11 +101,13 @@ function AddClass({ onSaved }) {
           <ModalBody>
             <FormControl mb={3} isRequired>
               <FormLabel fontSize="sm">Nombre de la clase</FormLabel>
-              <Input
-                placeholder="Ej: CrossFit"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <Select value={name} onChange={(e) => setName(e.target.value)}>
+                {classOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
 
             <HStack mb={3}>

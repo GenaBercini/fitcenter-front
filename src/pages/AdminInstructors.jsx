@@ -18,7 +18,7 @@ import {
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
-import AddCategory from "../components/Dashboard/AddCategory";
+import AddUser from "../components/Dashboard/AddUser";
 import EditCategory from "../components/Dashboard/EditCategory";
 
 const Instructors = () => {
@@ -85,7 +85,7 @@ const Instructors = () => {
             />
           </InputGroup>
 
-          <AddCategory />
+          <AddUser role="instructor" label="Agregar instructor" onSaved={() => location.reload()} />
         </Flex>
 
         <Table size="md" variant="simple">

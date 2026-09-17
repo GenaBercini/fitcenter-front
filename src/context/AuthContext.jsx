@@ -1,28 +1,63 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
 
   const openAuthModal = () => setAuthModalOpen(true);
   const closeAuthModal = () => setAuthModalOpen(false);
 
+  const updateUser = (userData) => {
+    setUser(userData);
+    if (userData) {
+      localStorage.setItem("user", JSON.stringify(userData));
+    } else {
+      localStorage.removeItem("user");
+    }
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        const token = localStorage.getItem("token");
+        const headers = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
         const res = await fetch(`${API_URL}/users/session`, {
           credentials: "include",
+          headers,
         });
-        if (!res.ok) throw new Error("No autenticado");
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            setUser(null);
+          }
+          return;
+        }
+
         const data = await res.json();
-        setUser(data.data);
+        if (data?.data) {
+          setUser(data.data);
+          localStorage.setItem("user", JSON.stringify(data.data));
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
+        }
       } catch (err) {
-        setUser(null);
+        console.error("Error al obtener sesión:", err);
       } finally {
         setLoading(false);
       }
@@ -41,7 +76,13 @@ export const AuthProvider = ({ children }) => {
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Error con Google login");
-      setUser(result.data);
+
+      if (token) localStorage.setItem("token", token);
+      if (result.token) localStorage.setItem("token", result.token);
+      if (result.data) {
+        localStorage.setItem("user", JSON.stringify(result.data));
+        setUser(result.data);
+      }
       return result.data;
     } finally {
       setLoading(false);
@@ -63,9 +104,15 @@ export const AuthProvider = ({ children }) => {
     const result = await res.json();
     if (!res.ok) {
       setLoading(false);
-      throw new Error(result.msg || "Error al iniciar sesión");
+      throw new Error(
+        result.msg || result.message || "Error al iniciar sesión",
+      );
     }
-    setUser(result.data);
+    if (result.token) localStorage.setItem("token", result.token);
+    if (result.data) {
+      localStorage.setItem("user", JSON.stringify(result.data));
+      setUser(result.data);
+    }
     setLoading(false);
     return result.data;
   };
@@ -89,9 +136,12 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         throw new Error(result.message || "Error al registrarse");
       }
-      console.log(result);
 
-      setUser(result.data);
+      if (result.token) localStorage.setItem("token", result.token);
+      if (result.data) {
+        localStorage.setItem("user", JSON.stringify(result.data));
+        setUser(result.data);
+      }
       setLoading(false);
       return result.data;
     } catch (error) {
@@ -101,12 +151,19 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     setLoading(true);
-    await fetch(`${API_URL}/users/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    setUser(null);
-    setLoading(false);
+    try {
+      await fetch(`${API_URL}/users/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      setLoading(false);
+    }
   };
 
   return (
@@ -117,6 +174,7 @@ export const AuthProvider = ({ children }) => {
         signIn,
         signUp,
         signOut,
+        updateUser,
         isAuthModalOpen,
         openAuthModal,
         closeAuthModal,
@@ -128,4 +186,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

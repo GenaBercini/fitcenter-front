@@ -17,35 +17,39 @@ import {
 } from "@chakra-ui/react";
 import Swal from "sweetalert2";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function AddSchedule({ onSaved }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [day, setDay] = useState("Lunes");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [capacity, setCapacity] = useState("");
-  const [maxCapacity, setMaxCapacity] = useState("");
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
+    return timeStr.split(":").length === 2 ? `${timeStr}:00` : timeStr;
+  };
 
   const guardar = async () => {
     if (!startTime || !endTime || !capacity) {
       Swal.fire({
         title: "Error",
-        text: "Por favor, completa el horario y el cupo (capacity)",
+        text: "Por favor, completa el horario y el cupo",
         icon: "error",
       });
       return;
     }
 
-    // Payload idéntico al modelo Sequelize Schedule
     const payload = {
       day,
-      startTime,
-      endTime,
+      startTime: formatTime(startTime),
+      endTime: formatTime(endTime),
       capacity: Number(capacity),
-      maxCapacity: maxCapacity ? Number(maxCapacity) : Number(capacity),
     };
 
     try {
-      const res = await fetch("http://localhost:3000/schedule", {
+      const res = await fetch(`${API_URL}/schedule`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +62,7 @@ function AddSchedule({ onSaved }) {
       try {
         data = JSON.parse(rawText);
       } catch {
-        // Fallback si la respuesta no es JSON
+        // Fallback
       }
 
       if (res.ok || data.success) {
@@ -68,6 +72,7 @@ function AddSchedule({ onSaved }) {
           icon: "success",
         }).then(() => {
           if (onSaved) onSaved();
+          onClose();
           location.reload();
         });
       } else {
@@ -131,27 +136,15 @@ function AddSchedule({ onSaved }) {
               </FormControl>
             </HStack>
 
-            <HStack mb={3}>
-              <FormControl isRequired>
-                <FormLabel fontSize="sm">Cupo (Capacity)</FormLabel>
-                <Input
-                  type="number"
-                  placeholder="Ej: 20"
-                  value={capacity}
-                  onChange={(e) => setCapacity(e.target.value)}
-                />
-              </FormControl>
-
-              <FormControl>
-                <FormLabel fontSize="sm">Cupo Máximo</FormLabel>
-                <Input
-                  type="number"
-                  placeholder="Opcional"
-                  value={maxCapacity}
-                  onChange={(e) => setMaxCapacity(e.target.value)}
-                />
-              </FormControl>
-            </HStack>
+            <FormControl mb={3} isRequired>
+              <FormLabel fontSize="sm">Cupo</FormLabel>
+              <Input
+                type="number"
+                placeholder="Ej: 20"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+              />
+            </FormControl>
           </ModalBody>
 
           <ModalFooter>

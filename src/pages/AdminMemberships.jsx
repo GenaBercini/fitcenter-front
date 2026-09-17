@@ -11,6 +11,7 @@ import {
   Input,
   Flex,
   Badge,
+  Switch,
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
@@ -24,7 +25,7 @@ export default function AdminMemberships() {
 
   const fetchMemberships = async () => {
     try {
-      const res = await fetch("http://localhost:3000/memberships");
+      const res = await fetch("http://localhost:3000/memberships?includeInactive=true");
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
@@ -40,6 +41,16 @@ export default function AdminMemberships() {
     } catch (err) {
       console.error("Error al obtener membresías:", err);
     }
+  };
+
+  const toggleMembership = async (membership) => {
+    const res = await fetch(`http://localhost:3000/memberships/${membership.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ disabled: !membership.disabled }),
+    });
+    if (!res.ok) throw new Error("No se pudo actualizar el estado");
+    await fetchMemberships();
   };
 
   useEffect(() => {
@@ -94,7 +105,15 @@ export default function AdminMemberships() {
                 <Td fontWeight="bold">{m.type || m.name}</Td>
                 <Td color="gray.600">${m.monthly_price || m.price || "0"}</Td>
                 <Td>
-                  <Badge colorScheme="green">Activa</Badge>
+                  <Badge colorScheme={m.disabled ? "red" : "green"}>
+                    {m.disabled ? "Inactiva" : "Activa"}
+                  </Badge>
+                  <Switch
+                    ml={3}
+                    isChecked={!m.disabled}
+                    onChange={() => toggleMembership(m).catch(console.error)}
+                    aria-label={`Cambiar estado de ${m.type || m.name}`}
+                  />
                 </Td>
                 <Td textAlign="right">
                   <EditMembership membership={m} onSaved={fetchMemberships} />

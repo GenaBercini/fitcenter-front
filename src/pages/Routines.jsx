@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -25,16 +25,21 @@ import {
   Container,
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../config/api";
 
 function Routines() {
   const navigate = useNavigate();
+  const { user, openAuthModal } = useAuth();
   const [routines, setRoutines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoutine, setSelectedRoutine] = useState(null);
   const [currentInscription, setCurrentInscription] = useState(null);
-  const [userId, setUserId] = useState(null);
+  const enrolledRoutineRef = useRef(null);
   const [filter, setFilter] = useState("");
   const [feedback, setFeedback] = useState(null);
+
+  const userId = user?.id;
 
   const {
     isOpen: isInscriptionOpen,
@@ -54,25 +59,25 @@ function Routines() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const userRes = await fetch("http://localhost:3000/users/session", {
-          credentials: "include",
-        });
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          const id = userData?.data?.id;
-          setUserId(id);
-        }
-
-        const routinesRes = await fetch("http://localhost:3000/routines");
+        const routinesRes = await fetch(`${API_URL}/routines`);
         if (!routinesRes.ok)
           throw new Error("No se pudo obtener la lista de rutinas");
 
         const routinesData = await routinesRes.json();
-        // Garantiza que el estado sea un Array válido
-        setRoutines(Array.isArray(routinesData.data) ? routinesData.data : []);
+        const availableRoutines = Array.isArray(routinesData.data)
+          ? routinesData.data
+          : [];
+        const enrolledRoutine = enrolledRoutineRef.current;
+        setRoutines(
+          enrolledRoutine &&
+            !availableRoutines.some(
+              (routine) => routine.id === enrolledRoutine.id,
+            )
+            ? [enrolledRoutine, ...availableRoutines]
+            : availableRoutines,
+        );
       } catch (err) {
-        console.error("Error al cargar usuario o rutinas", err);
-        // Asigna array vacío para evitar TypeError en .filter() si falla el fetch
+        console.error("Error al cargar rutinas", err);
         setRoutines([]);
       } finally {
         setLoading(false);
@@ -80,16 +85,32 @@ function Routines() {
     };
 
     fetchInitialData();
+    const refreshOnFocus = () => fetchInitialData();
+    window.addEventListener("focus", refreshOnFocus);
+    document.addEventListener("visibilitychange", refreshOnFocus);
+
+    return () => {
+      window.removeEventListener("focus", refreshOnFocus);
+      document.removeEventListener("visibilitychange", refreshOnFocus);
+    };
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setCurrentInscription(null);
+      return;
+    }
 
     const fetchInscriptions = async () => {
       try {
-        const inscRes = await fetch(
-          `http://localhost:3000/inscription/${userId}`,
-        );
+        const token = localStorage.getItem("token");
+        const headers = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const inscRes = await fetch(`${API_URL}/inscription/${userId}`, {
+          credentials: "include",
+          headers,
+        });
         if (!inscRes.ok) return;
 
         const inscData = await inscRes.json();
@@ -100,6 +121,17 @@ function Routines() {
         );
 
         setCurrentInscription(routineInsc || null);
+        enrolledRoutineRef.current = routineInsc?.Routine || null;
+        if (routineInsc?.Routine) {
+          setRoutines((currentRoutines) => {
+            const alreadyListed = currentRoutines.some(
+              (routine) => routine.id === routineInsc.Routine.id,
+            );
+            return alreadyListed
+              ? currentRoutines
+              : [routineInsc.Routine, ...currentRoutines];
+          });
+        }
       } catch (err) {
         console.error("Error al cargar inscripciones", err);
       }
@@ -120,12 +152,13 @@ function Routines() {
     const typeMatch = r.typeRoutine
       ?.toLowerCase()
       .includes(filter.toLowerCase());
-    const profMatch =
-      r.professor &&
-      `${r.professor.first_name} ${r.professor.last_name || ""}`
-        .trim()
-        .toLowerCase();
-    return typeMatch || profMatch;
+    const professorName = r.professor
+      ? `${r.professor.first_name || ""} ${r.professor.last_name || ""}`
+          .trim()
+          .toLowerCase()
+      : "";
+    const professorMatch = professorName.includes(filter.toLowerCase());
+    return typeMatch || professorMatch;
   });
 
   const openDetails = (routine) => {
@@ -134,15 +167,36 @@ function Routines() {
   };
 
   const openInscription = (routine) => {
+    if (!userId) {
+      showFeedback(
+        "warning",
+        "Debes iniciar sesión para inscribirte en una rutina.",
+      );
+      openAuthModal();
+      return;
+    }
     setSelectedRoutine(routine);
     onInscriptionOpen();
   };
 
   const confirmRoutineInscription = async () => {
+    if (!userId) {
+      showFeedback(
+        "warning",
+        "Debes iniciar sesión para inscribirte en una rutina.",
+      );
+      openAuthModal();
+      return;
+    }
+
     try {
-      const res = await fetch("http://localhost:3000/inscription", {
+      const token = localStorage.getItem("token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/inscription`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
         body: JSON.stringify({
           userId,
@@ -170,8 +224,9 @@ function Routines() {
         Routine: selectedRoutine,
         id: data.inscription.id,
       });
+      enrolledRoutineRef.current = selectedRoutine;
 
-      const updatedRes = await fetch("http://localhost:3000/routines");
+      const updatedRes = await fetch(`${API_URL}/routines`);
       if (updatedRes.ok) {
         const updatedData = await updatedRes.json();
         setRoutines(Array.isArray(updatedData.data) ? updatedData.data : []);
@@ -188,9 +243,17 @@ function Routines() {
     try {
       if (!currentInscription) return;
 
+      const token = localStorage.getItem("token");
+      const headers = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const res = await fetch(
-        `http://localhost:3000/inscription/${currentInscription.id}`,
-        { method: "DELETE" },
+        `${API_URL}/inscription/${currentInscription.id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          headers,
+        },
       );
 
       const data = await res.json();
@@ -205,13 +268,14 @@ function Routines() {
 
       showFeedback("success", "Inscripción cancelada con éxito");
       setCurrentInscription(null);
+      enrolledRoutineRef.current = null;
 
-      const updatedRes = await fetch("http://localhost:3000/routines");
+      const updatedRes = await fetch(`${API_URL}/routines`);
       if (updatedRes.ok) {
         const updatedData = await updatedRes.json();
         setRoutines(Array.isArray(updatedData.data) ? updatedData.data : []);
       }
-    } catch (err) {
+    } catch {
       showFeedback("error", "Error al cancelar la inscripción");
     }
   };

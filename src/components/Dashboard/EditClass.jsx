@@ -12,20 +12,25 @@ import {
   ModalOverlay,
   useDisclosure,
   HStack,
+  Select,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Swal from "sweetalert2";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function EditClass({ cls }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [className, setName] = useState(cls?.name || "");
+  const [className, setName] = useState(cls?.name || "CrossFit");
   const [startTime, setStartTime] = useState(cls?.startTime || "");
   const [endTime, setEndTime] = useState(cls?.endTime || "");
   const [capacity, setCapacity] = useState(cls?.capacity || "");
 
+  const classOptions = ["Hilado", "CrossFit", "Yoga", "Zumba"];
+
   const handleOpen = () => {
-    setName(cls?.name || "");
+    setName(cls?.name || "CrossFit");
     setStartTime(cls?.startTime || "");
     setEndTime(cls?.endTime || "");
     setCapacity(cls?.capacity || "");
@@ -34,16 +39,15 @@ function EditClass({ cls }) {
 
   function editar() {
     if (className !== "" && startTime !== "" && endTime !== "") {
-      // Payload adaptado estrictamente a las columnas existentes en Sequelize
       const payload = {
         name: className,
         startTime: startTime,
         endTime: endTime,
         capacity: Number(capacity) || 0,
-        instructorId: cls?.instructorId || 1, // Mantiene el instructor o asigna id 1 por defecto
+        instructorId: cls?.instructorId || 1,
       };
 
-      fetch("http://localhost:3000/activities/" + cls.id, {
+      fetch(`${API_URL}/activities/${cls.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -100,11 +104,16 @@ function EditClass({ cls }) {
           <ModalBody>
             <FormControl mb={3} isRequired>
               <FormLabel fontSize="sm">Nombre de la clase</FormLabel>
-              <Input
-                placeholder="Nombre de la clase"
+              <Select
                 value={className}
                 onChange={(e) => setName(e.target.value)}
-              />
+              >
+                {classOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
 
             <HStack mb={3}>

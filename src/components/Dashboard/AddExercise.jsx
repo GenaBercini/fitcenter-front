@@ -35,8 +35,6 @@ function AddExercise({ onSaved }) {
     const payload = {
       name,
       typeEx, // Campo obligatorio
-      routineId: 1, // Se envía ID por defecto para evitar restricciones de FK
-      professorId: 1,
     };
 
     try {
@@ -50,7 +48,9 @@ function AddExercise({ onSaved }) {
       let data = {};
       try {
         data = JSON.parse(rawText);
-      } catch {}
+      } catch {
+        data = { msg: rawText };
+      }
 
       if (res.ok || data.success || data.id) {
         Swal.fire({

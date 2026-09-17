@@ -35,7 +35,21 @@ export default function InstructorProfile() {
       const res = await fetch(`http://localhost:3000/users/${user.id}`);
       if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
       const data = await res.json();
-      setInstructor(data.data);
+      const activitiesRes = await fetch(
+        `http://localhost:3000/activities?instructorId=${user.id}`,
+      );
+      if (!activitiesRes.ok) {
+        throw new Error(`Error HTTP: ${activitiesRes.status}`);
+      }
+      const activities = await activitiesRes.json();
+      setInstructor({
+        ...data.data,
+        activities: (Array.isArray(activities) ? activities : []).filter(
+          (activity) =>
+            String(activity.instructorId) === String(user.id) ||
+            String(activity.instructor?.id) === String(user.id),
+        ),
+      });
     } catch (error) {
       console.error("Error al cargar el instructor:", error.message);
     } finally {

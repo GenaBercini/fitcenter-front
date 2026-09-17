@@ -10,22 +10,23 @@ export default function ProductsSection() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [products, setProducts] = useState([]);
-  
-    useEffect(() => {
-      fetch(`${API_URL}/products`)
-        .then(async (res) => {
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.msg || "No se pudieron cargar los productos");
-          return data;
-        })
-        .then((data) => {       
-          setProducts(Array.isArray(data.data) ? data.data : []);
-        })
-        .catch((err) => {
-          console.error("Error cargando productos:", err);
-          setProducts([]);
-        });
-    }, []);
+
+  useEffect(() => {
+    fetch(`${API_URL}/products`)
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok)
+          throw new Error(data.msg || "No se pudieron cargar los productos");
+        return data;
+      })
+      .then((data) => {
+        setProducts(Array.isArray(data.data) ? data.data : []);
+      })
+      .catch((err) => {
+        console.error("Error cargando productos:", err);
+        setProducts([]);
+      });
+  }, []);
 
   const handleOpenDetail = (product) => {
     setSelectedProduct(product);
@@ -35,10 +36,11 @@ export default function ProductsSection() {
   const handleClose = () => setIsOpen(false);
 
   // Filtrado simple por nombre
-  const filteredProducts = products.filter((p) =>
-    p.name?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  // const filteredProducts = products.filter((p) =>
+  //   p.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+  // );
 
+  console.log("PRODUCTS", products);
   return (
     <Container maxW="container.lg" py={10}>
       {products.length === 0 ? (

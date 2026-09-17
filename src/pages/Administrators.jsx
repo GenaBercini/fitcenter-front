@@ -19,13 +19,10 @@ import {
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
-import AddCategory from "../components/Dashboard/AddCategory";
+import AddUser from "../components/Dashboard/AddUser";
 import EditCategory from "../components/Dashboard/EditCategory";
 
 const Administrators = () => {
-
-    const [showActive, setShowActive] = useState(true);
-    const [loading, setLoading] = useState(true);
 
     const [admins, setAdmins] = useState([]);
     const [filteredAdmins, setFilteredAdmins] = useState([]);
@@ -90,7 +87,7 @@ const Administrators = () => {
             />
           </InputGroup>
 
-          <AddCategory/>
+          <AddUser role="admin" label="Agregar administrador" onSaved={() => location.reload()} />
         </Flex>
 
         <Table size="md" variant="simple">

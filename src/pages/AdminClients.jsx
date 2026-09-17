@@ -19,31 +19,28 @@ import {
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
-import AddCategory from "../components/Dashboard/AddCategory";
+import AddUser from "../components/Dashboard/AddUser";
 import EditCategory from "../components/Dashboard/EditCategory";
 
-const Categories = () => {
+const Clients = () => {
 
-    const [showActive, setShowActive] = useState(true);
-    const [loading, setLoading] = useState(true);
-
-    const [categories, setCategories] = useState([]);
-    const [filteredCategories, setFilteredCategories] = useState([]);
+    const [clients, setClients] = useState([]);
+    const [filteredClients, setFilteredClients] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
 
-    //CATEGORIAS
+    //PROFESORES
 
     useEffect(() => {
-      fetch("http://localhost:3000/categories")
+      fetch("http://localhost:3000/users/role/client")
         .then((res) => res.json())
         .then((data) => {
           
-          setCategories(data.data);
-          setFilteredCategories(data.data);
+          setClients(data.data);
+          setFilteredClients(data.data);
           console.log("DATA", data.data);
         })
         .catch((err) => {
-          console.error("Error cargando categorías:", err);
+          console.error("Error cargando instructores:", err);
           Swal.fire({ title: "Error", text: err, icon: "error" })
           .then(() => {
             location.reload();
@@ -60,22 +57,24 @@ const Categories = () => {
     };
     
     const applyFilters = (searchValue) => {
-      const filtered = categories.filter((c) => {
+      const filtered = clients.filter((c) => {
         const matchesSearch =
-          c.name.toLowerCase().includes(searchValue);
-
+          c.first_name.toLowerCase().includes(searchValue) ||
+          c.last_name.toLowerCase().includes(searchValue) ||
+          c.email.toLowerCase().includes(searchValue);
         return matchesSearch;
       });
 
-      setFilteredCategories(filtered);
+      setFilteredClients(filtered);
     };
+
 
   
   return (
     <Box bg={"white"} p={3} borderRadius={"10px"}>
       <Stack width="full" gap="5">
         <Flex justifyContent={"space-between"}>
-          <Heading size="xl">Categorías</Heading>
+          <Heading size="xl">Clientes</Heading>
 
           <InputGroup w={400}>
             <InputLeftElement pointerEvents='none'>
@@ -88,44 +87,42 @@ const Categories = () => {
             />
           </InputGroup>
 
-          <AddCategory/>
+          <AddUser role="client" label="Agregar cliente" onSaved={() => location.reload()} />
         </Flex>
 
         <Table size="md" variant="simple">
           <Thead>
             <Tr>
-              <Th>Categoría</Th>
-              <Th>Imagen</Th>
-              <Th>Activa</Th>
+              <Th>Nombre</Th>
+              <Th>Apellido</Th>
+              <Th>Teléfono</Th>
+              <Th>Email</Th>
+              <Th>Dirección</Th>
+              <Th>Membresía</Th>
+              <Th>Vto. membresía</Th>
               <Th>Editar</Th>
             </Tr>
           </Thead>
 
           <Tbody>
-            {filteredCategories != undefined &&
-              filteredCategories.length > 0 ? (
-                filteredCategories.map((category) => (
-                  <Tr key={category.id}>
-                    <Td>{category.name}</Td>
-                    <Td>{category.img && (
-                        <img
-                        src={
-                        category.img instanceof File
-                            ? URL.createObjectURL(category.img)   // si es File, mostrar vista previa
-                            : "http://localhost:3000/uploads/" + category.img // si es string, usar URL del servidor
-                        }
-                        alt="Vista previa"
-                        style={{ width: "80px", borderRadius: "8px"}}
-                        />
-                    )}</Td>
-                    <Td>{ Number(category.disabled) == "0" ? "Activa" : "Inactiva"}</Td>
-                    <Td><EditCategory category={category} /></Td>
+            { filteredClients != undefined &&
+            filteredClients.length > 0 ? (
+                filteredClients.map((client) => (
+                  <Tr key={client.id}>
+                    <Td>{client.first_name}</Td>
+                    <Td>{client.last_name}</Td>
+                    <Td>{client.phone}</Td>
+                    <Td>{client.email}</Td>
+                    <Td>{client.adress}</Td>
+                    <Td>{client.membershipType}</Td>
+                    <Td>{ client.membershipEndDate ? new Date(client.membershipEndDate).toLocaleDateString() : "No se informa"}</Td>
+                    <Td><EditCategory category={client} /></Td>
                   </Tr>
                 ))
               ) : (
                 <Tr>
                   <Td colSpan="6" textAlign="center" py={5}>
-                    No se encontraron categorías
+                    No se encontraron clientes
                   </Td>
                 </Tr>
               )}
@@ -138,4 +135,4 @@ const Categories = () => {
   )
 }
 
-export default Categories;
+export default Clients;
