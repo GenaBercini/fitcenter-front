@@ -3,6 +3,7 @@ import { Box, Image, Text, Container } from "@chakra-ui/react";
 import Carousel from "./Carousel";
 import ProductDetail from "./ProductDetail";
 import { useEffect } from "react";
+import { getImageUrl } from "../../config/api";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -67,7 +68,7 @@ export default function ProductsSection() {
               onClick={() => handleOpenDetail(p)}
             >
               <Image
-                src={p.img}
+                src={getImageUrl(p.img)}
                 alt={p.name}
                 objectFit="cover"
                 h="200px"

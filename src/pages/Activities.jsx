@@ -12,6 +12,8 @@ import {
   Flex,
   useToast,
   Badge,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
@@ -212,87 +214,99 @@ export default function Activities() {
           ))}
         </HStack>
 
-        <VStack spacing={4} align="stretch">
-          {filtered.map((act) => {
-            if (!act || !act.id) return null;
+        {activities.length === 0 ? (
+          <Alert status="info" borderRadius="xl">
+            <AlertIcon />
+            No hay actividades cargadas aún.
+          </Alert>
+        ) : filtered.length === 0 ? (
+          <Alert status="info" borderRadius="xl">
+            <AlertIcon />
+            No hay actividades de {filter} por ahora.
+          </Alert>
+        ) : (
+          <VStack spacing={4} align="stretch">
+            {filtered.map((act) => {
+              if (!act || !act.id) return null;
 
-            const activeIns = userInscriptions.find(
-              (i) =>
-                i &&
-                i.type === "activity" &&
-                (i.activityId === act.id || i.Activity?.id === act.id),
-            );
+              const activeIns = userInscriptions.find(
+                (i) =>
+                  i &&
+                  i.type === "activity" &&
+                  (i.activityId === act.id || i.Activity?.id === act.id),
+              );
 
-            const isEnrolledInThis = Boolean(activeIns);
-            const isBusy =
-              processingId === act.id ||
-              (activeIns && processingId === activeIns.id);
+              const isEnrolledInThis = Boolean(activeIns);
+              const isBusy =
+                processingId === act.id ||
+                (activeIns && processingId === activeIns.id);
 
-            return (
-              <Box
-                key={String(act.id)}
-                p={5}
-                bg="white"
-                borderRadius="xl"
-                shadow="sm"
-                borderWidth="1px"
-                borderColor={isEnrolledInThis ? "blue.300" : "gray.200"}
-              >
-                <Flex
-                  justify="space-between"
-                  align="center"
-                  flexWrap="wrap"
-                  gap={4}
+              return (
+                <Box
+                  key={String(act.id)}
+                  p={5}
+                  bg="white"
+                  borderRadius="xl"
+                  shadow="sm"
+                  borderWidth="1px"
+                  borderColor={isEnrolledInThis ? "blue.300" : "gray.200"}
                 >
-                  <Box>
-                    <HStack spacing={2} mb={1}>
-                      <Text fontSize="lg" fontWeight="bold" color="blue.700">
-                        {String(act.name || "")}
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    flexWrap="wrap"
+                    gap={4}
+                  >
+                    <Box>
+                      <HStack spacing={2} mb={1}>
+                        <Text fontSize="lg" fontWeight="bold" color="blue.700">
+                          {String(act.name || "")}
+                        </Text>
+                        {isEnrolledInThis ? (
+                          <Badge colorScheme="green">Inscripto</Badge>
+                        ) : null}
+                      </HStack>
+
+                      <Text fontSize="sm" color="gray.600">
+                        Descripción:{" "}
+                        {String(act.description || "Sin descripción")}
                       </Text>
+
+                      <Text fontSize="xs" color="gray.400" mt={1}>
+                        Horario: {String(act.startTime || "--")} -{" "}
+                        {String(act.endTime || "--")}
+                      </Text>
+                    </Box>
+
+                    <Box>
                       {isEnrolledInThis ? (
-                        <Badge colorScheme="green">Inscripto</Badge>
-                      ) : null}
-                    </HStack>
-
-                    <Text fontSize="sm" color="gray.600">
-                      Descripción:{" "}
-                      {String(act.description || "Sin descripción")}
-                    </Text>
-
-                    <Text fontSize="xs" color="gray.400" mt={1}>
-                      Horario: {String(act.startTime || "--")} -{" "}
-                      {String(act.endTime || "--")}
-                    </Text>
-                  </Box>
-
-                  <Box>
-                    {isEnrolledInThis ? (
-                      <Button
-                        colorScheme="red"
-                        variant="outline"
-                        size="md"
-                        isLoading={isBusy}
-                        onClick={() => handleCancel(activeIns.id)}
-                      >
-                        Cancelar inscripción
-                      </Button>
-                    ) : (
-                      <Button
-                        colorScheme="blue"
-                        size="md"
-                        isLoading={isBusy}
-                        isDisabled={hasAnyActivityInscription}
-                        onClick={() => handleEnroll(act.id)}
-                      >
-                        Inscribirse
-                      </Button>
-                    )}
-                  </Box>
-                </Flex>
-              </Box>
-            );
-          })}
-        </VStack>
+                        <Button
+                          colorScheme="red"
+                          variant="outline"
+                          size="md"
+                          isLoading={isBusy}
+                          onClick={() => handleCancel(activeIns.id)}
+                        >
+                          Cancelar inscripción
+                        </Button>
+                      ) : (
+                        <Button
+                          colorScheme="blue"
+                          size="md"
+                          isLoading={isBusy}
+                          isDisabled={hasAnyActivityInscription}
+                          onClick={() => handleEnroll(act.id)}
+                        >
+                          Inscribirse
+                        </Button>
+                      )}
+                    </Box>
+                  </Flex>
+                </Box>
+              );
+            })}
+          </VStack>
+        )}
       </Container>
     </Box>
   );

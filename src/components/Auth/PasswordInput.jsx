@@ -11,14 +11,20 @@ import {
 import { useState } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
-const PasswordInput = ({ field, errors, handleChange, values }) => {
+const PasswordInput = ({
+  field,
+  errors,
+  handleChange,
+  values,
+  placeholder = "Contraseña",
+}) => {
   const [show, setShow] = useState(false);
   return (
     <FormControl isInvalid={errors[field]}>
       <HStack align="center">
         <InputGroup size="md">
           <Input
-            placeholder="Contraseña"
+            placeholder={placeholder}
             type={show ? "text" : "password"}
             value={values[field]}
             onChange={(e) => handleChange(field, e.target.value)}

@@ -13,6 +13,7 @@ import {
 import { FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getImageUrl } from "../config/api";
 
 const currency = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -175,7 +176,7 @@ const PurchaseHistory = () => {
                     >
                       <Flex align="center" gap={3}>
                         <Image
-                          src={item.product?.img}
+                          src={getImageUrl(item.product?.img)}
                           alt={item.product?.name || "Producto"}
                           boxSize="56px"
                           objectFit="cover"
