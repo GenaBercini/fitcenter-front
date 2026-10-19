@@ -21,12 +21,9 @@ import {
 import { FiMapPin, FiPhone, FiMail } from "react-icons/fi";
 import { API_URL } from "../config/api";
 
-// Mismo azul ultramar que la página "Sobre nosotros"
 const ULTRAMAR = "#1F4E9E";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAPS_URL =
-  "https://www.google.com/maps/search/?api=1&query=Saavedra%20118%2C%20Rosario";
-
+const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Saavedra%20118%2C%20Rosario";
 const emptyForm = { name: "", email: "", message: "" };
 
 const validate = ({ name, email, message }) => {

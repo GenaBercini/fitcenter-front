@@ -49,12 +49,16 @@ const AppRoutes = () => (
     <Route path="/contact" element={<Contact />} />
     <Route path="/cart" element={<Cart />} />
     <Route path="/myPurchases" element={<PurchaseHistory />} />
-    <Route path="/activities" element={<Activities />} />
-    <Route path="/schedule" element={<Schedule />} />
     <Route path="/home" element={<HomeProfile />} />
     <Route path="/profile" element={<UserProfile />} />
-    <Route path="/routine" element={<Routines />} />
     <Route path="/memberships" element={<MembershipPlan />} />
+
+    {/* RUTAS QUE NECESITAN SESIÓN INICIADA */}
+    <Route element={<ProtectedRoute />}>
+      <Route path="/activities" element={<Activities />} />
+      <Route path="/schedule" element={<Schedule />} />
+      <Route path="/routine" element={<Routines />} />
+    </Route>
 
     {/* PERFILES PRIVADOS */}
     <Route path="/instructor" element={<InstructorProfile />} />
@@ -66,24 +70,24 @@ const AppRoutes = () => (
     <Route path="/membership/success" element={<CheckoutSuccess />} />
     <Route path="/membership/cancel" element={<CheckoutCancel />} />
 
-    {/* PANEL DE ADMINISTRACIÓN */}
-    <Route path="/dashboard/*" element={<Dashboard />}>
-      <Route path="main" element={<Main />} />
-      <Route path="memberships" element={<AdminMemberships />} />
-      <Route path="schedule" element={<AdminSchedules />} />
-      <Route path="profile" element={<UserProfile />} />
-      <Route path="classes" element={<AdminClasses />} />
-      <Route path="routines" element={<AdminRoutines />} />
-      <Route path="exercises" element={<AdminExercises />} />
-      <Route path="categories" element={<AdminCategories />} />
-      <Route path="products" element={<AdminProducts />} />
-      <Route path="clients" element={<AdminClients />} />
-      <Route path="administrators" element={<Administrators />} />
-      <Route path="instructors" element={<AdminInstructors />} />
-      <Route path="professors" element={<AdminProfessors />} />
+    {/* PANEL DE ADMINISTRACIÓN (también necesita sesión iniciada) */}
+    <Route element={<ProtectedRoute />}>
+      <Route path="/dashboard/*" element={<Dashboard />}>
+        <Route path="main" element={<Main />} />
+        <Route path="memberships" element={<AdminMemberships />} />
+        <Route path="schedule" element={<AdminSchedules />} />
+        <Route path="profile" element={<UserProfile />} />
+        <Route path="classes" element={<AdminClasses />} />
+        <Route path="routines" element={<AdminRoutines />} />
+        <Route path="exercises" element={<AdminExercises />} />
+        <Route path="categories" element={<AdminCategories />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="clients" element={<AdminClients />} />
+        <Route path="administrators" element={<Administrators />} />
+        <Route path="instructors" element={<AdminInstructors />} />
+        <Route path="professors" element={<AdminProfessors />} />
+      </Route>
     </Route>
-
-    <Route element={<ProtectedRoute />}>{/* Subrutas privadas */}</Route>
   </Routes>
 );
 
