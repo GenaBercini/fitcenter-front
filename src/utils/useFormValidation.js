@@ -32,6 +32,11 @@ export function useFormValidation(initialValues = {}) {
             newErrors.password =
               "Contraseña debe tener 6 caracteres, 2 mayúsculas y un número";
           break;
+        case "confirmPassword":
+          if (!value) newErrors.confirmPassword = "Repetí la contraseña";
+          else if (value !== valuesToValidate.password)
+            newErrors.confirmPassword = "Las contraseñas no coinciden";
+          break;
         case "nombre":
         case "apellido":
           if (value.apellido && !validateName(value.apellido))

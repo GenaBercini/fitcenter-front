@@ -20,6 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useCart } from "../../context/cartContext";
+import { getImageUrl } from "../../config/api";
 
 export default function ProductDetail({ isOpen, onClose, product }) {
   const [quantity, setQuantity] = useState(1);
@@ -48,7 +49,7 @@ export default function ProductDetail({ isOpen, onClose, product }) {
         <ModalBody>
           <VStack spacing={4} align="stretch">
             <Image
-              src={product.img || "https://via.placeholder.com/600x300?text=Sin+imagen"}
+              src={getImageUrl(product.img) || "https://via.placeholder.com/600x300?text=Sin+imagen"}
               alt={product.name || "Imagen del producto"}
               h="260px"
               w="100%"

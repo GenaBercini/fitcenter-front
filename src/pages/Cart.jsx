@@ -18,6 +18,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/cartContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { getImageUrl } from "../config/api";
 
 export default function Cart() {
   const {
@@ -163,7 +164,7 @@ export default function Cart() {
                     <HStack spacing={4} align="center">
                       <Image
                         src={
-                          item.product.img || "https://via.placeholder.com/80"
+                          getImageUrl(item.product.img) || "https://via.placeholder.com/80"
                         }
                         alt={item.product.name || "Producto"}
                         boxSize="80px"

@@ -1,6 +1,7 @@
 import { Button, FormControl, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Switch, Text, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import { getImageUrl } from "../../config/api";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -132,7 +133,7 @@ function EditProduct({product}) {
                 src={
                 image instanceof File
                     ? URL.createObjectURL(image)   // si es File, mostrar vista previa
-                    : `${API_URL}/uploads/${image}` // si es string, usar URL del servidor
+                    : getImageUrl(image) // si es string, usar URL del servidor
                 }
                 alt="Vista previa"
                 style={{ width: "100%", borderRadius: "8px", marginBottom: "10px" }}

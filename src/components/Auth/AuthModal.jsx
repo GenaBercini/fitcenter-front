@@ -47,6 +47,7 @@ export default function AuthModal() {
     useFormValidation({
       email: "",
       password: "",
+      confirmPassword: "",
       nombre: "",
       apellido: "",
       direccion: "",
@@ -69,6 +70,7 @@ export default function AuthModal() {
         "celular",
         "email",
         "password",
+        "confirmPassword",
         "nroMatricula",
       ]
     : [
@@ -78,6 +80,7 @@ export default function AuthModal() {
         "celular",
         "email",
         "password",
+        "confirmPassword",
       ];
     setDisabledSend(
       requiredFields.some((field) => !values[field] || errors[field])
@@ -142,6 +145,7 @@ export default function AuthModal() {
       "celular",
       "email",
       "password",
+      "confirmPassword",
       "imagen",
     ];
     if (tabIndex === 1) fields.push("nroMatricula", "esInstructor");
@@ -202,6 +206,7 @@ export default function AuthModal() {
     handleResetForm({
       email: "",
       password: "",
+      confirmPassword: "",
       nombre: "",
       apellido: "",
       direccion: "",
@@ -220,6 +225,7 @@ export default function AuthModal() {
     handleResetForm({
       email: "",
       password: "",
+      confirmPassword: "",
       nombre: "",
       apellido: "",
       direccion: "",
@@ -328,6 +334,13 @@ export default function AuthModal() {
                         />
                         <PasswordInput
                           field="password"
+                          errors={errors}
+                          values={values}
+                          handleChange={handleChange}
+                        />
+                        <PasswordInput
+                          field="confirmPassword"
+                          placeholder="Repetir contraseña"
                           errors={errors}
                           values={values}
                           handleChange={handleChange}
